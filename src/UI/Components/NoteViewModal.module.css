@@ -1,0 +1,324 @@
+/* CSS Variables - согласованные с основной темой */
+:root {
+   --primary-color: #6366f1;
+   --primary-hover: #4f46e5;
+   --success-color: #10b981;
+   --danger-color: #ef4444;
+   --text-primary: #1e293b;
+   --text-secondary: #64748b;
+   --text-light: #94a3b8;
+   --border-color: #e2e8f0;
+   --background-light: #f8fafc;
+   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+   --radius-sm: 0.375rem;
+   --radius-md: 0.5rem;
+   --radius-lg: 0.75rem;
+   --transition: all 0.2s ease-in-out;
+ }
+ 
+ /* Modal Overlay */
+ .overlay {
+   background-color: rgba(15, 23, 42, 0.6);
+   backdrop-filter: blur(4px);
+   position: fixed;
+   top: 0;
+   left: 0;
+   right: 0;
+   bottom: 0;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   padding: 1rem;
+   z-index: 1002; /* 👈 Выше чем у других модалок */
+   animation: overlayShow 0.2s ease-out;
+ }
+ 
+ @keyframes overlayShow {
+   from { opacity: 0; }
+   to { opacity: 1; }
+ }
+ 
+ /* Modal Content */
+ .modal {
+   background: white;
+   border-radius: var(--radius-lg);
+   box-shadow: var(--shadow-lg);
+   width: 100%;
+   max-width: 650px;
+   max-height: 90vh;
+   overflow: hidden;
+   display: flex;
+   flex-direction: column;
+   animation: modalSlideIn 0.3s ease-out;
+   border: 1px solid var(--border-color);
+ }
+ 
+ @keyframes modalSlideIn {
+   from {
+     opacity: 0;
+     transform: translateY(-20px) scale(0.95);
+   }
+   to {
+     opacity: 1;
+     transform: translateY(0) scale(1);
+   }
+ }
+ 
+ /* Modal Header */
+ .modalHeader {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   padding: 1.5rem 1.5rem 1rem;
+   border-bottom: 1px solid var(--border-color);
+   flex-shrink: 0;
+ }
+ 
+ .modalHeader h2 {
+   margin: 0;
+   font-size: 1.5rem;
+   font-weight: 700;
+   background: linear-gradient(135deg, var(--text-primary), var(--primary-color));
+   -webkit-background-clip: text;
+   -webkit-text-fill-color: transparent;
+   background-clip: text;
+ }
+ 
+ .closeButton {
+   background: var(--background-light);
+   border: none;
+   border-radius: var(--radius-md);
+   width: 32px;
+   height: 32px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   cursor: pointer;
+   font-size: 1.25rem;
+   color: var(--text-secondary);
+   transition: var(--transition);
+ }
+ 
+ .closeButton:hover {
+   background: var(--danger-color);
+   color: white;
+   transform: rotate(90deg);
+ }
+ 
+ /* Modal Content */
+ .modalContent {
+   padding: 1.5rem;
+   overflow-y: auto;
+   flex: 1;
+   display: flex;
+   flex-direction: column;
+   gap: 1.5rem;
+ }
+ 
+ /* Sections */
+ .section {
+   display: flex;
+   flex-direction: column;
+   gap: 1rem;
+ }
+ 
+ .sectionTitle {
+   margin: 0;
+   font-size: 1.125rem;
+   font-weight: 600;
+   color: var(--text-primary);
+   padding-bottom: 0.5rem;
+   border-bottom: 2px solid var(--border-color);
+ }
+ 
+ /* Fields */
+ .field {
+   display: flex;
+   align-items: flex-start;
+   gap: 1rem;
+   padding: 0.5rem 0;
+ }
+ 
+ .fieldLabel {
+   font-weight: 600;
+   color: var(--text-primary);
+   min-width: 160px;
+   flex-shrink: 0;
+   font-size: 0.9rem;
+ }
+ 
+ .fieldValue {
+   color: var(--text-secondary);
+   flex: 1;
+   font-size: 0.9rem;
+   line-height: 1.4;
+ }
+ 
+ /* Status */
+ .status {
+   font-weight: 600;
+   padding: 0.25rem 0.5rem;
+   border-radius: var(--radius-sm);
+ }
+ 
+ .status.completed {
+   background: rgba(16, 185, 129, 0.1);
+   color: var(--success-color);
+ }
+ 
+ .status.inProgress {
+   background: rgba(245, 158, 11, 0.1);
+   color: var(--warning-color);
+ }
+ 
+ /* Description */
+ .description {
+   background: var(--background-light);
+   padding: 1rem;
+   border-radius: var(--radius-md);
+   border: 1px solid var(--border-color);
+   color: var(--text-primary);
+   line-height: 1.6;
+   font-size: 0.95rem;
+   white-space: pre-wrap;
+   min-height: 100px;
+ }
+ 
+ /* Modal Footer */
+ .modalFooter {
+   display: flex;
+   gap: 0.75rem;
+   padding: 1rem 1.5rem;
+   border-top: 1px solid var(--border-color);
+   background: var(--background-light);
+   flex-shrink: 0;
+ }
+ 
+ .viewedButton,
+ .editButton {
+   padding: 0.75rem 1.5rem;
+   border: none;
+   border-radius: var(--radius-md);
+   font-weight: 600;
+   font-size: 0.875rem;
+   cursor: pointer;
+   transition: var(--transition);
+   flex: 1;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   gap: 0.5rem;
+ }
+ 
+ .viewedButton {
+   background: var(--primary-color);
+   color: white;
+   box-shadow: var(--shadow-sm);
+ }
+ 
+ .viewedButton:hover {
+   background: var(--primary-hover);
+   transform: translateY(-1px);
+   box-shadow: var(--shadow-md);
+ }
+ 
+ .editButton {
+   background: white;
+   color: var(--primary-color);
+   border: 2px solid var(--primary-color);
+ }
+ 
+ .editButton:hover {
+   background: var(--primary-color);
+   color: white;
+   transform: translateY(-1px);
+   box-shadow: var(--shadow-md);
+ }
+ 
+ /* Responsive Design */
+ @media (max-width: 768px) {
+   .modal {
+     margin: 1rem;
+     max-height: calc(100vh - 2rem);
+   }
+   
+   .modalHeader {
+     padding: 1.25rem 1.25rem 0.75rem;
+   }
+   
+   .modalContent {
+     padding: 1.25rem;
+     gap: 1.25rem;
+   }
+   
+   .field {
+     flex-direction: column;
+     gap: 0.5rem;
+     align-items: flex-start;
+   }
+   
+   .fieldLabel {
+     min-width: auto;
+   }
+   
+   .modalFooter {
+     flex-direction: column;
+     gap: 0.5rem;
+   }
+ }
+ 
+ @media (max-width: 480px) {
+   .modalHeader h2 {
+     font-size: 1.25rem;
+   }
+   
+   .sectionTitle {
+     font-size: 1rem;
+   }
+   
+   .fieldLabel,
+   .fieldValue {
+     font-size: 0.85rem;
+   }
+   
+   .description {
+     font-size: 0.9rem;
+     padding: 0.75rem;
+   }
+   
+   .viewedButton,
+   .editButton {
+     padding: 0.875rem 1rem;
+   }
+ }
+
+ /* 👇 ДОБАВЛЯЕМ В КОНЕЦ ФАЙЛА NoteViewModal.module.css */
+
+/* Стили для просрочки в модалке просмотра */
+.overdueHeaderBadge {
+   margin-left: 1rem;
+   background: #dc2626;
+   color: white;
+   padding: 0.25rem 0.75rem;
+   border-radius: 1rem;
+   font-size: 0.8rem;
+   font-weight: 700;
+   animation: pulseOverdue 2s ease-in-out infinite;
+}
+
+.status.overdue {
+   background: #fef2f2;
+   color: #dc2626;
+   border: 1px solid #fecaca;
+   font-weight: 700;
+}
+
+.overdueDate {
+   color: #dc2626 !important;
+   font-weight: 700;
+   background: #fef2f2;
+   padding: 0.25rem 0.5rem;
+   border-radius: var(--radius-sm);
+}

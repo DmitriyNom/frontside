@@ -1,0 +1,285 @@
+/* src/UI/Components/ConfirmRoleChangeModal.module.css */
+.modalOverlay {
+   position: fixed;
+   top: 0;
+   left: 0;
+   right: 0;
+   bottom: 0;
+   background: rgba(0, 0, 0, 0.5);
+   backdrop-filter: blur(4px);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   z-index: 10000;
+   padding: 1rem;
+   animation: fadeIn 0.3s ease;
+ }
+ 
+ @keyframes fadeIn {
+   from {
+     opacity: 0;
+   }
+   to {
+     opacity: 1;
+   }
+ }
+ 
+ .modal {
+   background: white;
+   border-radius: 16px;
+   width: 100%;
+   max-width: 500px;
+   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+   overflow: hidden;
+   animation: slideUp 0.3s ease;
+ }
+ 
+ @keyframes slideUp {
+   from {
+     opacity: 0;
+     transform: translateY(30px);
+   }
+   to {
+     opacity: 1;
+     transform: translateY(0);
+   }
+ }
+ 
+ .modalHeader {
+   padding: 1.5rem;
+   border-bottom: 1px solid #e2e8f0;
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+   color: white;
+ }
+ 
+ .modalHeader h2 {
+   margin: 0;
+   font-size: 1.5rem;
+   font-weight: 600;
+ }
+ 
+ .closeButton {
+   background: rgba(255, 255, 255, 0.2);
+   border: none;
+   color: white;
+   width: 32px;
+   height: 32px;
+   border-radius: 50%;
+   font-size: 1.5rem;
+   cursor: pointer;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   transition: background 0.2s ease;
+ }
+ 
+ .closeButton:hover {
+   background: rgba(255, 255, 255, 0.3);
+ }
+ 
+ .modalContent {
+   padding: 1.5rem;
+   max-height: 60vh;
+   overflow-y: auto;
+ }
+ 
+ .confirmationText {
+   font-size: 1.1rem;
+   line-height: 1.6;
+   margin-bottom: 1.5rem;
+   color: #1e293b;
+   text-align: center;
+ }
+ 
+ .roleBadge {
+   display: inline-block;
+   padding: 0.25rem 0.75rem;
+   border-radius: 20px;
+   font-size: 0.9rem;
+   font-weight: 600;
+   margin: 0 0.5rem;
+   text-transform: capitalize;
+ }
+ 
+ .roleBadge.trainee {
+   background: linear-gradient(135deg, #10b981, #059669);
+   color: white;
+ }
+ 
+ .roleBadge.trainer {
+   background: linear-gradient(135deg, #6366f1, #4f46e5);
+   color: white;
+ }
+ 
+ .roleBadge.skipped {
+   background: linear-gradient(135deg, #f59e0b, #d97706);
+   color: white;
+ }
+ 
+ .warningSection {
+   background: rgba(245, 158, 11, 0.1);
+   border: 1px solid rgba(245, 158, 11, 0.2);
+   border-radius: 12px;
+   padding: 1rem;
+   margin-bottom: 1.5rem;
+   display: flex;
+   gap: 1rem;
+ }
+ 
+ .warningIcon {
+   font-size: 1.5rem;
+   flex-shrink: 0;
+ }
+ 
+ .warningContent {
+   flex: 1;
+ }
+ 
+ .warningContent h4 {
+   margin: 0 0 0.5rem 0;
+   color: #d97706;
+   font-size: 1rem;
+ }
+ 
+ .warningContent p {
+   margin: 0 0 0.5rem 0;
+   color: #1e293b;
+   font-size: 0.95rem;
+   line-height: 1.5;
+ }
+ 
+ .additionalInfo {
+   color: #dc2626 !important;
+   font-weight: 500;
+   padding: 0.5rem;
+   background: rgba(239, 68, 68, 0.1);
+   border-radius: 6px;
+   margin-top: 0.5rem !important;
+ }
+ 
+ .consequences {
+   background: #f8fafc;
+   border-radius: 12px;
+   padding: 1rem;
+   border: 1px solid #e2e8f0;
+ }
+ 
+ .consequences h4 {
+   margin: 0 0 0.75rem 0;
+   color: #1e293b;
+   font-size: 1rem;
+   font-weight: 600;
+ }
+ 
+ .consequences ul {
+   margin: 0;
+   padding-left: 1.25rem;
+ }
+ 
+ .consequences li {
+   color: #64748b;
+   margin-bottom: 0.5rem;
+   font-size: 0.95rem;
+   line-height: 1.4;
+ }
+ 
+ .consequences li:last-child {
+   margin-bottom: 0;
+ }
+ 
+ .modalActions {
+   padding: 1.5rem;
+   border-top: 1px solid #e2e8f0;
+   display: flex;
+   gap: 1rem;
+   justify-content: flex-end;
+   background: #f8fafc;
+ }
+ 
+ .cancelButton {
+   padding: 0.75rem 1.5rem;
+   background: white;
+   border: 2px solid #cbd5e1;
+   color: #64748b;
+   border-radius: 8px;
+   font-weight: 500;
+   cursor: pointer;
+   transition: all 0.2s ease;
+   font-size: 1rem;
+ }
+ 
+ .cancelButton:hover {
+   background: #f1f5f9;
+   border-color: #94a3b8;
+ }
+ 
+ .confirmButton {
+   padding: 0.75rem 1.5rem;
+   background: linear-gradient(135deg, #6366f1, #4f46e5);
+   color: white;
+   border: none;
+   border-radius: 8px;
+   font-weight: 500;
+   cursor: pointer;
+   transition: all 0.2s ease;
+   font-size: 1rem;
+   box-shadow: 0 4px 6px rgba(99, 102, 241, 0.2);
+ }
+ 
+ .confirmButton:hover {
+   transform: translateY(-1px);
+   box-shadow: 0 6px 8px rgba(99, 102, 241, 0.3);
+ }
+ 
+ .modalFooter {
+   padding: 1rem 1.5rem;
+   border-top: 1px solid #e2e8f0;
+   text-align: center;
+   background: white;
+ }
+ 
+ .footerNote {
+   margin: 0;
+   color: #94a3b8;
+   font-size: 0.875rem;
+   font-style: italic;
+ }
+ 
+ /* Адаптивность */
+ @media (max-width: 640px) {
+   .modal {
+     max-width: 100%;
+     margin: 1rem;
+   }
+   
+   .modalHeader {
+     padding: 1.25rem;
+   }
+   
+   .modalHeader h2 {
+     font-size: 1.25rem;
+   }
+   
+   .modalContent,
+   .modalActions,
+   .modalFooter {
+     padding: 1.25rem;
+   }
+   
+   .modalActions {
+     flex-direction: column;
+   }
+   
+   .cancelButton,
+   .confirmButton {
+     width: 100%;
+   }
+   
+   .warningSection {
+     flex-direction: column;
+     gap: 0.75rem;
+   }
+ }

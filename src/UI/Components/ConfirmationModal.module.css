@@ -1,0 +1,196 @@
+/* CSS Variables - согласованные с основной темой */
+:root {
+   --primary-color: #6366f1;
+   --primary-hover: #4f46e5;
+   --success-color: #10b981;
+   --danger-color: #ef4444;
+   --danger-hover: #dc2626;
+   --text-primary: #1e293b;
+   --text-secondary: #64748b;
+   --border-color: #e2e8f0;
+   --background-light: #f8fafc;
+   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+   --radius-md: 0.5rem;
+   --radius-lg: 0.75rem;
+   --transition: all 0.2s ease-in-out;
+ }
+ 
+ /* Modal Overlay */
+ .overlay {
+   background-color: rgba(15, 23, 42, 0.6);
+   backdrop-filter: blur(4px);
+   position: fixed;
+   top: 0;
+   left: 0;
+   right: 0;
+   bottom: 0;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   padding: 1rem;
+   z-index: 1001;
+   animation: overlayShow 0.2s ease-out;
+ }
+ 
+ @keyframes overlayShow {
+   from { opacity: 0; }
+   to { opacity: 1; }
+ }
+ 
+ /* Modal Content */
+ .modal {
+   background: white;
+   border-radius: var(--radius-lg);
+   box-shadow: var(--shadow-lg);
+   width: 100%;
+   max-width: 420px;
+   border: 1px solid var(--border-color);
+   animation: modalSlideIn 0.3s ease-out;
+ }
+ 
+ @keyframes modalSlideIn {
+   from {
+     opacity: 0;
+     transform: translateY(-20px) scale(0.95);
+   }
+   to {
+     opacity: 1;
+     transform: translateY(0) scale(1);
+   }
+ }
+ 
+ .modalContent {
+   padding: 2rem;
+   text-align: center;
+ }
+ 
+ /* 👇 НОВЫЙ КОНТЕЙНЕР ДЛЯ ИКОНКИ */
+ .iconContainer {
+   margin-bottom: 1rem;
+ }
+ 
+ .modalIcon {
+   font-size: 3rem;
+   display: inline-block;
+   animation: iconBounce 0.5s ease-out;
+ }
+ 
+ @keyframes iconBounce {
+   0%, 100% {
+     transform: scale(1);
+   }
+   50% {
+     transform: scale(1.1);
+   }
+ }
+ 
+ .title {
+   margin: 0 0 1rem 0;
+   font-size: 1.25rem;
+   font-weight: 600;
+   color: var(--text-primary);
+ }
+ 
+ .message {
+   margin: 0 0 2rem 0;
+   color: var(--text-secondary);
+   font-size: 1rem;
+   line-height: 1.5;
+ }
+ 
+ .actions {
+   display: flex;
+   gap: 0.75rem;
+   justify-content: center;
+ }
+ 
+ .cancelButton,
+ .confirmButton {
+   padding: 0.75rem 1.5rem;
+   border: none;
+   border-radius: var(--radius-md);
+   font-weight: 600;
+   font-size: 0.875rem;
+   cursor: pointer;
+   transition: var(--transition);
+   min-width: 100px;
+ }
+ 
+ .cancelButton {
+   background: var(--background-light);
+   color: var(--text-secondary);
+   border: 1px solid var(--border-color);
+ }
+ 
+ .cancelButton:hover {
+   background: #f1f5f9;
+   color: var(--text-primary);
+   transform: translateY(-1px);
+   box-shadow: var(--shadow-sm);
+ }
+ 
+ /* 👇 РАЗНЫЕ СТИЛИ ДЛЯ КНОПОК ПОДТВЕРЖДЕНИЯ */
+ .confirmButtonStatus {
+   background: var(--primary-color);
+   color: white;
+   box-shadow: var(--shadow-sm);
+ }
+ 
+ .confirmButtonStatus:hover {
+   background: var(--primary-hover);
+   transform: translateY(-1px);
+   box-shadow: var(--shadow-md);
+ }
+ 
+ .confirmButtonDelete {
+   background: var(--danger-color);
+   color: white;
+   box-shadow: var(--shadow-sm);
+   animation: pulseDanger 2s ease-in-out infinite;
+ }
+ 
+ .confirmButtonDelete:hover {
+   background: var(--danger-hover);
+   transform: translateY(-1px);
+   box-shadow: var(--shadow-md);
+   animation: none;
+ }
+ 
+ @keyframes pulseDanger {
+   0%, 100% {
+     box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+   }
+   50% {
+     box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+   }
+ }
+ 
+ /* Responsive */
+ @media (max-width: 480px) {
+   .modalContent {
+     padding: 1.5rem;
+   }
+   
+   .title {
+     font-size: 1.125rem;
+   }
+   
+   .message {
+     font-size: 0.9rem;
+   }
+   
+   .modalIcon {
+     font-size: 2.5rem;
+   }
+   
+   .actions {
+     flex-direction: column;
+   }
+   
+   .cancelButton,
+   .confirmButton {
+     width: 100%;
+   }
+ }

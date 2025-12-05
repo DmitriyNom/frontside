@@ -1,0 +1,56 @@
+.notesPage {
+   max-width: 1200px;
+}
+
+.pageHeader {
+   display: flex;
+   justify-content: space-between;
+   align-items: flex-start;
+   margin-bottom: 2rem;
+   gap: 2rem;
+}
+
+.headerContent h1 {
+   font-size: 2rem;
+   font-weight: 700;
+   color: var(--text-primary);
+   margin: 0 0 0.5rem 0;
+}
+
+.headerContent p {
+   color: var(--text-secondary);
+   margin: 0;
+}
+
+.addNoteButton {
+   background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+   color: white;
+   border: none;
+   padding: 0.875rem 1.5rem;
+   border-radius: var(--radius-md);
+   cursor: pointer;
+   font-weight: 500;
+   transition: var(--transition);
+   display: flex;
+   align-items: center;
+   gap: 0.5rem;
+   white-space: nowrap;
+}
+
+.addNoteButton:hover {
+   transform: translateY(-1px);
+   box-shadow: var(--shadow-md);
+}
+
+.addNoteButton span {
+   font-size: 1.25rem;
+   font-weight: 300;
+}
+
+.notesContent {
+   background: white;
+   border-radius: var(--radius-lg);
+   border: 1px solid var(--border-color);
+   box-shadow: var(--shadow-sm);
+   min-height: 400px;
+}

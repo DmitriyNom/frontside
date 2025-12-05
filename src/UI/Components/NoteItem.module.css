@@ -1,0 +1,617 @@
+/* CSS Variables - согласованные с формой */
+:root {
+  --primary-color: #6366f1;
+  --primary-hover: #4f46e5;
+  --success-color: #10b981;
+  --success-light: #d1fae5;
+  --success-dark: #059669;
+  --warning-color: #f59e0b;
+  --danger-color: #ef4444;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-light: #94a3b8;
+  --border-color: #e2e8f0;
+  --background-light: #f8fafc;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --transition: all 0.2s ease-in-out;
+}
+
+/* Основная карточка заметки */
+.noteCard {
+  background: white;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 320px;
+  min-height: 320px;
+}
+
+.noteCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  transition: var(--transition);
+}
+
+.noteCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-color);
+}
+
+.noteCard:hover::before {
+  width: 6px;
+}
+
+/* Цвета приоритетов */
+.priorityLow::before {
+  background: var(--success-color);
+}
+
+.priorityMedium::before {
+  background: var(--warning-color);
+}
+
+.priorityHigh::before {
+  background: var(--danger-color);
+}
+
+/* Статус выполнения */
+.completed {
+  opacity: 0.9;
+}
+
+.completed .noteTitle {
+  text-decoration: line-through;
+  color: var(--text-secondary);
+}
+
+/* Заголовок заметки */
+.noteHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
+}
+
+.titleSection {
+  flex: 1;
+  min-width: 0;
+}
+
+.noteTitle {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* УВЕЛИЧЕННЫЙ БЛОК ОПИСАНИЯ */
+.noteExcerpt {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 5rem;
+}
+
+/* Бейдж приоритета - упрощенный */
+.priorityBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--background-light);
+  border-radius: var(--radius-md);
+  font-size: 0.8rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.priorityLow .priorityBadge {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
+}
+
+.priorityMedium .priorityBadge {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--warning-color);
+}
+
+.priorityHigh .priorityBadge {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger-color);
+}
+
+.priorityIcon {
+  font-size: 0.9rem;
+}
+
+.priorityText {
+  font-weight: 600;
+}
+
+/* ОБНОВЛЕННЫЙ ФУТЕР - Вся мета-информация вместе */
+.footer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: auto;
+  flex-shrink: 0;
+}
+
+/* Мета-информация - Метка и Дата */
+.metaRow {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: var(--background-light);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.metaIcon {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.metaText {
+  color: var(--text-secondary);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Статус выполнения */
+.statusSection {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--background-light);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  transition: var(--transition);
+}
+
+.statusSection:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.statusCompleted {
+  background: var(--success-light);
+  border-color: var(--success-color);
+}
+
+.statusIcon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.statusContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  flex: 1;
+}
+
+.statusText {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.statusCompleted .statusText {
+  color: var(--success-dark);
+}
+
+.statusSubtext {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.statusCompleted .statusSubtext {
+  color: var(--success-dark);
+  font-weight: 600;
+}
+
+/* Кнопки действий */
+.actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.editButton,
+.deleteButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  flex: 1;
+  justify-content: center;
+}
+
+.editButton {
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--primary-color);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.editButton:hover {
+  background: var(--primary-color);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.deleteButton {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger-color);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.deleteButton:hover {
+  background: var(--danger-color);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.buttonIcon {
+  font-size: 1rem;
+  transition: var(--transition);
+}
+
+.editButton:hover .buttonIcon,
+.deleteButton:hover .buttonIcon {
+  transform: scale(1.1);
+}
+
+.buttonText {
+  font-weight: 500;
+}
+
+/* Анимации */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.noteCard {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Стиль для кликабельного блока статуса */
+.clickableStatus {
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  position: relative;
+}
+
+.clickableStatus:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.clickableStatus::after {
+  content: '🖱️';
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  font-size: 0.75rem;
+  opacity: 0;
+  transition: var(--transition);
+}
+
+.clickableStatus:hover::after {
+  opacity: 0.7;
+}
+
+/* Стиль для кликабельной области */
+.clickableArea {
+  flex: 1;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.clickableArea:hover {
+  transform: translateY(-1px);
+}
+
+.clickableArea:hover .noteTitle {
+  color: var(--primary-color);
+}
+
+.clickableArea:hover .noteExcerpt {
+  color: var(--text-primary);
+}
+
+/* ИСПРАВЛЕННЫЕ СТИЛИ ДЛЯ ПРОСРОЧЕННЫХ ЗАМЕТОК */
+.overdue {
+  border: 2px solid #dc2626;
+  background: linear-gradient(135deg, #fff, #fef2f2);
+  animation: pulseOverdue 2s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Усиленный градиентный эффект */
+.overdue::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(220, 38, 38, 0.15),
+    rgba(220, 38, 38, 0.3),
+    rgba(220, 38, 38, 0.15),
+    transparent
+  );
+  animation: shimmerOverdue 2.5s ease-in-out infinite;
+}
+
+/* Улучшенная анимация перемещения */
+@keyframes shimmerOverdue {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+/* Усиленная пульсирующая тень */
+@keyframes pulseOverdue {
+  0%, 100% {
+    box-shadow: 
+      0 0 0 0 rgba(220, 38, 38, 0.3),
+      var(--shadow-sm);
+  }
+  50% {
+    box-shadow: 
+      0 0 0 6px rgba(220, 38, 38, 0.15),
+      0 4px 12px -2px rgba(220, 38, 38, 0.2);
+  }
+}
+
+/* Дополнительные улучшения для лучшей видимости */
+.overdue .noteTitle {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.overdue .noteExcerpt {
+  color: #991b1b;
+}
+
+/* Бейдж просрочки - более заметный */
+.overdueBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  background: #dc2626;
+  color: white;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 700;
+  animation: bounceOverdue 1s ease-in-out infinite;
+}
+
+@keyframes bounceOverdue {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Просроченная дата */
+.overdueDate {
+  color: #dc2626 !important;
+  font-weight: 700;
+}
+
+/* Статус для просроченных задач */
+.statusOverdue {
+  background: linear-gradient(135deg, #fef2f2, #fecaca) !important;
+  border: 2px solid #dc2626 !important;
+  color: #dc2626 !important;
+  animation: shakeOverdue 0.5s ease-in-out;
+}
+
+.statusOverdue .statusText {
+  color: #dc2626 !important;
+  font-weight: 700;
+}
+
+.statusOverdue .statusSubtext {
+  color: #dc2626 !important;
+  font-weight: 600;
+}
+
+@keyframes shakeOverdue {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+/* Улучшенный ховер-эффект для просроченных заметок */
+.overdue:hover {
+  transform: translateY(-2px) scale(1.01);
+  border-color: #b91c1c;
+  box-shadow: 
+    0 8px 25px -8px rgba(220, 38, 38, 0.4),
+    0 0 0 2px rgba(220, 38, 38, 0.2);
+}
+
+.overdue:hover::before {
+  animation-duration: 1.5s;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .noteCard {
+    padding: 1rem;
+    height: 300px;
+    min-height: 300px;
+  }
+  
+  .noteHeader {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .priorityBadge {
+    align-self: stretch;
+    justify-content: center;
+  }
+  
+  .noteExcerpt {
+    font-size: 0.9rem;
+    min-height: 4.5rem;
+    -webkit-line-clamp: 3;
+  }
+  
+  .metaRow {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .footer {
+    gap: 0.75rem;
+  }
+  
+  .statusSection {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+  
+  .actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .editButton,
+  .deleteButton {
+    padding: 0.75rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .noteCard {
+    height: 280px;
+    min-height: 280px;
+  }
+  
+  .noteTitle {
+    font-size: 1rem;
+  }
+  
+  .noteExcerpt {
+    font-size: 0.85rem;
+    min-height: 4rem;
+  }
+  
+  .buttonText {
+    font-size: 0.8rem;
+  }
+  
+  .metaItem {
+    font-size: 0.75rem;
+  }
+}
+
+/* Эффект при наведении на всю карточку */
+.noteCard:hover .noteTitle {
+  color: var(--primary-color);
+}
+
+.noteCard:hover .noteExcerpt {
+  color: var(--text-primary);
+}
+
+/* Адаптивность для анимаций */
+@media (prefers-reduced-motion: reduce) {
+  .overdue {
+    animation: none;
+  }
+  
+  .overdue::before {
+    animation: none;
+  }
+  
+  .overdueBadge {
+    animation: none;
+  }
+  
+  .statusOverdue {
+    animation: none;
+  }
+  
+  .noteCard {
+    animation: none;
+  }
+}

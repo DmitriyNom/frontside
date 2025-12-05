@@ -1,0 +1,1325 @@
+/* CSS Variables */
+:root {
+  --primary-color: #6366f1;
+  --primary-hover: #4f46e5;
+  --primary-light: #a5b4fc;
+  --primary-dark: #4338ca;
+  --secondary-color: #f8fafc;
+  --accent-color: #06d6a0;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-tertiary: #94a3b8;
+  --border-color: #e2e8f0;
+  --border-light: #f1f5f9;
+  --card-background: #ffffff;
+  --hover-background: #f8fafc;
+  --input-background: #ffffff;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --transition: all 0.3s ease-in-out;
+}
+
+/* Основной контейнер */
+.profileContainer {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+/* Layout */
+.profileLayout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  background: white;
+  padding: 2rem 1.5rem;
+  border-right: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.userCard {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--secondary-color);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.userInfo h3 {
+  margin: 0 0 0.25rem 0;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.userEmail {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  display: block;
+}
+
+.userRole {
+  background: var(--primary-color);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-top: 0.25rem;
+  display: inline-block;
+}
+
+/* Стили для разных ролей */
+.userRole.trainee {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.userRole.trainer {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+}
+
+.userRole.skipped {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+/* Navigation */
+.navigation {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  transition: var(--transition);
+  font-weight: 500;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.navLink:hover {
+  background: var(--hover-background);
+  color: var(--text-primary);
+  transform: translateX(4px);
+}
+
+.navLinkActive {
+  background: var(--primary-color) !important;
+  color: white !important;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Main Content */
+.mainContent {
+  padding: 2rem;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Overview Page */
+.overview {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.pageHeader {
+  margin-bottom: 2rem;
+}
+
+.pageHeader h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--text-primary), var(--primary-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 0.5rem 0;
+}
+
+.pageHeader p {
+  color: var(--text-secondary);
+  font-size: 1.125rem;
+  margin: 0;
+}
+
+/* Stats Grid */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.statCard {
+  background: white;
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-color);
+}
+
+.statIcon {
+  font-size: 2rem;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--secondary-color);
+  border-radius: var(--radius-lg);
+}
+
+.statContent h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.statContent p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+/* Бейджи профиля */
+.profileBadges {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.roleBadge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.roleBadge.trainee {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border: 1px solid #10b981;
+}
+
+.roleBadge.trainer {
+  background: rgba(99, 102, 241, 0.1);
+  color: #4f46e5;
+  border: 1px solid #6366f1;
+}
+
+.roleBadge.skipped {
+  background: rgba(245, 158, 11, 0.1);
+  color: #d97706;
+  border: 1px solid #f59e0b;
+}
+
+.levelBadge {
+  background: rgba(245, 158, 11, 0.1);
+  color: #d97706;
+  border: 1px solid #f59e0b;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.specializationBadge {
+  background: rgba(139, 92, 246, 0.1);
+  color: #7c3aed;
+  border: 1px solid #8b5cf6;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-block;
+  margin-top: 0.5rem;
+}
+
+/* Детали пользователя */
+.userDetails {
+  background: white;
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 2rem;
+}
+
+.userDetails h3 {
+  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.detailsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.detailItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.detailItem label {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.detailValue {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.detailValue.trainee {
+  color: #059669;
+}
+
+.detailValue.trainer {
+  color: #4f46e5;
+}
+
+.detailValue.skipped {
+  color: #d97706;
+}
+
+/* Recent Activity */
+.recentActivity {
+  background: white;
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.recentActivity h3 {
+  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.activityList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.activityItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  transition: var(--transition);
+}
+
+.activityItem:hover {
+  background: var(--hover-background);
+}
+
+.activityIcon {
+  font-size: 1.25rem;
+}
+
+.activityContent p {
+  margin: 0 0 0.25rem 0;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.activityTime {
+  color: var(--text-light);
+  font-size: 0.875rem;
+}
+
+/* Notes Tab */
+.notesTab {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.tabHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  gap: 2rem;
+}
+
+.headerContent h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem 0;
+}
+
+.headerContent p {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Кнопка создания заметки в заголовке */
+.addNoteButton {
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+  color: white;
+  border: none;
+  padding: 0.875rem 1.5rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease-in-out;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  box-shadow: var(--shadow-md);
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+}
+
+.addNoteButton:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.addNoteButton span {
+  font-size: 1.25rem;
+  font-weight: 300;
+}
+
+/* Состояние когда кнопка скрыта (при прокрутке) */
+.addNoteButton.headerButtonHidden {
+  opacity: 0;
+  transform: translateY(-10px);
+  visibility: hidden;
+}
+
+.notesContent {
+  background: white;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  min-height: 400px;
+  padding: 1.5rem;
+  overflow: hidden;
+}
+
+/* Раздел тренировок */
+.trainingContent {
+  background: white;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  padding: 2rem;
+}
+
+.comingSoon {
+  text-align: center;
+  padding: 3rem 2rem;
+}
+
+.comingSoonIcon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.comingSoon h3 {
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.comingSoon p {
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+}
+
+.featureList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.featureList span {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+/* Ноая страница настроек профиля */
+.settingsEnhancedContainer {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.settingsHeader {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  padding-top: 1rem;
+}
+
+.settingsHeader h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--text-primary), var(--primary-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 0.5rem 0;
+}
+
+.settingsHeader p {
+  color: var(--text-secondary);
+  font-size: 1.125rem;
+  margin: 0;
+}
+
+/* Форма настроек */
+.settingsForm {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+}
+
+.formSections {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.formSection {
+  padding-bottom: 2.5rem;
+  border-bottom: 2px solid var(--border-light);
+}
+
+.formSection:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 600;
+}
+
+.sectionIcon {
+  font-size: 1.75rem;
+}
+
+.sectionDescription {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+/* Группы формы */
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.textInput,
+.dateInput {
+  width: 95%;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  transition: var(--transition);
+  background: var(--input-background);
+  color: var(--text-primary);
+  font-family: inherit;
+}
+
+.textInput:focus,
+.dateInput:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.textInput::placeholder {
+  color: var(--text-tertiary);
+}
+
+.inputHint {
+  display: block;
+  margin-top: 0.5rem;
+  color: var(--text-tertiary);
+  font-size: 0.875rem;
+}
+
+/* Селектор роли */
+.roleSelectorEnhanced {
+  margin: 1rem 0;
+}
+
+.roleOptions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.roleOption {
+  display: flex;
+  align-items: center;
+  padding: 1.5rem;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background: white;
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: left;
+  width: 100%;
+  border: none;
+  background: var(--hover-background);
+}
+
+.roleOption:hover {
+  background: var(--secondary-color);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.roleOption.selected {
+  background: var(--primary-color);
+  color: white;
+  box-shadow: var(--shadow-md);
+}
+
+.roleOption.selected .roleInfo h4,
+.roleOption.selected .roleInfo p {
+  color: white;
+}
+
+.roleIcon {
+  font-size: 2rem;
+  margin-right: 1.25rem;
+  flex-shrink: 0;
+}
+
+.roleInfo {
+  flex: 1;
+}
+
+.roleInfo h4 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.roleInfo p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.selectedBadge {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: white;
+  color: var(--primary-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+/* Селектор уровня подготовки */
+.trainingLevelSelector {
+  margin: 1rem 0;
+}
+
+.levelOptions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.levelOption {
+  display: flex;
+  align-items: center;
+  padding: 1.25rem;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background: var(--hover-background);
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: left;
+  width: 100%;
+  border: none;
+}
+
+.levelOption:hover {
+  background: var(--secondary-color);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.levelOption.selected {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.levelOption.selected .levelInfo h4,
+.levelOption.selected .levelInfo p {
+  color: white;
+}
+
+.levelIcon {
+  font-size: 1.75rem;
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+.levelInfo {
+  flex: 1;
+}
+
+.levelInfo h4 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.levelInfo p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+/* Чекбоксы */
+.checkboxGroup {
+  margin: 1.5rem 0;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: flex-start;
+  cursor: pointer;
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  transition: var(--transition);
+  background: var(--hover-background);
+  border: 1px solid var(--border-color);
+}
+
+.checkboxLabel:hover {
+  background: var(--secondary-color);
+  border-color: var(--primary-light);
+}
+
+.checkboxInput {
+  display: none;
+}
+
+.checkboxCustom {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  margin-right: 1rem;
+  margin-top: 0.25rem;
+  flex-shrink: 0;
+  position: relative;
+  transition: var(--transition);
+  background: white;
+}
+
+.checkboxInput:checked + .checkboxCustom {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.checkboxInput:checked + .checkboxCustom::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 0.875rem;
+  font-weight: bold;
+}
+
+.checkboxText {
+  flex: 1;
+}
+
+.checkboxText strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.checkboxText p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* Только для чтения информация */
+.readOnlyInfo {
+  background: var(--hover-background);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.infoRow {
+  display: flex;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.infoRow:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.infoLabel {
+  flex: 0 0 180px;
+  font-weight: 500;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.infoValue {
+  flex: 1;
+  color: var(--text-secondary);
+  word-break: break-word;
+  font-size: 0.95rem;
+}
+
+/* Сообщения */
+.errorMessage,
+.successMessage {
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius-lg);
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  animation: slideIn 0.3s ease;
+  border: 1px solid transparent;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.errorMessage {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.2);
+  color: #dc2626;
+}
+
+.successMessage {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.2);
+  color: #16a34a;
+}
+
+.errorIcon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.successIcon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+/* Кнопки действий */
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 2px solid var(--border-light);
+}
+
+.cancelButton {
+  padding: 0.875rem 2rem;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  min-width: 120px;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background: var(--hover-background);
+  border-color: var(--text-secondary);
+}
+
+.cancelButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.submitButton {
+  padding: 0.875rem 2rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  color: white;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 180px;
+  box-shadow: var(--shadow-md);
+}
+
+.submitButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.submitButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.spinnerSmall {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { 
+    transform: rotate(360deg); 
+  }
+}
+
+.formHint {
+  margin-top: 1rem;
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: 0.875rem;
+}
+
+/* Buttons */
+.logoutButton {
+  margin-top: auto;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border: none;
+  padding: 0.875rem 1.5rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-weight: 500;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.logoutButton:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+}
+
+/* Loading States */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 1rem;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--border-color);
+  border-left: 4px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Error States */
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 1rem;
+  text-align: center;
+}
+
+.errorIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.retryButton {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.retryButton:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+/* Плавающая кнопка создания заметки */
+.floatingButton {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  min-width: auto;
+  
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+  transition: all 0.3s ease-in-out;
+}
+
+.floatingButton.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: all;
+}
+
+.floatingButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 25px -5px rgb(0 0 0 / 0.15),
+    0 5px 10px -5px rgb(0 0 0 / 0.1);
+}
+
+.floatingButton.visible:hover {
+  transform: translateY(-2px);
+}
+
+.floatingButtonIcon {
+  font-size: 1.5rem;
+  font-weight: 300;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.floatingButtonText {
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Бейдж с количеством заметок */
+.noteCountBadge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 0.2);
+}
+
+.checking {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  color: var(--text-secondary);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .profileLayout {
+    grid-template-columns: 240px 1fr;
+  }
+  
+  .sidebar {
+    padding: 1.5rem 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .profileLayout {
+    grid-template-columns: 1fr;
+  }
+  
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 280px;
+    height: 100vh;
+    z-index: 1000;
+    transition: left 0.3s ease;
+  }
+  
+  .sidebar.open {
+    left: 0;
+  }
+  
+  .mainContent {
+    padding: 1rem;
+  }
+  
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .roleOptions,
+  .levelOptions {
+    grid-template-columns: 1fr;
+  }
+  
+  .tabHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .addNoteButton {
+    align-self: flex-start;
+  }
+  
+  .detailsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .profileBadges {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .featureList {
+    align-items: flex-start;
+  }
+  
+  .trainingContent {
+    padding: 1rem;
+  }
+  
+  .comingSoon {
+    padding: 2rem 1rem;
+  }
+  
+  .formActions {
+    flex-direction: column-reverse;
+    gap: 0.75rem;
+  }
+  
+  .cancelButton,
+  .submitButton {
+    width: 100%;
+    min-width: 0;
+  }
+  
+  .infoRow {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .infoLabel {
+    flex: none;
+    width: 100%;
+  }
+  
+  .settingsEnhancedContainer {
+    padding: 0.5rem;
+  }
+  
+  .settingsForm {
+    padding: 1.5rem;
+  }
+  
+  .formSection {
+    padding-bottom: 2rem;
+  }
+  
+  .floatingButton {
+    bottom: 1rem;
+    right: 1rem;
+    padding: 1rem;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    justify-content: center;
+  }
+  
+  .floatingButtonText {
+    display: none;
+  }
+  
+  .floatingButtonIcon {
+    font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .mainContent {
+    padding: 1rem 0.75rem;
+  }
+  
+  .pageHeader h1 {
+    font-size: 2rem;
+  }
+  
+  .settingsHeader h1 {
+    font-size: 2rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1.25rem;
+  }
+  
+  .roleOption,
+  .levelOption {
+    padding: 1rem;
+  }
+  
+  .roleIcon {
+    font-size: 1.75rem;
+    margin-right: 1rem;
+  }
+  
+  .levelIcon {
+    font-size: 1.5rem;
+  }
+}
