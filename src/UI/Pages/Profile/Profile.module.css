@@ -934,7 +934,7 @@
   border-top: 2px solid var(--border-light);
 }
 
-.cancelButton {
+/* .cancelButton {
   padding: 0.875rem 2rem;
   border: 2px solid var(--border-color);
   border-radius: var(--radius-md);
@@ -945,11 +945,28 @@
   cursor: pointer;
   transition: var(--transition);
   min-width: 120px;
+} */
+
+.cancelButton {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 1px solid #dee2e6;
+  color: #495057;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-right: 12px;
 }
 
+
+
+
 .cancelButton:hover:not(:disabled) {
-  background: var(--hover-background);
-  border-color: var(--text-secondary);
+  background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+  border-color: #adb5bd;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .cancelButton:disabled {
@@ -1322,4 +1339,43 @@
   .levelIcon {
     font-size: 1.5rem;
   }
+
+
+  /* Стили для предупреждающего сообщения */
+.warningMessage {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  border: 1px solid #ffc107;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 20px auto;
+  max-width: 800px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: slideIn 0.3s ease;
+  box-shadow: 0 2px 10px rgba(255, 193, 7, 0.2);
+}
+
+.warningIcon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.closeWarningButton {
+  margin-left: auto;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #856404;
+  padding: 0 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.closeWarningButton:hover {
+  background-color: rgba(133, 100, 4, 0.1);
+}
+
+
 }

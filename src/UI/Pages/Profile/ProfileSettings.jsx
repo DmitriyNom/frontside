@@ -7,9 +7,26 @@ import {
    selectLoading as selectAuthLoading,
    setUserRole
 } from '../../../features/authSlice';
-import { updateOnboarding } from '../../../features/onboardingSlice';
-import { USER_ROLES } from '../../../constants/userRoles'; // Убираем неиспользуемый getUserRoleLabel
-// Убираем импорты для уровня тренировок, пока они не нужны
+import { USER_ROLES } from '../../../constants/userRoles';
+
+// Импорты из profileSlice
+import {
+   // Actions
+   loadProfile,
+   updateProfile,
+   fetchTrainingLevels,
+   clearErrors,
+   // Selectors
+   selectProfile,
+   selectTrainingLevels,
+   selectIsLoading,
+   selectIsSaving,
+   selectIsLoadingLevels,
+   selectProfileError,
+   selectSaveError,
+   selectIsProfileLoaded
+} from '../../../features/profileSlice';
+
 import ConfirmRoleChangeModal from '../../Components/ConfirmRoleChangeModal';
 import styles from './Profile.module.css';
 
@@ -52,30 +69,50 @@ const RoleSelector = ({ selectedRole, onRoleSelect }) => {
    );
 };
 
-// Временный компонент выбора уровня подготовки (пока упрощенный)
-const TrainingLevelSelector = ({ value, onChange }) => {
-   const levels = [
-      { value: 'beginner', label: '🥊 Новичок', description: 'Только начинаю тренироваться' },
-      { value: 'amateur', label: '💪 Любитель', description: 'Регулярно тренируюсь 1-3 года' },
-      { value: 'advanced', label: '🔥 Продвинутый', description: 'Опытный спортсмен 3+ лет' },
-      { value: 'professional', label: '🏆 Профессионал', description: 'Профессиональный уровень' }
-   ];
+// Компонент выбора уровня подготовки
+const TrainingLevelSelector = ({ value, onChange, levels, isLoading }) => {
+   if (isLoading) {
+      return (
+         <div className={styles.trainingLevelSelector}>
+            <div className={styles.loadingLevels}>
+               <div className={styles.spinnerSmall}></div>
+               <p>Загрузка уровней подготовки...</p>
+            </div>
+         </div>
+      );
+   }
+
+   if (!levels || levels.length === 0) {
+      return (
+         <div className={styles.trainingLevelSelector}>
+            <div className={styles.noLevels}>
+               <p>Нет доступных уровней подготовки</p>
+            </div>
+         </div>
+      );
+   }
 
    return (
       <div className={styles.trainingLevelSelector}>
          <div className={styles.levelOptions}>
             {levels.map((level) => (
                <button
-                  key={level.value}
-                  className={`${styles.levelOption} ${value === level.value ? styles.selected : ''}`}
-                  onClick={() => onChange(level.value)}
+                  key={level.id}
+                  className={`${styles.levelOption} ${value === level.id ? styles.selected : ''}`}
+                  onClick={() => onChange(level.id)}
                   title={level.description}
                   type="button"
                >
-                  <div className={styles.levelIcon}>{level.label.split(' ')[0]}</div>
+                  <div className={styles.levelIcon}>{level.icon}</div>
                   <div className={styles.levelInfo}>
-                     <h4>{level.label.split(' ').slice(1).join(' ')}</h4>
+                     <h4>{level.name}</h4>
                      <p>{level.description}</p>
+                     {level.minExperience !== undefined && (
+                        <small className={styles.levelExperience}>
+                           Опыт: {level.minExperience}
+                           {level.maxExperience ? `-${level.maxExperience}` : '+'} лет
+                        </small>
+                     )}
                   </div>
                </button>
             ))}
@@ -89,13 +126,24 @@ const ProfileSettings = () => {
    const dispatch = useDispatch();
    const navigate = useNavigate();
 
+   // Данные из auth
    const user = useSelector(selectUser);
    const authLoading = useSelector(selectAuthLoading);
-   // Убираем неиспользуемую переменную authError
+
+   // Данные из profileSlice
+   const profile = useSelector(selectProfile);
+   const trainingLevels = useSelector(selectTrainingLevels);
+   const isLoadingProfile = useSelector(selectIsLoading);
+   const isSavingProfile = useSelector(selectIsSaving);
+   const isLoadingLevels = useSelector(selectIsLoadingLevels);
+   const profileError = useSelector(selectProfileError);
+   const saveError = useSelector(selectSaveError);
+   const isProfileLoaded = useSelector(selectIsProfileLoaded);
 
    const [isLoading, setIsLoading] = useState(false);
    const [error, setError] = useState(null);
    const [successMessage, setSuccessMessage] = useState(null);
+   const [hasPendingRoleChange, setHasPendingRoleChange] = useState(false);
 
    // Состояния для модалки подтверждения смены роли
    const [showRoleChangeModal, setShowRoleChangeModal] = useState(false);
@@ -110,31 +158,51 @@ const ProfileSettings = () => {
       birthDate: ''
    });
 
-   // Инициализация формы данными пользователя
+   // 🔄 Загружаем профиль пользователя
    useEffect(() => {
-      if (user) {
+      if (!isProfileLoaded && !isLoadingProfile && !profile) {
+         console.log('🟡 Загрузка профиля...');
+         dispatch(loadProfile());
+      }
+   }, [dispatch, isProfileLoaded, isLoadingProfile, profile]);
+
+   // 🔄 Загружаем уровни подготовки
+   useEffect(() => {
+      if (trainingLevels.length === 0 && !isLoadingLevels) {
+         console.log('🟡 Загрузка уровней подготовки...');
+         dispatch(fetchTrainingLevels());
+      }
+   }, [dispatch, trainingLevels.length, isLoadingLevels]);
+
+   // 🔄 Обновление формы когда профиль загружен
+   useEffect(() => {
+      if (profile) {
          setFormData({
-            role: user.role || '',
-            training_level: user.training_level || '',
-            sport_specialization: user.sport_specialization || '',
-            allow_connections: user.allow_connections !== false,
-            userName: user.userName || '',
-            birthDate: user.birthDate ? new Date(user.birthDate).toISOString().split('T')[0] : ''
+            role: profile.role || '',
+            training_level: profile.training_level || '',
+            sport_specialization: profile.sport_specialization || '',
+            allow_connections: profile.allow_connections !== false,
+            userName: profile.userName || '',
+            birthDate: profile.birthDate ? new Date(profile.birthDate).toISOString().split('T')[0] : ''
          });
       }
-   }, [user]);
+   }, [profile]);
+
+   // 🔄 Сброс ошибок при размонтировании
+   useEffect(() => {
+      return () => {
+         dispatch(clearErrors());
+      };
+   }, [dispatch]);
 
    // Обработчик смены роли
    const handleRoleChange = (newRole) => {
       if (formData.role === newRole) return;
 
-      // Если пользователь меняет роль с существующей на другую (не с skipped)
       if (formData.role && formData.role !== 'skipped' && newRole !== 'skipped') {
-         // Сохраняем новую роль и показываем модалку
          setPendingRoleChange(newRole);
          setShowRoleChangeModal(true);
       } else {
-         // Если переход со skipped или на skipped - сразу меняем
          applyRoleChange(newRole);
       }
    };
@@ -144,16 +212,16 @@ const ProfileSettings = () => {
       setFormData(prev => ({
          ...prev,
          role: newRole,
-         // Очищаем связанные поля при смене роли
          ...(newRole === USER_ROLES.TRAINEE && { sport_specialization: '' }),
          ...(newRole === USER_ROLES.TRAINER && { training_level: '' })
       }));
 
+      setHasPendingRoleChange(true);
       setSuccessMessage(null);
       setError(null);
    };
 
-   // Обработчик подтверждения смены роли из модалки
+   // Обработчик подтверждения смены роли
    const handleConfirmRoleChange = () => {
       if (pendingRoleChange) {
          applyRoleChange(pendingRoleChange);
@@ -178,6 +246,11 @@ const ProfileSettings = () => {
       setError(null);
    };
 
+   // Обработчик изменения уровня подготовки (без автосохранения)
+   const handleTrainingLevelChange = (level) => {
+      setFormData(prev => ({ ...prev, training_level: level }));
+   };
+
    const validateForm = () => {
       const errors = [];
 
@@ -185,10 +258,12 @@ const ProfileSettings = () => {
          errors.push('Выберите роль (Спортсмен или Тренер)');
       }
 
-      // Временно отключаем обязательность уровня подготовки
-      // if (formData.role === USER_ROLES.TRAINEE && !formData.training_level) {
-      //   errors.push('Для спортсмена необходимо указать уровень подготовки');
-      // }
+      if (formData.role === USER_ROLES.TRAINEE && formData.training_level) {
+         const levelExists = trainingLevels.some(level => level.id === formData.training_level);
+         if (!levelExists) {
+            errors.push('Выбран несуществующий уровень подготовки');
+         }
+      }
 
       if (formData.role === USER_ROLES.TRAINER && !formData.sport_specialization.trim()) {
          errors.push('Для тренера необходимо указать специализацию');
@@ -196,6 +271,22 @@ const ProfileSettings = () => {
 
       if (!formData.userName.trim()) {
          errors.push('Имя пользователя обязательно');
+      }
+
+      if (formData.birthDate) {
+         const birthDate = new Date(formData.birthDate);
+         const today = new Date();
+         const minAgeDate = new Date();
+         minAgeDate.setFullYear(today.getFullYear() - 100);
+         const maxAgeDate = new Date();
+         maxAgeDate.setFullYear(today.getFullYear() - 13);
+
+         if (birthDate < minAgeDate) {
+            errors.push('Дата рождения не может быть ранее 100 лет назад');
+         }
+         if (birthDate > maxAgeDate) {
+            errors.push('Вам должно быть не менее 13 лет');
+         }
       }
 
       return errors;
@@ -218,7 +309,7 @@ const ProfileSettings = () => {
          // Подготавливаем данные для отправки
          const submitData = {
             role: formData.role,
-            userName: formData.userName,
+            userName: formData.userName.trim(),
             allow_connections: formData.allow_connections
          };
 
@@ -238,18 +329,22 @@ const ProfileSettings = () => {
 
          console.log('🟡 Отправляем данные профиля:', submitData);
 
-         // Используем существующий endpoint onboarding для обновления роли
-         const result = await dispatch(updateOnboarding(submitData)).unwrap();
+         // Отправляем данные
+         const result = await dispatch(updateProfile(submitData)).unwrap();
 
          console.log('🟢 Профиль обновлен:', result);
 
-         // Обновляем пользователя в Redux
-         dispatch(setUserRole(result.role));
+         // Обновляем роль пользователя в authSlice
+         if (result.role) {
+            dispatch(setUserRole(result.role));
+         }
+
+         // Сбрасываем флаг после успешного сохранения
+         setHasPendingRoleChange(false);
 
          setSuccessMessage('Профиль успешно обновлен!');
          setIsLoading(false);
 
-         // Автоматически скрываем сообщение об успехе через 3 секунды
          setTimeout(() => {
             setSuccessMessage(null);
          }, 3000);
@@ -262,11 +357,30 @@ const ProfileSettings = () => {
    };
 
    const handleCancel = () => {
-      // Возвращаемся к предыдущей странице
-      navigate(-1);
-   };
+      // Сбрасываем ВСЕ состояния
+      setIsLoading(false);
+      setHasPendingRoleChange(false);
+      setError(null);
+      setSuccessMessage(null);
 
-   if (authLoading) {
+      // Навигация
+      navigate('/');
+   };
+   // 🔄 Отображение ошибок из Redux
+   useEffect(() => {
+      if (profileError) {
+         setError(`Ошибка загрузки профиля: ${profileError}`);
+      }
+      if (saveError) {
+         setError(`Ошибка сохранения: ${saveError}`);
+      }
+   }, [profileError, saveError]);
+
+   // Объединяем состояния загрузки
+   const isPageLoading = authLoading || isLoadingProfile;
+   const isSaving = isLoading || isSavingProfile;
+
+   if (isPageLoading) {
       return (
          <div className={styles.loadingContainer}>
             <div className={styles.spinner}></div>
@@ -275,7 +389,7 @@ const ProfileSettings = () => {
       );
    }
 
-   if (!user) {
+   if (!user && !profile) {
       return (
          <div className={styles.errorContainer}>
             <div className={styles.errorIcon}>⚠️</div>
@@ -287,6 +401,8 @@ const ProfileSettings = () => {
          </div>
       );
    }
+
+   const displayUser = profile || user;
 
    return (
       <>
@@ -301,6 +417,27 @@ const ProfileSettings = () => {
                <div className={styles.errorMessage}>
                   <span className={styles.errorIcon}>❌</span>
                   {error}
+                  <button
+                     className={styles.closeErrorButton}
+                     onClick={() => setError(null)}
+                     aria-label="Закрыть ошибку"
+                  >
+                     ×
+                  </button>
+               </div>
+            )}
+
+            {hasPendingRoleChange && !error && (
+               <div className={styles.warningMessage}>
+                  <span className={styles.warningIcon}>⚠️</span>
+                  Несохраненная смена роли! Нажмите "Сохранить изменения" для подтверждения.
+                  <button
+                     className={styles.closeWarningButton}
+                     onClick={() => setHasPendingRoleChange(false)}
+                     aria-label="Закрыть предупреждение"
+                  >
+                     ×
+                  </button>
                </div>
             )}
 
@@ -308,6 +445,13 @@ const ProfileSettings = () => {
                <div className={styles.successMessage}>
                   <span className={styles.successIcon}>✅</span>
                   {successMessage}
+                  <button
+                     className={styles.closeSuccessButton}
+                     onClick={() => setSuccessMessage(null)}
+                     aria-label="Закрыть уведомление"
+                  >
+                     ×
+                  </button>
                </div>
             )}
 
@@ -332,6 +476,7 @@ const ProfileSettings = () => {
                            placeholder="Введите ваше имя"
                            required
                            className={styles.textInput}
+                           disabled={isSaving}
                         />
                      </div>
 
@@ -344,7 +489,14 @@ const ProfileSettings = () => {
                            value={formData.birthDate}
                            onChange={handleInputChange}
                            className={styles.dateInput}
+                           disabled={isSaving}
+                           max={new Date().toISOString().split('T')[0]}
                         />
+                        {formData.birthDate && (
+                           <small className={styles.inputHint}>
+                              Возраст: {Math.floor((new Date() - new Date(formData.birthDate)) / (365.25 * 24 * 60 * 60 * 1000))} лет
+                           </small>
+                        )}
                      </div>
                   </section>
 
@@ -372,13 +524,22 @@ const ProfileSettings = () => {
                            Уровень подготовки
                         </h2>
                         <p className={styles.sectionDescription}>
-                           Укажите ваш текущий уровень физической подготовки (опционально)
+                           Укажите ваш текущий уровень физической подготовки
                         </p>
 
                         <TrainingLevelSelector
                            value={formData.training_level}
-                           onChange={(level) => setFormData(prev => ({ ...prev, training_level: level }))}
+                           onChange={handleTrainingLevelChange}
+                           levels={trainingLevels}
+                           isLoading={isLoadingLevels}
                         />
+
+                        {!formData.training_level && (
+                           <div className={styles.infoBox}>
+                              <span className={styles.infoIcon}>💡</span>
+                              <p>Выберите уровень подготовки, чтобы получать персонализированные тренировки</p>
+                           </div>
+                        )}
                      </section>
                   )}
 
@@ -401,9 +562,11 @@ const ProfileSettings = () => {
                               placeholder="Например: Фитнес, Бокс, Йога, Плавание..."
                               className={styles.textInput}
                               required={formData.role === USER_ROLES.TRAINER}
+                              disabled={isSaving}
+                              maxLength={100}
                            />
                            <small className={styles.inputHint}>
-                              Максимум 100 символов
+                              {formData.sport_specialization.length}/100 символов
                            </small>
                         </div>
                      </section>
@@ -424,6 +587,7 @@ const ProfileSettings = () => {
                               checked={formData.allow_connections}
                               onChange={handleInputChange}
                               className={styles.checkboxInput}
+                              disabled={isSaving}
                            />
                            <span className={styles.checkboxCustom}></span>
                            <div className={styles.checkboxText}>
@@ -434,7 +598,7 @@ const ProfileSettings = () => {
                      </div>
                   </section>
 
-                  {/* Секция 5: Текущие настройки (только для просмотра) */}
+                  {/* Секция 5: Текущие настройки */}
                   <section className={styles.formSection}>
                      <h2 className={styles.sectionTitle}>
                         <span className={styles.sectionIcon}>📧</span>
@@ -444,16 +608,25 @@ const ProfileSettings = () => {
                      <div className={styles.readOnlyInfo}>
                         <div className={styles.infoRow}>
                            <span className={styles.infoLabel}>Email:</span>
-                           <span className={styles.infoValue}>{user.email}</span>
+                           <span className={styles.infoValue}>{displayUser.email}</span>
                         </div>
                         <div className={styles.infoRow}>
                            <span className={styles.infoLabel}>ID пользователя:</span>
-                           <span className={styles.infoValue}>{user.id}</span>
+                           <span className={styles.infoValue}>{displayUser.id}</span>
                         </div>
                         <div className={styles.infoRow}>
                            <span className={styles.infoLabel}>Дата регистрации:</span>
                            <span className={styles.infoValue}>
-                              {new Date(user.createdAt || Date.now()).toLocaleDateString('ru-RU')}
+                              {new Date(displayUser.createdAt || Date.now()).toLocaleDateString('ru-RU')}
+                           </span>
+                        </div>
+                        <div className={styles.infoRow}>
+                           <span className={styles.infoLabel}>Последнее обновление:</span>
+                           <span className={styles.infoValue}>
+                              {displayUser.updatedAt
+                                 ? new Date(displayUser.updatedAt).toLocaleDateString('ru-RU')
+                                 : 'Не обновлялся'
+                              }
                            </span>
                         </div>
                      </div>
@@ -466,7 +639,7 @@ const ProfileSettings = () => {
                      type="button"
                      onClick={handleCancel}
                      className={styles.cancelButton}
-                     disabled={isLoading}
+                     disabled={isSaving}
                   >
                      Отмена
                   </button>
@@ -474,9 +647,9 @@ const ProfileSettings = () => {
                   <button
                      type="submit"
                      className={styles.submitButton}
-                     disabled={isLoading}
+                     disabled={isSaving}
                   >
-                     {isLoading ? (
+                     {isSaving ? (
                         <>
                            <span className={styles.spinnerSmall}></span>
                            Сохранение...
@@ -489,6 +662,9 @@ const ProfileSettings = () => {
 
                <div className={styles.formHint}>
                   <p>* Обязательные для заполнения поля</p>
+                  <p className={styles.apiInfo}>
+                     {profile?.updatedAt && `Последнее обновление: ${new Date(profile.updatedAt).toLocaleString('ru-RU')}`}
+                  </p>
                </div>
             </form>
          </div>
@@ -500,7 +676,7 @@ const ProfileSettings = () => {
             onConfirm={handleConfirmRoleChange}
             currentRole={formData.role}
             newRole={pendingRoleChange}
-            userName={user.userName}
+            userName={displayUser.userName}
          />
       </>
    );
