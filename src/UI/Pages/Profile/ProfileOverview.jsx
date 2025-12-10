@@ -18,6 +18,31 @@ const ProfileOverview = ({ user }) => {
    const trainingLevel = useSelector(selectUserTrainingLevel);
    const sportSpecialization = useSelector(selectUserSportSpecialization);
 
+   // Функция для отображения тегов из строки через запятую
+   // Функция для отображения тегов из строки через запятую
+   // Функция для отображения тегов из строки через запятую
+   const renderTags = (tagsString) => {
+      if (!tagsString || !tagsString.trim()) return null;
+
+      // ПРАВИЛЬНО парсим строку
+      const tags = tagsString
+         .split(',')                     // Разбиваем по запятым
+         .map(tag => tag.trim())         // Убираем пробелы по краям
+         .filter(tag => tag.length > 0); // Убираем пустые
+
+      if (tags.length === 0) return null;
+
+      return (
+         <div className={styles.tagsList}>
+            {tags.map((tag, index) => (
+               <span key={index} className={styles.tagChip}>
+                  {tag}
+               </span>
+            ))}
+         </div>
+      );
+   };
+
    return (
       <div className={styles.overview}>
          <header className={styles.pageHeader}>
@@ -59,9 +84,18 @@ const ProfileOverview = ({ user }) => {
                      <h3>Подопечные</h3>
                      <p>Управление вашими спортсменами</p>
                      {sportSpecialization && (
-                        <span className={styles.specializationBadge}>
-                           {sportSpecialization}
-                        </span>
+                        <div className={styles.specializationBadges}>
+                           {sportSpecialization
+                              .split(',')
+                              .map(tag => tag.trim())
+                              .filter(tag => tag.length > 0)
+                              .slice(0, 3) // Показываем только первые 3 тега
+                              .map((tag, index) => (
+                                 <span key={index} className={styles.specializationBadge}>
+                                    {tag}
+                                 </span>
+                              ))}
+                        </div>
                      )}
                   </div>
                </div>
@@ -73,6 +107,20 @@ const ProfileOverview = ({ user }) => {
                   <div className={styles.statContent}>
                      <h3>Тренировки</h3>
                      <p>Ваши задания и прогресс</p>
+                     {sportSpecialization && (
+                        <div className={styles.specializationBadges}>
+                           {sportSpecialization
+                              .split(',')
+                              .map(tag => tag.trim())
+                              .filter(tag => tag.length > 0)
+                              .slice(0, 3) // Показываем только первые 3 тега
+                              .map((tag, index) => (
+                                 <span key={index} className={styles.specializationBadge}>
+                                    {tag}
+                                 </span>
+                              ))}
+                        </div>
+                     )}
                   </div>
                </div>
             )}
@@ -95,6 +143,7 @@ const ProfileOverview = ({ user }) => {
                      {getUserRoleLabel(user.role)}
                   </span>
                </div>
+
                {trainingLevel && (
                   <div className={styles.detailItem}>
                      <label>Уровень подготовки:</label>
@@ -103,12 +152,22 @@ const ProfileOverview = ({ user }) => {
                      </span>
                   </div>
                )}
+
                {sportSpecialization && (
                   <div className={styles.detailItem}>
-                     <label>Специализация:</label>
-                     <span className={styles.detailValue}>{sportSpecialization}</span>
+                     <label>
+                        {/* Показываем разный заголовок в зависимости от роли */}
+                        {user.role === 'trainer' ? 'Специализация:' : 'Спортивные интересы:'}
+                     </label>
+                     <div className={styles.detailValue}>
+                        {renderTags(sportSpecialization)}
+                        {!renderTags(sportSpecialization) && (
+                           <span>{sportSpecialization}</span>
+                        )}
+                     </div>
                   </div>
                )}
+
                <div className={styles.detailItem}>
                   <label>Доступен для подключений:</label>
                   <span className={styles.detailValue}>

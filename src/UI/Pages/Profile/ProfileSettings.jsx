@@ -238,9 +238,20 @@ const ProfileSettings = () => {
 
    const handleInputChange = (e) => {
       const { name, value, type, checked } = e.target;
+
+      // Автоформатирование для sport_specialization
+      let processedValue = value;
+      if (name === 'sport_specialization') {
+         // Убираем лишние пробелы вокруг запятых
+         processedValue = value
+            .replace(/\s*,\s*/g, ', ')  // "Бег,  Плавание ,Йога" → "Бег, Плавание, Йога"
+            .replace(/\s+/g, ' ')       // Убираем двойные пробелы
+            .trim();
+      }
+
       setFormData(prev => ({
          ...prev,
-         [name]: type === 'checkbox' ? checked : value
+         [name]: type === 'checkbox' ? checked : processedValue
       }));
       setSuccessMessage(null);
       setError(null);
@@ -265,9 +276,10 @@ const ProfileSettings = () => {
          }
       }
 
-      if (formData.role === USER_ROLES.TRAINER && !formData.sport_specialization.trim()) {
-         errors.push('Для тренера необходимо указать специализацию');
-      }
+      // УБРАНА обязательная проверка для тренера - поле теперь опциональное для всех
+      // if (formData.role === USER_ROLES.TRAINER && !formData.sport_specialization.trim()) {
+      //    errors.push('Для тренера необходимо указать специализацию');
+      // }
 
       if (!formData.userName.trim()) {
          errors.push('Имя пользователя обязательно');
@@ -314,11 +326,18 @@ const ProfileSettings = () => {
          };
 
          // Добавляем поля в зависимости от роли
-         if (formData.role === USER_ROLES.TRAINEE && formData.training_level) {
-            submitData.training_level = formData.training_level;
+         if (formData.role === USER_ROLES.TRAINEE) {
+            if (formData.training_level) {
+               submitData.training_level = formData.training_level;
+            }
+            // ✅ ДОБАВЛЯЕМ специализацию для спортсмена (спортивные интересы)
+            if (formData.sport_specialization.trim()) {
+               submitData.sport_specialization = formData.sport_specialization.trim();
+            }
          }
 
-         if (formData.role === USER_ROLES.TRAINER && formData.sport_specialization) {
+         // ✅ Для тренера - специализация (необязательное поле)
+         if (formData.role === USER_ROLES.TRAINER && formData.sport_specialization.trim()) {
             submitData.sport_specialization = formData.sport_specialization.trim();
          }
 
@@ -366,6 +385,7 @@ const ProfileSettings = () => {
       // Навигация
       navigate('/');
    };
+
    // 🔄 Отображение ошибок из Redux
    useEffect(() => {
       if (profileError) {
@@ -518,39 +538,85 @@ const ProfileSettings = () => {
 
                   {/* Секция 3: Настройки в зависимости от роли */}
                   {formData.role === USER_ROLES.TRAINEE && (
-                     <section className={styles.formSection}>
-                        <h2 className={styles.sectionTitle}>
-                           <span className={styles.sectionIcon}>💪</span>
-                           Уровень подготовки
-                        </h2>
-                        <p className={styles.sectionDescription}>
-                           Укажите ваш текущий уровень физической подготовки
-                        </p>
+                     <>
+                        <section className={styles.formSection}>
+                           <h2 className={styles.sectionTitle}>
+                              <span className={styles.sectionIcon}>💪</span>
+                              Уровень подготовки
+                           </h2>
+                           <p className={styles.sectionDescription}>
+                              Укажите ваш текущий уровень физической подготовки
+                           </p>
 
-                        <TrainingLevelSelector
-                           value={formData.training_level}
-                           onChange={handleTrainingLevelChange}
-                           levels={trainingLevels}
-                           isLoading={isLoadingLevels}
-                        />
+                           <TrainingLevelSelector
+                              value={formData.training_level}
+                              onChange={handleTrainingLevelChange}
+                              levels={trainingLevels}
+                              isLoading={isLoadingLevels}
+                           />
 
-                        {!formData.training_level && (
-                           <div className={styles.infoBox}>
-                              <span className={styles.infoIcon}>💡</span>
-                              <p>Выберите уровень подготовки, чтобы получать персонализированные тренировки</p>
+                           {!formData.training_level && (
+                              <div className={styles.infoBox}>
+                                 <span className={styles.infoIcon}>💡</span>
+                                 <p>Выберите уровень подготовки, чтобы получать персонализированные тренировки</p>
+                              </div>
+                           )}
+                        </section>
+
+                        {/* ✅ НОВАЯ СЕКЦИЯ: Спортивные интересы для спортсмена */}
+                        <section className={styles.formSection}>
+                           <h2 className={styles.sectionTitle}>
+                              <span className={styles.sectionIcon}>🎯</span>
+                              Спортивные интересы
+                           </h2>
+                           <p className={styles.sectionDescription}>
+                              Укажите виды спорта или активности, которыми занимаетесь (через запятую)
+                           </p>
+
+                           <div className={styles.formGroup}>
+                              <input
+                                 type="text"
+                                 name="sport_specialization"
+                                 value={formData.sport_specialization}
+                                 onChange={handleInputChange}
+                                 placeholder="Например: Бег, Плавание, Йога, Велоспорт..."
+                                 className={styles.textInput}
+                                 disabled={isSaving}
+                                 maxLength={200}
+                              />
+                              <small className={styles.inputHint}>
+                                 Укажите через запятую. Это поможет найти подходящего тренера и единомышленников.
+                              </small>
                            </div>
-                        )}
-                     </section>
+
+                           {/* Показываем визуальные теги */}
+                           {formData.sport_specialization.trim() && (
+                              <div className={styles.tagPreview}>
+                                 <div className={styles.tagsContainer}>
+                                    {formData.sport_specialization
+                                       .split(',')
+                                       .map(tag => tag.trim())
+                                       .filter(tag => tag.length > 0)
+                                       .map((tag, index) => (
+                                          <span key={index} className={styles.tagChip}>
+                                             {tag}
+                                          </span>
+                                       ))}
+                                 </div>
+                              </div>
+                           )}
+                        </section>
+                     </>
                   )}
 
                   {formData.role === USER_ROLES.TRAINER && (
                      <section className={styles.formSection}>
                         <h2 className={styles.sectionTitle}>
                            <span className={styles.sectionIcon}>🎓</span>
-                           Специализация *
+                           Специализация
                         </h2>
                         <p className={styles.sectionDescription}>
-                           Укажите вашу спортивную специализацию как тренера
+                           Укажите ваши направления подготовки (через запятую)
                         </p>
 
                         <div className={styles.formGroup}>
@@ -561,14 +627,30 @@ const ProfileSettings = () => {
                               onChange={handleInputChange}
                               placeholder="Например: Фитнес, Бокс, Йога, Плавание..."
                               className={styles.textInput}
-                              required={formData.role === USER_ROLES.TRAINER}
                               disabled={isSaving}
-                              maxLength={100}
+                              maxLength={200}
                            />
                            <small className={styles.inputHint}>
-                              {formData.sport_specialization.length}/100 символов
+                              Укажите через запятую все направления, в которых вы работаете как тренер.
                            </small>
                         </div>
+
+                        {/* Показываем визуальные теги */}
+                        {formData.sport_specialization.trim() && (
+                           <div className={styles.tagPreview}>
+                              <div className={styles.tagsContainer}>
+                                 {formData.sport_specialization
+                                    .split(',')
+                                    .map(tag => tag.trim())
+                                    .filter(tag => tag.length > 0)
+                                    .map((tag, index) => (
+                                       <span key={index} className={styles.tagChip}>
+                                          {tag}
+                                       </span>
+                                    ))}
+                              </div>
+                           </div>
+                        )}
                      </section>
                   )}
 

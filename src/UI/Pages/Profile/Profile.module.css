@@ -21,6 +21,10 @@
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --transition: all 0.3s ease-in-out;
+  --warning-bg: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  --warning-border: #ffc107;
+  --tag-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --tag-color: white;
 }
 
 /* Основной контейнер */
@@ -277,18 +281,6 @@
   font-weight: 500;
 }
 
-.specializationBadge {
-  background: rgba(139, 92, 246, 0.1);
-  color: #7c3aed;
-  border: 1px solid #8b5cf6;
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  display: inline-block;
-  margin-top: 0.5rem;
-}
-
 /* Детали пользователя */
 .userDetails {
   background: white;
@@ -505,7 +497,7 @@
   font-size: 0.875rem;
 }
 
-/* Ноая страница настроек профиля */
+/* Новая страница настроек профиля */
 .settingsEnhancedContainer {
   max-width: 800px;
   margin: 0 auto;
@@ -771,6 +763,30 @@
   line-height: 1.4;
 }
 
+.levelExperience {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+}
+
+.loadingLevels,
+.noLevels {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+}
+
+.spinnerSmall {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-color);
+  border-left: 2px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
 /* Чекбоксы */
 .checkboxGroup {
   margin: 1.5rem 0;
@@ -878,9 +894,17 @@
   font-size: 0.95rem;
 }
 
+.apiInfo {
+  margin-top: 0.5rem;
+  color: var(--text-tertiary);
+  font-size: 0.8rem;
+  text-align: right;
+}
+
 /* Сообщения */
 .errorMessage,
-.successMessage {
+.successMessage,
+.warningMessage {
   padding: 1rem 1.5rem;
   border-radius: var(--radius-lg);
   margin-bottom: 2rem;
@@ -914,12 +938,69 @@
   color: #16a34a;
 }
 
-.errorIcon {
+.warningMessage {
+  background: var(--warning-bg);
+  border-color: var(--warning-border);
+  color: #856404;
+}
+
+.errorIcon,
+.successIcon,
+.warningIcon {
   font-size: 1.25rem;
   flex-shrink: 0;
 }
 
-.successIcon {
+.closeErrorButton,
+.closeSuccessButton,
+.closeWarningButton {
+  margin-left: auto;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.closeErrorButton {
+  color: #dc2626;
+}
+
+.closeSuccessButton {
+  color: #16a34a;
+}
+
+.closeWarningButton {
+  color: #856404;
+}
+
+.closeErrorButton:hover {
+  background-color: rgba(220, 38, 38, 0.1);
+}
+
+.closeSuccessButton:hover {
+  background-color: rgba(22, 163, 74, 0.1);
+}
+
+.closeWarningButton:hover {
+  background-color: rgba(133, 100, 4, 0.1);
+}
+
+/* Информационное окно */
+.infoBox {
+  background: linear-gradient(135deg, #e7f5ff, #d0ebff);
+  border: 1px solid #a5d8ff;
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.infoIcon {
   font-size: 1.25rem;
   flex-shrink: 0;
 }
@@ -934,19 +1015,6 @@
   border-top: 2px solid var(--border-light);
 }
 
-/* .cancelButton {
-  padding: 0.875rem 2rem;
-  border: 2px solid var(--border-color);
-  border-radius: var(--radius-md);
-  background: transparent;
-  color: var(--text-primary);
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: var(--transition);
-  min-width: 120px;
-} */
-
 .cancelButton {
   padding: 12px 24px;
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
@@ -958,9 +1026,6 @@
   transition: all 0.2s ease;
   margin-right: 12px;
 }
-
-
-
 
 .cancelButton:hover:not(:disabled) {
   background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
@@ -1003,21 +1068,6 @@
   transform: none !important;
 }
 
-.spinnerSmall {
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  border-top-color: white;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to { 
-    transform: rotate(360deg); 
-  }
-}
-
 .formHint {
   margin-top: 1rem;
   text-align: center;
@@ -1049,7 +1099,8 @@
 }
 
 /* Loading States */
-.loadingContainer {
+.loadingContainer,
+.errorContainer {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1067,14 +1118,13 @@
   animation: spin 1s linear infinite;
 }
 
-/* Error States */
+@keyframes spin {
+  to { 
+    transform: rotate(360deg); 
+  }
+}
+
 .errorContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  gap: 1rem;
   text-align: center;
 }
 
@@ -1183,6 +1233,62 @@
   color: var(--text-secondary);
 }
 
+/* ===== Стили для тегов и специализаций ===== */
+
+/* Общие стили для тегов */
+.tagPreview,
+.tagsList,
+.tagsContainer,
+.specializationBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* Специфичные стили */
+.tagPreview {
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.tagsList {
+  margin-top: 5px;
+}
+
+/* Стили для тегов */
+.tagChip,
+.specializationBadge {
+  background: var(--tag-bg);
+  color: var(--tag-color);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border: none;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.tagChip:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* Альтернативный стиль для бейджей в статистике */
+.specializationBadge {
+  background: #e7f5ff;
+  color: #1971c2;
+  border: 1px solid #a5d8ff;
+  padding: 4px 12px;
+  font-size: 14px;
+  box-shadow: none;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .profileLayout {
@@ -1217,7 +1323,8 @@
     padding: 1rem;
   }
   
-  .statsGrid {
+  .statsGrid,
+  .detailsGrid {
     grid-template-columns: 1fr;
   }
   
@@ -1234,10 +1341,6 @@
   
   .addNoteButton {
     align-self: flex-start;
-  }
-  
-  .detailsGrid {
-    grid-template-columns: 1fr;
   }
   
   .profileBadges {
@@ -1314,10 +1417,7 @@
     padding: 1rem 0.75rem;
   }
   
-  .pageHeader h1 {
-    font-size: 2rem;
-  }
-  
+  .pageHeader h1,
   .settingsHeader h1 {
     font-size: 2rem;
   }
@@ -1339,43 +1439,4 @@
   .levelIcon {
     font-size: 1.5rem;
   }
-
-
-  /* Стили для предупреждающего сообщения */
-.warningMessage {
-  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-  border: 1px solid #ffc107;
-  border-radius: 8px;
-  padding: 16px;
-  margin: 20px auto;
-  max-width: 800px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  animation: slideIn 0.3s ease;
-  box-shadow: 0 2px 10px rgba(255, 193, 7, 0.2);
-}
-
-.warningIcon {
-  font-size: 24px;
-  flex-shrink: 0;
-}
-
-.closeWarningButton {
-  margin-left: auto;
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-  color: #856404;
-  padding: 0 8px;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-}
-
-.closeWarningButton:hover {
-  background-color: rgba(133, 100, 4, 0.1);
-}
-
-
 }
