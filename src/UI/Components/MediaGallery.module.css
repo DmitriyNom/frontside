@@ -1,0 +1,301 @@
+/* src/UI/Components/MediaGallery.module.css */
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 10px;
+}
+
+/* СТИЛЬ ДЛЯ ВСЕЙ КАРТОЧКИ - ТЕПЕРЬ ВСЯ КЛИКАБЕЛЬНА */
+.mediaCard {
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: white;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  position: relative;
+}
+
+.mediaCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  border-color: #007bff;
+}
+
+/* Оверлей при наведении - легкая подсветка */
+.mediaCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 123, 255, 0.05);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.mediaCard:hover::before {
+  opacity: 1;
+}
+
+/* Верхняя часть с превью */
+.mediaPreview {
+  position: relative;
+  height: 180px;
+  overflow: hidden;
+  background-color: #f8f8f8;
+}
+
+.previewImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.mediaCard:hover .previewImage {
+  transform: scale(1.05);
+}
+
+/* Стили для видео */
+.videoPreview {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  position: relative;
+  z-index: 2;
+}
+
+.videoIcon {
+  font-size: 48px;
+  margin-bottom: 8px;
+  transition: transform 0.3s;
+}
+
+.mediaCard:hover .videoIcon {
+  transform: scale(1.1);
+}
+
+.videoLabel {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.videoDuration {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+/* Бэйджик приватности */
+.privacyBadge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  z-index: 3;
+  transition: transform 0.2s;
+}
+
+.mediaCard:hover .privacyBadge {
+  transform: translateY(-2px);
+}
+
+.privacyBadge.public {
+  background-color: #4caf50;
+  color: white;
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+}
+
+.privacyBadge.private {
+  background-color: #ff9800;
+  color: white;
+  box-shadow: 0 2px 4px rgba(255, 152, 0, 0.3);
+}
+
+/* Нижняя часть с информацией */
+.mediaInfo {
+  padding: 15px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 2;
+  background: white;
+  transition: background-color 0.2s;
+}
+
+.mediaCard:hover .mediaInfo {
+  background: #f8fbff;
+}
+
+.filename {
+  font-weight: 500;
+  margin-bottom: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 14px;
+  color: #333;
+  transition: color 0.2s;
+}
+
+.mediaCard:hover .filename {
+  color: #007bff;
+}
+
+.metadata {
+  margin-bottom: 15px;
+  flex: 1;
+}
+
+.metaItem {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+
+.metaLabel {
+  color: #666;
+  font-weight: 500;
+}
+
+.metaValue {
+  color: #333;
+  font-weight: 500;
+  text-align: right;
+}
+
+/* СТИЛИ ДЛЯ КНОПОК ДЕЙСТВИЙ - УДАЛЕНЫ */
+.actions {
+  display: none; /* Все действия теперь в модалке превью */
+}
+
+.actionButton {
+  display: none; /* Все действия теперь в модалке превью */
+}
+
+/* Стили для состояния "нет медиа" */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  background: white;
+  border-radius: 10px;
+  border: 2px dashed #e0e0e0;
+  margin: 20px;
+}
+
+.emptyIcon {
+  font-size: 64px;
+  margin-bottom: 20px;
+  opacity: 0.5;
+}
+
+.emptyState p {
+  font-size: 18px;
+  font-weight: 500;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.emptyState small {
+  font-size: 14px;
+  color: #999;
+}
+
+/* Стили для ошибки загрузки изображения */
+.imageError {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: #f5f5f5;
+  color: #999;
+}
+
+.imageError span {
+  font-size: 48px;
+  margin-bottom: 8px;
+}
+
+.imageError small {
+  font-size: 12px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .gallery {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .gallery {
+    grid-template-columns: 1fr;
+  }
+  
+  .mediaPreview {
+    height: 160px;
+  }
+  
+  .videoIcon {
+    font-size: 36px;
+  }
+  
+  .videoLabel {
+    font-size: 14px;
+  }
+}
+
+/* Дополнительные интерактивные эффекты */
+.mediaCard:active {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Индикатор загрузки изображения (опционально) */
+.previewImage {
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.previewImage[src=""] {
+  opacity: 0;
+}
+
+/* Стили для разных типов файлов */
+.photoItem .mediaPreview {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.videoItem .mediaPreview {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}

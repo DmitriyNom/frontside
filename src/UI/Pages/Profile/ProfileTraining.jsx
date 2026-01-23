@@ -1,12 +1,11 @@
 // src/UI/Pages/Profile/ProfileTraining.jsx
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { selectIsTrainer, selectIsTrainee } from '../../../features/authSlice';
-import styles from './Profile.module.css';
+import { selectIsTrainer } from '../../../features/authSlice';
+import styles from './ProfileTraining.module.css';
 
 const ProfileTraining = ({ user }) => {
    const isTrainer = useSelector(selectIsTrainer);
-   const isTrainee = useSelector(selectIsTrainee);
 
    return (
       <div className={styles.trainingProfile}>

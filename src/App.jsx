@@ -8,6 +8,7 @@ import LoginForm from '../src/UI/Forms/LoginForm';
 import RegisterForm from '../src/UI/Forms/RegisterForm';
 import OnboardingPage from '../src/UI/Pages/Onboarding/OnboardingPage';
 import Profile from '../src/UI/Pages/Profile/Profile';
+import MediaLibraryPage from '../src/UI/Pages/MediaLibraryPage'; // Импортируем новую страницу
 import ProtectedRoute from '../src/UI/ProtectedRoute';
 import HomeRedirect from '../src/UI/HomeRedirect';
 import { fetchUserProfile, selectIsAuthenticated } from '../src/features/authSlice';
@@ -16,7 +17,6 @@ import { useOnboarding } from '../src/hooks/useOnboarding';
 const App = () => {
    const dispatch = useDispatch();
    const isAuthenticated = useSelector(selectIsAuthenticated);
-
 
    // Инициализируем логику onboarding
    useOnboarding();
@@ -40,6 +40,11 @@ const App = () => {
             {/* Protected routes */}
             <Route path="/profile" element={
                <ProtectedRoute element={<Profile />} />
+            } />
+
+            {/* НОВЫЙ МАРШРУТ: Медиа-библиотека */}
+            <Route path="/media" element={
+               <ProtectedRoute element={<MediaLibraryPage />} />
             } />
 
             {/* Умный редирект */}

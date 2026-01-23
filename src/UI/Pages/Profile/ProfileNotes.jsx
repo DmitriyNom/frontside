@@ -3,8 +3,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { selectNotes } from '../../../features/notesSlice';
 import NoteList from '../../Components/NoteList';
-import NoteForm from '../../Forms/NoteForm';
-import styles from './Profile.module.css';
+import styles from './ProfileNotes.module.css';
 
 // Плавающая кнопка для создания заметок
 const FloatingCreateButton = ({ onClick, noteCount, isVisible }) => {

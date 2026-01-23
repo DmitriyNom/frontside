@@ -1,0 +1,719 @@
+/* ====================================================== */
+/* 4. ProfileSettings.module.css - ТОЛЬКО для ProfileSettings.jsx */
+/* ====================================================== */
+
+:root {
+   --primary-color: #6366f1;
+   --primary-hover: #4f46e5;
+   --primary-light: #a5b4fc;
+   --primary-dark: #4338ca;
+   --secondary-color: #f8fafc;
+   --accent-color: #06d6a0;
+   --text-primary: #1e293b;
+   --text-secondary: #64748b;
+   --text-tertiary: #94a3b8;
+   --border-color: #e2e8f0;
+   --border-light: #f1f5f9;
+   --card-background: #ffffff;
+   --hover-background: #f8fafc;
+   --input-background: #ffffff;
+   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+   --radius-sm: 0.375rem;
+   --radius-md: 0.5rem;
+   --radius-lg: 0.75rem;
+   --transition: all 0.3s ease-in-out;
+   --warning-bg: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+   --warning-border: #ffc107;
+   --tag-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+   --tag-color: white;
+ }
+ 
+ /* Новая страница настроек профиля */
+ .settingsEnhancedContainer {
+   max-width: 800px;
+   margin: 0 auto;
+   padding: 0 1rem;
+ }
+ 
+ .settingsHeader {
+   text-align: center;
+   margin-bottom: 2.5rem;
+   padding-top: 1rem;
+ }
+ 
+ .settingsHeader h1 {
+   font-size: 2.5rem;
+   font-weight: 700;
+   background: linear-gradient(135deg, var(--text-primary), var(--primary-color));
+   -webkit-background-clip: text;
+   -webkit-text-fill-color: transparent;
+   background-clip: text;
+   margin: 0 0 0.5rem 0;
+ }
+ 
+ .settingsHeader p {
+   color: var(--text-secondary);
+   font-size: 1.125rem;
+   margin: 0;
+ }
+ 
+ /* Форма настроек */
+ .settingsForm {
+   background: white;
+   border-radius: var(--radius-lg);
+   padding: 2rem;
+   border: 1px solid var(--border-color);
+   box-shadow: var(--shadow-md);
+ }
+ 
+ .formSections {
+   display: flex;
+   flex-direction: column;
+   gap: 1.5rem;
+ }
+ 
+ .formSection {
+   padding-bottom: 2.5rem;
+   border-bottom: 2px solid var(--border-light);
+ }
+ 
+ .formSection:last-child {
+   border-bottom: none;
+   padding-bottom: 0;
+ }
+ 
+ .sectionTitle {
+   font-size: 1.5rem;
+   color: var(--text-primary);
+   margin-bottom: 1rem;
+   display: flex;
+   align-items: center;
+   gap: 0.75rem;
+   font-weight: 600;
+ }
+ 
+ .sectionIcon {
+   font-size: 1.75rem;
+ }
+ 
+ .sectionDescription {
+   color: var(--text-secondary);
+   margin-bottom: 1.5rem;
+   line-height: 1.6;
+   font-size: 0.95rem;
+ }
+ 
+ /* Группы формы */
+ .formGroup {
+   margin-bottom: 1.5rem;
+ }
+ 
+ .formGroup label {
+   display: block;
+   margin-bottom: 0.5rem;
+   font-weight: 500;
+   color: var(--text-primary);
+   font-size: 0.95rem;
+ }
+ 
+ .textInput,
+ .dateInput {
+   width: 95%;
+   padding: 0.875rem 1rem;
+   border: 1px solid var(--border-color);
+   border-radius: var(--radius-md);
+   font-size: 1rem;
+   transition: var(--transition);
+   background: var(--input-background);
+   color: var(--text-primary);
+   font-family: inherit;
+ }
+ 
+ .textInput:focus,
+ .dateInput:focus {
+   outline: none;
+   border-color: var(--primary-color);
+   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+ }
+ 
+ .textInput::placeholder {
+   color: var(--text-tertiary);
+ }
+ 
+ .inputHint {
+   display: block;
+   margin-top: 0.5rem;
+   color: var(--text-tertiary);
+   font-size: 0.875rem;
+ }
+ 
+ /* Селектор роли */
+ .roleSelectorEnhanced {
+   margin: 1rem 0;
+ }
+ 
+ .roleOptions {
+   display: grid;
+   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+   gap: 1rem;
+ }
+ 
+ .roleOption {
+   display: flex;
+   align-items: center;
+   padding: 1.5rem;
+   border: 2px solid var(--border-color);
+   border-radius: var(--radius-lg);
+   background: white;
+   cursor: pointer;
+   transition: var(--transition);
+   text-align: left;
+   width: 100%;
+   border: none;
+   background: var(--hover-background);
+ }
+ 
+ .roleOption:hover {
+   background: var(--secondary-color);
+   transform: translateY(-2px);
+   box-shadow: var(--shadow-md);
+ }
+ 
+ .roleOption.selected {
+   background: var(--primary-color);
+   color: white;
+   box-shadow: var(--shadow-md);
+ }
+ 
+ .roleOption.selected .roleInfo h4,
+ .roleOption.selected .roleInfo p {
+   color: white;
+ }
+ 
+ .roleIcon {
+   font-size: 2rem;
+   margin-right: 1.25rem;
+   flex-shrink: 0;
+ }
+ 
+ .roleInfo {
+   flex: 1;
+ }
+ 
+ .roleInfo h4 {
+   margin: 0 0 0.25rem 0;
+   font-size: 1.1rem;
+   color: var(--text-primary);
+   font-weight: 600;
+ }
+ 
+ .roleInfo p {
+   margin: 0;
+   color: var(--text-secondary);
+   font-size: 0.9rem;
+   line-height: 1.4;
+ }
+ 
+ .selectedBadge {
+   width: 24px;
+   height: 24px;
+   border-radius: 50%;
+   background: white;
+   color: var(--primary-color);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   font-size: 0.875rem;
+   font-weight: bold;
+   flex-shrink: 0;
+ }
+ 
+ /* Селектор уровня подготовки */
+ .trainingLevelSelector {
+   margin: 1rem 0;
+ }
+ 
+ .levelOptions {
+   display: grid;
+   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+   gap: 1rem;
+ }
+ 
+ .levelOption {
+   display: flex;
+   align-items: center;
+   padding: 1.25rem;
+   border: 2px solid var(--border-color);
+   border-radius: var(--radius-lg);
+   background: var(--hover-background);
+   cursor: pointer;
+   transition: var(--transition);
+   text-align: left;
+   width: 100%;
+   border: none;
+ }
+ 
+ .levelOption:hover {
+   background: var(--secondary-color);
+   transform: translateY(-2px);
+   box-shadow: var(--shadow-sm);
+ }
+ 
+ .levelOption.selected {
+   background: var(--primary-color);
+   color: white;
+   border-color: var(--primary-color);
+ }
+ 
+ .levelOption.selected .levelInfo h4,
+ .levelOption.selected .levelInfo p {
+   color: white;
+ }
+ 
+ .levelIcon {
+   font-size: 1.75rem;
+   margin-right: 1rem;
+   flex-shrink: 0;
+ }
+ 
+ .levelInfo {
+   flex: 1;
+ }
+ 
+ .levelInfo h4 {
+   margin: 0 0 0.25rem 0;
+   font-size: 1rem;
+   color: var(--text-primary);
+   font-weight: 600;
+ }
+ 
+ .levelInfo p {
+   margin: 0;
+   color: var(--text-secondary);
+   font-size: 0.85rem;
+   line-height: 1.4;
+ }
+ 
+ .levelExperience {
+   display: block;
+   margin-top: 0.25rem;
+   color: var(--text-tertiary);
+   font-size: 0.75rem;
+ }
+ 
+ .loadingLevels,
+ .noLevels {
+   text-align: center;
+   padding: 2rem;
+   color: var(--text-secondary);
+ }
+ 
+ .spinnerSmall {
+   width: 20px;
+   height: 20px;
+   border: 2px solid var(--border-color);
+   border-left: 2px solid var(--primary-color);
+   border-radius: 50%;
+   animation: spin 1s linear infinite;
+   margin: 0 auto 1rem;
+ }
+ 
+ @keyframes spin {
+   to { 
+     transform: rotate(360deg); 
+   }
+ }
+ 
+ /* Чекбоксы */
+ .checkboxGroup {
+   margin: 1.5rem 0;
+ }
+ 
+ .checkboxLabel {
+   display: flex;
+   align-items: flex-start;
+   cursor: pointer;
+   padding: 1rem;
+   border-radius: var(--radius-lg);
+   transition: var(--transition);
+   background: var(--hover-background);
+   border: 1px solid var(--border-color);
+ }
+ 
+ .checkboxLabel:hover {
+   background: var(--secondary-color);
+   border-color: var(--primary-light);
+ }
+ 
+ .checkboxInput {
+   display: none;
+ }
+ 
+ .checkboxCustom {
+   width: 20px;
+   height: 20px;
+   border: 2px solid var(--border-color);
+   border-radius: var(--radius-sm);
+   margin-right: 1rem;
+   margin-top: 0.25rem;
+   flex-shrink: 0;
+   position: relative;
+   transition: var(--transition);
+   background: white;
+ }
+ 
+ .checkboxInput:checked + .checkboxCustom {
+   background: var(--primary-color);
+   border-color: var(--primary-color);
+ }
+ 
+ .checkboxInput:checked + .checkboxCustom::after {
+   content: '✓';
+   position: absolute;
+   top: 50%;
+   left: 50%;
+   transform: translate(-50%, -50%);
+   color: white;
+   font-size: 0.875rem;
+   font-weight: bold;
+ }
+ 
+ .checkboxText {
+   flex: 1;
+ }
+ 
+ .checkboxText strong {
+   display: block;
+   margin-bottom: 0.25rem;
+   color: var(--text-primary);
+   font-size: 1rem;
+ }
+ 
+ .checkboxText p {
+   margin: 0;
+   color: var(--text-secondary);
+   font-size: 0.9rem;
+   line-height: 1.5;
+ }
+ 
+ /* Только для чтения информация */
+ .readOnlyInfo {
+   background: var(--hover-background);
+   border-radius: var(--radius-lg);
+   padding: 1.5rem;
+   border: 1px solid var(--border-color);
+ }
+ 
+ .infoRow {
+   display: flex;
+   margin-bottom: 1rem;
+   padding-bottom: 1rem;
+   border-bottom: 1px solid var(--border-light);
+ }
+ 
+ .infoRow:last-child {
+   margin-bottom: 0;
+   padding-bottom: 0;
+   border-bottom: none;
+ }
+ 
+ .infoLabel {
+   flex: 0 0 180px;
+   font-weight: 500;
+   color: var(--text-primary);
+   font-size: 0.95rem;
+ }
+ 
+ .infoValue {
+   flex: 1;
+   color: var(--text-secondary);
+   word-break: break-word;
+   font-size: 0.95rem;
+ }
+ 
+ .apiInfo {
+   margin-top: 0.5rem;
+   color: var(--text-tertiary);
+   font-size: 0.8rem;
+   text-align: right;
+ }
+ 
+ /* Сообщения */
+ .errorMessage,
+ .successMessage,
+ .warningMessage {
+   padding: 1rem 1.5rem;
+   border-radius: var(--radius-lg);
+   margin-bottom: 2rem;
+   display: flex;
+   align-items: center;
+   gap: 0.75rem;
+   animation: slideIn 0.3s ease;
+   border: 1px solid transparent;
+ }
+ 
+ @keyframes slideIn {
+   from {
+     opacity: 0;
+     transform: translateY(-10px);
+   }
+   to {
+     opacity: 1;
+     transform: translateY(0);
+   }
+ }
+ 
+ .errorMessage {
+   background: rgba(239, 68, 68, 0.1);
+   border-color: rgba(239, 68, 68, 0.2);
+   color: #dc2626;
+ }
+ 
+ .successMessage {
+   background: rgba(34, 197, 94, 0.1);
+   border-color: rgba(34, 197, 94, 0.2);
+   color: #16a34a;
+ }
+ 
+ .warningMessage {
+   background: var(--warning-bg);
+   border-color: var(--warning-border);
+   color: #856404;
+ }
+ 
+ .errorIcon,
+ .successIcon,
+ .warningIcon {
+   font-size: 1.25rem;
+   flex-shrink: 0;
+ }
+ 
+ .closeErrorButton,
+ .closeSuccessButton,
+ .closeWarningButton {
+   margin-left: auto;
+   background: none;
+   border: none;
+   font-size: 20px;
+   cursor: pointer;
+   padding: 0 8px;
+   border-radius: 4px;
+   transition: background-color 0.2s;
+ }
+ 
+ .closeErrorButton {
+   color: #dc2626;
+ }
+ 
+ .closeSuccessButton {
+   color: #16a34a;
+ }
+ 
+ .closeWarningButton {
+   color: #856404;
+ }
+ 
+ .closeErrorButton:hover {
+   background-color: rgba(220, 38, 38, 0.1);
+ }
+ 
+ .closeSuccessButton:hover {
+   background-color: rgba(22, 163, 74, 0.1);
+ }
+ 
+ .closeWarningButton:hover {
+   background-color: rgba(133, 100, 4, 0.1);
+ }
+ 
+ /* Информационное окно */
+ .infoBox {
+   background: linear-gradient(135deg, #e7f5ff, #d0ebff);
+   border: 1px solid #a5d8ff;
+   border-radius: var(--radius-md);
+   padding: 1rem;
+   margin-top: 1rem;
+   display: flex;
+   align-items: center;
+   gap: 0.75rem;
+ }
+ 
+ .infoIcon {
+   font-size: 1.25rem;
+   flex-shrink: 0;
+ }
+ 
+ /* Кнопки действий */
+ .formActions {
+   display: flex;
+   justify-content: flex-end;
+   gap: 1rem;
+   margin-top: 3rem;
+   padding-top: 2rem;
+   border-top: 2px solid var(--border-light);
+ }
+ 
+ .cancelButton {
+   padding: 12px 24px;
+   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+   border: 1px solid #dee2e6;
+   color: #495057;
+   border-radius: 8px;
+   font-weight: 500;
+   cursor: pointer;
+   transition: all 0.2s ease;
+   margin-right: 12px;
+ }
+ 
+ .cancelButton:hover:not(:disabled) {
+   background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+   border-color: #adb5bd;
+   transform: translateY(-1px);
+   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+ }
+ 
+ .cancelButton:disabled {
+   opacity: 0.5;
+   cursor: not-allowed;
+ }
+ 
+ .submitButton {
+   padding: 0.875rem 2rem;
+   border: none;
+   border-radius: var(--radius-md);
+   background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+   color: white;
+   font-size: 1rem;
+   font-weight: 500;
+   cursor: pointer;
+   transition: var(--transition);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   gap: 0.5rem;
+   min-width: 180px;
+   box-shadow: var(--shadow-md);
+ }
+ 
+ .submitButton:hover:not(:disabled) {
+   transform: translateY(-2px);
+   box-shadow: var(--shadow-lg);
+ }
+ 
+ .submitButton:disabled {
+   opacity: 0.7;
+   cursor: not-allowed;
+   transform: none !important;
+ }
+ 
+ .formHint {
+   margin-top: 1rem;
+   text-align: center;
+   color: var(--text-tertiary);
+   font-size: 0.875rem;
+ }
+ 
+ /* Стили для тегов */
+ .tagPreview {
+   padding: 12px;
+   background: #f8f9fa;
+   border-radius: var(--radius-md);
+   border: 1px solid var(--border-color);
+ }
+ 
+ .tagsContainer {
+   display: flex;
+   flex-wrap: wrap;
+   gap: 8px;
+   margin-top: 10px;
+ }
+ 
+ .tagChip {
+   background: var(--tag-bg);
+   color: var(--tag-color);
+   padding: 6px 14px;
+   border-radius: 20px;
+   font-size: 14px;
+   font-weight: 500;
+   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+   border: none;
+   transition: all 0.2s ease;
+   display: inline-flex;
+   align-items: center;
+ }
+ 
+ .tagChip:hover {
+   transform: translateY(-2px);
+   box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+ }
+ 
+ /* Responsive Design */
+ @media (max-width: 768px) {
+   .roleOptions,
+   .levelOptions {
+     grid-template-columns: 1fr;
+   }
+   
+   .formActions {
+     flex-direction: column-reverse;
+     gap: 0.75rem;
+   }
+   
+   .cancelButton,
+   .submitButton {
+     width: 100%;
+     min-width: 0;
+   }
+   
+   .infoRow {
+     flex-direction: column;
+     gap: 0.25rem;
+   }
+   
+   .infoLabel {
+     flex: none;
+     width: 100%;
+   }
+   
+   .settingsEnhancedContainer {
+     padding: 0.5rem;
+   }
+   
+   .settingsForm {
+     padding: 1.5rem;
+   }
+   
+   .formSection {
+     padding-bottom: 2rem;
+   }
+ }
+ 
+ @media (max-width: 480px) {
+   .settingsHeader h1 {
+     font-size: 2rem;
+   }
+   
+   .sectionTitle {
+     font-size: 1.25rem;
+   }
+   
+   .roleOption,
+   .levelOption {
+     padding: 1rem;
+   }
+   
+   .roleIcon {
+     font-size: 1.75rem;
+     margin-right: 1rem;
+   }
+   
+   .levelIcon {
+     font-size: 1.5rem;
+   }
+   
+   .textInput,
+   .dateInput {
+     width: 100%;
+   }
+ }

@@ -1,0 +1,568 @@
+/* src/UI/Components/FileUploadModal.module.css */
+.modalOverlay {
+   position: fixed;
+   top: 0;
+   left: 0;
+   right: 0;
+   bottom: 0;
+   background-color: rgba(0, 0, 0, 0.5);
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   z-index: 1000;
+   padding: 20px;
+   animation: fadeIn 0.2s ease;
+ }
+ 
+ @keyframes fadeIn {
+   from { opacity: 0; }
+   to { opacity: 1; }
+ }
+ 
+ .modalContent {
+   background: white;
+   border-radius: 12px;
+   width: 100%;
+   max-width: 700px;
+   max-height: 90vh;
+   display: flex;
+   flex-direction: column;
+   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+   animation: slideUp 0.3s ease;
+ }
+ 
+ @keyframes slideUp {
+   from {
+     opacity: 0;
+     transform: translateY(20px);
+   }
+   to {
+     opacity: 1;
+     transform: translateY(0);
+   }
+ }
+ 
+ .modalHeader {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   padding: 20px 24px;
+   border-bottom: 1px solid #e0e0e0;
+ }
+ 
+ .modalHeader h2 {
+   margin: 0;
+   font-size: 1.5rem;
+   color: #333;
+ }
+ 
+ .closeButton {
+   background: none;
+   border: none;
+   font-size: 28px;
+   color: #999;
+   cursor: pointer;
+   width: 36px;
+   height: 36px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   border-radius: 50%;
+   transition: background-color 0.2s;
+ }
+ 
+ .closeButton:hover:not(:disabled) {
+   background-color: #f5f5f5;
+   color: #333;
+ }
+ 
+ .closeButton:disabled {
+   opacity: 0.5;
+   cursor: not-allowed;
+ }
+ 
+ .modalBody {
+   padding: 24px;
+   overflow-y: auto;
+   flex: 1;
+ }
+ 
+ .uploadSettings {
+   margin-top: 24px;
+   padding-top: 24px;
+   border-top: 1px solid #e0e0e0;
+ }
+ 
+ .uploadSettings h3 {
+   margin: 0 0 16px 0;
+   font-size: 1.1rem;
+   color: #333;
+ }
+ 
+ .settingGroup {
+   margin-bottom: 20px;
+ }
+ 
+ .settingLabel {
+   display: block;
+   margin-bottom: 10px;
+   font-weight: 500;
+   color: #555;
+ }
+ 
+ .radioGroup {
+   display: flex;
+   flex-direction: column;
+   gap: 12px;
+ }
+ 
+ .radioOption {
+   display: flex;
+   align-items: flex-start;
+   cursor: pointer;
+   padding: 12px;
+   border: 1px solid #e0e0e0;
+   border-radius: 8px;
+   transition: border-color 0.2s, background-color 0.2s;
+ }
+ 
+ .radioOption:hover {
+   border-color: #4a90e2;
+   background-color: #f8fbff;
+ }
+ 
+ .radioOption input {
+   margin-right: 12px;
+   margin-top: 2px;
+ }
+ 
+ .radioLabel {
+   display: flex;
+   flex-direction: column;
+ }
+ 
+ .radioLabel strong {
+   font-weight: 500;
+   color: #333;
+   margin-bottom: 4px;
+ }
+ 
+ .radioLabel small {
+   font-size: 0.85rem;
+   color: #666;
+ }
+ 
+ .checkboxOption {
+   display: flex;
+   align-items: center;
+   cursor: pointer;
+   padding: 12px;
+   border: 1px solid #e0e0e0;
+   border-radius: 8px;
+   transition: border-color 0.2s, background-color 0.2s;
+ }
+ 
+ .checkboxOption:hover {
+   border-color: #4a90e2;
+   background-color: #f8fbff;
+ }
+ 
+ .checkboxOption input {
+   margin-right: 10px;
+ }
+ 
+ .errorMessage {
+   background-color: #ffebee;
+   color: #d32f2f;
+   padding: 12px 16px;
+   border-radius: 8px;
+   margin-top: 16px;
+   font-size: 0.95rem;
+ }
+ 
+ .modalFooter {
+   display: flex;
+   justify-content: flex-end;
+   gap: 12px;
+   padding: 20px 24px;
+   border-top: 1px solid #e0e0e0;
+   background-color: #fafafa;
+   border-bottom-left-radius: 12px;
+   border-bottom-right-radius: 12px;
+ }
+ 
+ .cancelButton {
+   padding: 10px 20px;
+   background: none;
+   border: 1px solid #ccc;
+   border-radius: 6px;
+   color: #666;
+   cursor: pointer;
+   font-size: 1rem;
+   transition: background-color 0.2s;
+ }
+ 
+ .cancelButton:hover:not(:disabled) {
+   background-color: #f0f0f0;
+ }
+ 
+ .cancelButton:disabled {
+   opacity: 0.5;
+   cursor: not-allowed;
+ }
+ 
+ .uploadButton {
+   padding: 10px 24px;
+   background-color: #4a90e2;
+   color: white;
+   border: none;
+   border-radius: 6px;
+   cursor: pointer;
+   font-size: 1rem;
+   font-weight: 500;
+   display: flex;
+   align-items: center;
+   gap: 8px;
+   transition: background-color 0.2s;
+ }
+ 
+ .uploadButton:hover:not(:disabled) {
+   background-color: #357ae8;
+ }
+ 
+ .uploadButton:disabled {
+   opacity: 0.5;
+   cursor: not-allowed;
+ }
+ 
+ .spinner {
+   display: inline-block;
+   width: 16px;
+   height: 16px;
+   border: 2px solid rgba(255, 255, 255, 0.3);
+   border-radius: 50%;
+   border-top-color: white;
+   animation: spin 1s ease-in-out infinite;
+ }
+ 
+ @keyframes spin {
+   to { transform: rotate(360deg); }
+ }
+
+ /* Добавьте в конец FileUploadModal.module.css */
+
+.uploadProgress {
+   margin-top: 20px;
+   padding-top: 20px;
+   border-top: 1px solid #e0e0e0;
+ }
+ 
+ .progressBar {
+   height: 8px;
+   background-color: #e0e0e0;
+   border-radius: 4px;
+   overflow: hidden;
+   margin-bottom: 8px;
+ }
+ 
+ .progressFill {
+   height: 100%;
+   background-color: #4a90e2;
+   border-radius: 4px;
+   transition: width 0.3s ease;
+ }
+ 
+ .progressText {
+   display: flex;
+   justify-content: space-between;
+   font-size: 0.9rem;
+   color: #666;
+ }
+ 
+ .progressPercent {
+   font-weight: 500;
+   color: #4a90e2;
+ }
+
+ /* Основные стили остаются теми же, добавляем новые */
+
+/* Анимация появления файлов */
+@keyframes slideDown {
+  from {
+     opacity: 0;
+     transform: translateY(-10px);
+  }
+  to {
+     opacity: 1;
+     transform: translateY(0);
+  }
+}
+
+/* Анимация пульсации для прогресса */
+@keyframes pulse {
+  0% { opacity: 0.7; }
+  50% { opacity: 1; }
+  100% { opacity: 0.7; }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Состояния центрированных сообщений */
+.stateMessage {
+  text-align: center;
+  padding: 60px 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+.stateIcon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  animation: slideUp 0.5s ease;
+}
+
+.successIcon {
+  background-color: #e8f5e9;
+  color: #4caf50;
+  animation: successPulse 2s ease-in-out;
+}
+
+@keyframes successPulse {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.checkmark {
+  animation: checkmark 0.5s ease-in-out;
+}
+
+@keyframes checkmark {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.partialIcon {
+  background-color: #fff3e0;
+  color: #ff9800;
+  animation: pulse 2s infinite;
+}
+
+.stateTitle {
+  margin: 0 0 10px 0;
+  font-size: 1.5rem;
+  animation: fadeIn 0.5s ease 0.3s both;
+}
+
+.stateText {
+  color: #666;
+  margin: 0;
+  animation: fadeIn 0.5s ease 0.5s both;
+}
+
+/* Сворачиваемый список файлов */
+.selectedFilesSection {
+  margin-top: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  animation: slideDown 0.3s ease;
+}
+
+.filesHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #f8f9fa;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.filesHeader:hover {
+  background-color: #f0f2f5;
+}
+
+.filesCount {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+}
+
+.countBadge {
+  background-color: #4a90e2;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  animation: pulse 2s infinite;
+}
+
+.toggleIcon {
+  color: #666;
+  transition: transform 0.3s ease;
+}
+
+.filesListContainer {
+  max-height: 200px;
+  overflow-y: auto;
+  animation: slideDown 0.3s ease;
+}
+
+.filesList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.fileItem {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  animation: slideDown 0.3s ease;
+  animation-fill-mode: both;
+}
+
+.fileItem:nth-child(1) { animation-delay: 0.1s; }
+.fileItem:nth-child(2) { animation-delay: 0.15s; }
+.fileItem:nth-child(3) { animation-delay: 0.2s; }
+.fileItem:nth-child(4) { animation-delay: 0.25s; }
+.fileItem:nth-child(5) { animation-delay: 0.3s; }
+
+.fileIcon {
+  margin-right: 10px;
+  font-size: 1.2rem;
+}
+
+.fileName {
+  flex: 1;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fileSize {
+  color: #666;
+  font-size: 0.85rem;
+  margin-left: 10px;
+}
+
+/* Улучшенный прогресс бар */
+.uploadProgress {
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+  animation: fadeIn 0.5s ease;
+}
+
+.progressHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.progressTitle {
+  font-weight: 500;
+  color: #333;
+}
+
+.progressPercent {
+  font-weight: 600;
+  color: #4a90e2;
+  animation: pulse 1.5s infinite;
+}
+
+.progressBar {
+  height: 10px;
+  background-color: #e0e0e0;
+  border-radius: 5px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #4a90e2, #357ae8);
+  border-radius: 5px;
+  position: relative;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progressAnimation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+     90deg,
+     transparent,
+     rgba(255, 255, 255, 0.4),
+     transparent
+  );
+  animation: shimmer 2s infinite;
+}
+
+.progressText {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: #666;
+  text-align: center;
+}
+
+/* Улучшенная анимация спиннера */
+.spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Адаптивность */
+@media (max-width: 576px) {
+  .stateMessage {
+     padding: 40px 15px;
+  }
+  
+  .stateIcon {
+     width: 60px;
+     height: 60px;
+     font-size: 28px;
+  }
+  
+  .stateTitle {
+     font-size: 1.3rem;
+  }
+  
+  .filesHeader {
+     padding: 10px 12px;
+  }
+  
+  .fileItem {
+     padding: 8px 12px;
+  }
+}

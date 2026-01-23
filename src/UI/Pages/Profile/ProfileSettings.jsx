@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify'; // Импортируем toast
 import {
    selectUser,
    selectLoading as selectAuthLoading,
@@ -28,7 +29,7 @@ import {
 } from '../../../features/profileSlice';
 
 import ConfirmRoleChangeModal from '../../Components/ConfirmRoleChangeModal';
-import styles from './Profile.module.css';
+import styles from './ProfileSettings.module.css';
 
 // Компонент выбора роли
 const RoleSelector = ({ selectedRole, onRoleSelect }) => {
@@ -141,8 +142,6 @@ const ProfileSettings = () => {
    const isProfileLoaded = useSelector(selectIsProfileLoaded);
 
    const [isLoading, setIsLoading] = useState(false);
-   const [error, setError] = useState(null);
-   const [successMessage, setSuccessMessage] = useState(null);
    const [hasPendingRoleChange, setHasPendingRoleChange] = useState(false);
 
    // Состояния для модалки подтверждения смены роли
@@ -195,6 +194,22 @@ const ProfileSettings = () => {
       };
    }, [dispatch]);
 
+   // 🔄 Отображение ошибок из Redux через toast
+   useEffect(() => {
+      if (profileError) {
+         toast.error(`Ошибка загрузки профиля: ${profileError}`, {
+            position: "top-right",
+            autoClose: 5000,
+         });
+      }
+      if (saveError) {
+         toast.error(`Ошибка сохранения: ${saveError}`, {
+            position: "top-right",
+            autoClose: 5000,
+         });
+      }
+   }, [profileError, saveError]);
+
    // Обработчик смены роли
    const handleRoleChange = (newRole) => {
       if (formData.role === newRole) return;
@@ -217,8 +232,12 @@ const ProfileSettings = () => {
       }));
 
       setHasPendingRoleChange(true);
-      setSuccessMessage(null);
-      setError(null);
+
+      // Показываем toast-уведомление о смене роли
+      toast.warning('Роль изменена. Не забудьте сохранить изменения!', {
+         position: "top-right",
+         autoClose: 5000,
+      });
    };
 
    // Обработчик подтверждения смены роли
@@ -253,8 +272,6 @@ const ProfileSettings = () => {
          ...prev,
          [name]: type === 'checkbox' ? checked : processedValue
       }));
-      setSuccessMessage(null);
-      setError(null);
    };
 
    // Обработчик изменения уровня подготовки (без автосохранения)
@@ -275,11 +292,6 @@ const ProfileSettings = () => {
             errors.push('Выбран несуществующий уровень подготовки');
          }
       }
-
-      // УБРАНА обязательная проверка для тренера - поле теперь опциональное для всех
-      // if (formData.role === USER_ROLES.TRAINER && !formData.sport_specialization.trim()) {
-      //    errors.push('Для тренера необходимо указать специализацию');
-      // }
 
       if (!formData.userName.trim()) {
          errors.push('Имя пользователя обязательно');
@@ -309,13 +321,17 @@ const ProfileSettings = () => {
 
       const errors = validateForm();
       if (errors.length > 0) {
-         setError(errors.join('. '));
+         // Показываем все ошибки через toast
+         errors.forEach(error => {
+            toast.error(error, {
+               position: "top-right",
+               autoClose: 5000,
+            });
+         });
          return;
       }
 
       setIsLoading(true);
-      setError(null);
-      setSuccessMessage(null);
 
       try {
          // Подготавливаем данные для отправки
@@ -361,40 +377,43 @@ const ProfileSettings = () => {
          // Сбрасываем флаг после успешного сохранения
          setHasPendingRoleChange(false);
 
-         setSuccessMessage('Профиль успешно обновлен!');
-         setIsLoading(false);
+         // Показываем toast-уведомление об успехе
+         toast.success('Профиль успешно обновлен!', {
+            position: "top-right",
+            autoClose: 3000,
+         });
 
-         setTimeout(() => {
-            setSuccessMessage(null);
-         }, 3000);
+         setIsLoading(false);
 
       } catch (error) {
          console.error('🔴 Ошибка обновления профиля:', error);
-         setError(error.message || 'Произошла ошибка при обновлении профиля');
+
+         // Показываем toast-уведомление об ошибке
+         toast.error(error.message || 'Произошла ошибка при обновлении профиля', {
+            position: "top-right",
+            autoClose: 5000,
+         });
+
          setIsLoading(false);
       }
    };
 
    const handleCancel = () => {
-      // Сбрасываем ВСЕ состояния
+      // Если есть несохраненные изменения роли, показываем предупреждение
+      if (hasPendingRoleChange) {
+         const userConfirmed = window.confirm(
+            'У вас есть несохраненные изменения. Вы уверены, что хотите отменить?'
+         );
+         if (!userConfirmed) return;
+      }
+
+      // Сбрасываем состояния
       setIsLoading(false);
       setHasPendingRoleChange(false);
-      setError(null);
-      setSuccessMessage(null);
 
       // Навигация
       navigate('/');
    };
-
-   // 🔄 Отображение ошибок из Redux
-   useEffect(() => {
-      if (profileError) {
-         setError(`Ошибка загрузки профиля: ${profileError}`);
-      }
-      if (saveError) {
-         setError(`Ошибка сохранения: ${saveError}`);
-      }
-   }, [profileError, saveError]);
 
    // Объединяем состояния загрузки
    const isPageLoading = authLoading || isLoadingProfile;
@@ -432,43 +451,21 @@ const ProfileSettings = () => {
                <p>Управление вашими персональными данными</p>
             </header>
 
-            {/* Сообщения об ошибках и успехе */}
-            {error && (
-               <div className={styles.errorMessage}>
-                  <span className={styles.errorIcon}>❌</span>
-                  {error}
-                  <button
-                     className={styles.closeErrorButton}
-                     onClick={() => setError(null)}
-                     aria-label="Закрыть ошибку"
-                  >
-                     ×
-                  </button>
-               </div>
-            )}
-
-            {hasPendingRoleChange && !error && (
+            {/* Предупреждение о несохраненной смене роли */}
+            {hasPendingRoleChange && (
                <div className={styles.warningMessage}>
                   <span className={styles.warningIcon}>⚠️</span>
                   Несохраненная смена роли! Нажмите "Сохранить изменения" для подтверждения.
                   <button
                      className={styles.closeWarningButton}
-                     onClick={() => setHasPendingRoleChange(false)}
+                     onClick={() => {
+                        setHasPendingRoleChange(false);
+                        toast.info('Предупреждение о несохраненных изменениях скрыто', {
+                           position: "top-right",
+                           autoClose: 2000,
+                        });
+                     }}
                      aria-label="Закрыть предупреждение"
-                  >
-                     ×
-                  </button>
-               </div>
-            )}
-
-            {successMessage && (
-               <div className={styles.successMessage}>
-                  <span className={styles.successIcon}>✅</span>
-                  {successMessage}
-                  <button
-                     className={styles.closeSuccessButton}
-                     onClick={() => setSuccessMessage(null)}
-                     aria-label="Закрыть уведомление"
                   >
                      ×
                   </button>

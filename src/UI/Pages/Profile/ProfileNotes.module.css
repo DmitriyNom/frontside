@@ -1,0 +1,214 @@
+/* ================================================== */
+/* 3. ProfileNotes.module.css - ТОЛЬКО для ProfileNotes.jsx */
+/* ================================================== */
+
+:root {
+   --primary-color: #6366f1;
+   --primary-hover: #4f46e5;
+   --primary-light: #a5b4fc;
+   --accent-color: #06d6a0;
+   --text-primary: #1e293b;
+   --text-secondary: #64748b;
+   --border-color: #e2e8f0;
+   --hover-background: #f8fafc;
+   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+   --radius-md: 0.5rem;
+   --radius-lg: 0.75rem;
+   --transition: all 0.3s ease-in-out;
+ }
+ 
+ /* Notes Tab */
+ .notesTab {
+   max-width: 1200px;
+   margin: 0 auto;
+ }
+ 
+ .tabHeader {
+   display: flex;
+   justify-content: space-between;
+   align-items: flex-start;
+   margin-bottom: 2rem;
+   gap: 2rem;
+ }
+ 
+ .headerContent h2 {
+   font-size: 2rem;
+   font-weight: 700;
+   color: var(--text-primary);
+   margin: 0 0 0.5rem 0;
+ }
+ 
+ .headerContent p {
+   color: var(--text-secondary);
+   margin: 0;
+ }
+ 
+ /* Кнопка создания заметки в заголовке */
+ .addNoteButton {
+   background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+   color: white;
+   border: none;
+   padding: 0.875rem 1.5rem;
+   border-radius: var(--radius-md);
+   cursor: pointer;
+   font-weight: 500;
+   transition: all 0.3s ease-in-out;
+   display: flex;
+   align-items: center;
+   gap: 0.5rem;
+   white-space: nowrap;
+   box-shadow: var(--shadow-md);
+   opacity: 1;
+   transform: translateY(0);
+   visibility: visible;
+ }
+ 
+ .addNoteButton:hover {
+   transform: translateY(-2px);
+   box-shadow: var(--shadow-lg);
+ }
+ 
+ .addNoteButton span {
+   font-size: 1.25rem;
+   font-weight: 300;
+ }
+ 
+ /* Состояние когда кнопка скрыта (при прокрутке) */
+ .addNoteButton.headerButtonHidden {
+   opacity: 0;
+   transform: translateY(-10px);
+   visibility: hidden;
+ }
+ 
+ .notesContent {
+   background: white;
+   border-radius: var(--radius-lg);
+   border: 1px solid var(--border-color);
+   box-shadow: var(--shadow-sm);
+   min-height: 400px;
+   padding: 1.5rem;
+   overflow: hidden;
+ }
+ 
+ /* Плавающая кнопка создания заметки */
+ .floatingButton {
+   position: fixed;
+   bottom: 2rem;
+   right: 2rem;
+   background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+   color: white;
+   border: none;
+   border-radius: 50px;
+   padding: 1rem 1.5rem;
+   cursor: pointer;
+   font-weight: 500;
+   display: flex;
+   align-items: center;
+   gap: 0.75rem;
+   box-shadow: var(--shadow-lg);
+   z-index: 1000;
+   min-width: auto;
+   
+   opacity: 0;
+   transform: translateY(20px);
+   pointer-events: none;
+   transition: all 0.3s ease-in-out;
+ }
+ 
+ .floatingButton.visible {
+   opacity: 1;
+   transform: translateY(0);
+   pointer-events: all;
+ }
+ 
+ .floatingButton:hover {
+   transform: translateY(-2px);
+   box-shadow: 
+     0 8px 25px -5px rgb(0 0 0 / 0.15),
+     0 5px 10px -5px rgb(0 0 0 / 0.1);
+ }
+ 
+ .floatingButton.visible:hover {
+   transform: translateY(-2px);
+ }
+ 
+ .floatingButtonIcon {
+   font-size: 1.5rem;
+   font-weight: 300;
+   width: 24px;
+   height: 24px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+ }
+ 
+ .floatingButtonText {
+   font-size: 0.875rem;
+   font-weight: 500;
+   white-space: nowrap;
+ }
+ 
+ /* Бейдж с количеством заметок */
+ .noteCountBadge {
+   position: absolute;
+   top: -5px;
+   right: -5px;
+   background: linear-gradient(135deg, #ef4444, #dc2626);
+   color: white;
+   border-radius: 50%;
+   width: 20px;
+   height: 20px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   font-size: 0.75rem;
+   font-weight: 600;
+   box-shadow: 0 2px 4px rgb(0 0 0 / 0.2);
+ }
+ 
+ /* Responsive Design */
+ @media (max-width: 768px) {
+   .tabHeader {
+     flex-direction: column;
+     align-items: stretch;
+     gap: 1rem;
+   }
+   
+   .addNoteButton {
+     align-self: flex-start;
+   }
+   
+   .notesContent {
+     padding: 1rem;
+   }
+   
+   .floatingButton {
+     bottom: 1rem;
+     right: 1rem;
+     padding: 1rem;
+     border-radius: 50%;
+     width: 60px;
+     height: 60px;
+     justify-content: center;
+   }
+   
+   .floatingButtonText {
+     display: none;
+   }
+   
+   .floatingButtonIcon {
+     font-size: 1.75rem;
+   }
+ }
+ 
+ @media (max-width: 480px) {
+   .headerContent h2 {
+     font-size: 1.75rem;
+   }
+   
+   .notesContent {
+     padding: 0.75rem;
+   }
+ }

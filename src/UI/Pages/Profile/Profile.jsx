@@ -12,7 +12,7 @@ import {
    selectIsTrainer,
    selectIsTrainee
 } from '../../../features/authSlice';
-import { selectNotes } from '../../../features/notesSlice';
+// import { selectNotes } from '../../../features/notesSlice';
 import NoteForm from '../../Forms/NoteForm';
 import { getUserRoleLabel } from '../../../constants/userRoles';
 import styles from './Profile.module.css';
@@ -22,6 +22,7 @@ import ProfileOverview from './ProfileOverview';
 import ProfileNotes from './ProfileNotes';
 import ProfileTraining from './ProfileTraining';
 import ProfileSettings from './ProfileSettings'; // Новая расширенная версия
+import ProfileMedia from './ProfileMedia'; // ✅ НОВЫЙ: Импортируем компонент медиа
 
 const Profile = () => {
    const dispatch = useDispatch();
@@ -34,7 +35,7 @@ const Profile = () => {
    const loading = useSelector(selectLoading);
    const error = useSelector(selectError);
    const isProfileFetched = useSelector(selectIsProfileFetched);
-   const notes = useSelector(selectNotes);
+   // const notes = useSelector(selectNotes);
    const isTrainer = useSelector(selectIsTrainer);
    const isTrainee = useSelector(selectIsTrainee);
 
@@ -67,15 +68,24 @@ const Profile = () => {
    const renderContent = () => {
       switch (activeTab) {
          case 'overview':
-            return <ProfileOverview user={user} />;
+            return <ProfileOverview
+               user={user}
+               onSwitchToMedia={() => setActiveTab('media')} // ✅ Передаем функцию переключения
+            />;
          case 'notes':
             return <ProfileNotes onOpenNoteForm={openNoteForm} />;
          case 'settings':
-            return <ProfileSettings />; // Используем новую расширенную страницу
+            return <ProfileSettings />;
          case 'training':
+            // Используем один case, но внутри компонент сам решит что показывать
             return <ProfileTraining user={user} />;
+         case 'media':
+            return <ProfileMedia />;
          default:
-            return <ProfileOverview user={user} />;
+            return <ProfileOverview
+               user={user}
+               onSwitchToMedia={() => setActiveTab('media')}
+            />;
       }
    };
 
@@ -135,24 +145,27 @@ const Profile = () => {
                      >
                         📝 Заметки
                      </button>
-                     {isTrainee && (
+
+                     {/* ✅ НОВЫЙ: Кнопка для медиа-библиотеки */}
+                     <button
+                        className={`${styles.navLink} ${activeTab === 'media' ? styles.navLinkActive : ''}`}
+                        onClick={() => setActiveTab('media')}
+                        type="button"
+                     >
+                        🖼️ Медиа
+                     </button>
+
+                     {/* Объединяем training для обеих ролей в одну кнопку */}
+                     {(isTrainee || isTrainer) && (
                         <button
                            className={`${styles.navLink} ${activeTab === 'training' ? styles.navLinkActive : ''}`}
                            onClick={() => setActiveTab('training')}
                            type="button"
                         >
-                           💪 Тренировки
+                           {isTrainer ? '👥 Мои подопечные' : '💪 Тренировки'}
                         </button>
                      )}
-                     {isTrainer && (
-                        <button
-                           className={`${styles.navLink} ${activeTab === 'training' ? styles.navLinkActive : ''}`}
-                           onClick={() => setActiveTab('training')}
-                           type="button"
-                        >
-                           👥 Мои подопечные
-                        </button>
-                     )}
+
                      <button
                         className={`${styles.navLink} ${activeTab === 'settings' ? styles.navLinkActive : ''}`}
                         onClick={() => setActiveTab('settings')}

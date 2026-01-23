@@ -1,0 +1,422 @@
+/* src/UI/Components/MediaPreviewModal.module.css */
+.modalOverlay {
+   position: fixed;
+   top: 0;
+   left: 0;
+   right: 0;
+   bottom: 0;
+   background-color: rgba(0, 0, 0, 0.9);
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   z-index: 1000;
+   padding: 20px;
+   animation: fadeIn 0.2s ease;
+ }
+ 
+ @keyframes fadeIn {
+   from { opacity: 0; }
+   to { opacity: 1; }
+ }
+ 
+ .modalContent {
+   background: white;
+   border-radius: 12px;
+   width: 100%;
+   max-width: 1200px;
+   max-height: 90vh;
+   display: flex;
+   flex-direction: column;
+   overflow: hidden;
+   animation: slideUp 0.3s ease;
+ }
+ 
+ @keyframes slideUp {
+   from {
+     opacity: 0;
+     transform: translateY(30px);
+   }
+   to {
+     opacity: 1;
+     transform: translateY(0);
+   }
+ }
+ 
+ .header {
+   display: flex;
+   justify-content: space-between;
+   align-items: flex-start;
+   padding: 20px 24px;
+   background: #f8f9fa;
+   border-bottom: 1px solid #dee2e6;
+ }
+ 
+ .titleSection {
+   flex: 1;
+   min-width: 0;
+ }
+ 
+ .filename {
+   margin: 0 0 8px 0;
+   font-size: 1.25rem;
+   color: #333;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+ }
+ 
+ .fileInfo {
+   display: flex;
+   gap: 16px;
+   font-size: 0.9rem;
+   color: #666;
+   flex-wrap: wrap;
+ }
+ 
+ .fileType,
+ .fileSize,
+ .uploadDate {
+   display: inline-block;
+ }
+ 
+ .closeButton {
+   background: none;
+   border: none;
+   font-size: 28px;
+   color: #666;
+   cursor: pointer;
+   width: 40px;
+   height: 40px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   border-radius: 50%;
+   flex-shrink: 0;
+   transition: background-color 0.2s;
+ }
+ 
+ .closeButton:hover {
+   background-color: #e9ecef;
+   color: #333;
+ }
+ 
+ .mainContent {
+   display: flex;
+   flex: 1;
+   min-height: 0;
+   overflow: hidden;
+ }
+ 
+ .mediaContainer {
+   flex: 3;
+   position: relative;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   background: #000;
+   padding: 20px;
+   min-height: 500px;
+ }
+ 
+ .mediaDisplay {
+   max-width: 100%;
+   max-height: 100%;
+   object-fit: contain;
+ }
+ 
+ .videoContainer {
+   width: 100%;
+   height: 100%;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+ }
+ 
+ .videoDisplay {
+   max-width: 100%;
+   max-height: 100%;
+ }
+ 
+ .navButton {
+   position: absolute;
+   top: 50%;
+   transform: translateY(-50%);
+   background: rgba(0, 0, 0, 0.7);
+   color: white;
+   border: none;
+   width: 50px;
+   height: 50px;
+   border-radius: 50%;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   font-size: 24px;
+   cursor: pointer;
+   transition: background-color 0.2s;
+   z-index: 10;
+ }
+ 
+ .navButton:hover {
+   background: rgba(0, 0, 0, 0.9);
+ }
+ 
+ .prevButton {
+   left: 20px;
+ }
+ 
+ .nextButton {
+   right: 20px;
+ }
+ 
+ .navInfo {
+   position: absolute;
+   bottom: 20px;
+   left: 50%;
+   transform: translateX(-50%);
+   background: rgba(0, 0, 0, 0.7);
+   color: white;
+   padding: 6px 12px;
+   border-radius: 20px;
+   font-size: 0.9rem;
+ }
+ 
+ .sidePanel {
+   flex: 1;
+   min-width: 350px;
+   max-width: 400px;
+   padding: 24px;
+   overflow-y: auto;
+   border-left: 1px solid #dee2e6;
+   background: #f8f9fa;
+ }
+ 
+ .editForm,
+ .infoSection,
+ .actionsSection {
+   margin-bottom: 24px;
+ }
+ 
+ .editForm h3,
+ .infoSection h3,
+ .actionsSection h3 {
+   margin: 0 0 16px 0;
+   font-size: 1.1rem;
+   color: #333;
+ }
+ 
+ .formGroup {
+   margin-bottom: 16px;
+ }
+ 
+ .formLabel {
+   display: block;
+   margin-bottom: 8px;
+   font-weight: 500;
+   color: #555;
+ }
+ 
+ .radioGroup {
+   display: flex;
+   flex-direction: column;
+   gap: 8px;
+ }
+ 
+ .radioOption {
+   display: flex;
+   align-items: center;
+   cursor: pointer;
+   padding: 8px;
+   border: 1px solid #dee2e6;
+   border-radius: 6px;
+   transition: border-color 0.2s;
+ }
+ 
+ .radioOption:hover {
+   border-color: #4a90e2;
+ }
+ 
+ .radioOption input {
+   margin-right: 8px;
+ }
+ 
+ .checkboxOption {
+   display: flex;
+   align-items: center;
+   cursor: pointer;
+   padding: 8px;
+   border: 1px solid #dee2e6;
+   border-radius: 6px;
+   transition: border-color 0.2s;
+ }
+ 
+ .checkboxOption:hover {
+   border-color: #4a90e2;
+ }
+ 
+ .checkboxOption input {
+   margin-right: 8px;
+ }
+ 
+ .formActions {
+   display: flex;
+   gap: 12px;
+   margin-top: 24px;
+ }
+ 
+ .cancelButton,
+ .saveButton {
+   flex: 1;
+   padding: 10px;
+   border-radius: 6px;
+   font-weight: 500;
+   cursor: pointer;
+   transition: all 0.2s;
+ }
+ 
+ .cancelButton {
+   background: white;
+   border: 1px solid #dee2e6;
+   color: #666;
+ }
+ 
+ .cancelButton:hover {
+   background: #f8f9fa;
+ }
+ 
+ .saveButton {
+   background: #4a90e2;
+   border: 1px solid #4a90e2;
+   color: white;
+ }
+ 
+ .saveButton:hover {
+   background: #357ae8;
+ }
+ 
+ .infoGrid {
+   display: flex;
+   flex-direction: column;
+   gap: 12px;
+ }
+ 
+ .infoRow {
+   display: flex;
+   justify-content: space-between;
+   padding-bottom: 8px;
+   border-bottom: 1px solid #eee;
+ }
+ 
+ .infoLabel {
+   color: #666;
+   font-weight: 500;
+ }
+ 
+ .infoValue {
+   color: #333;
+   text-align: right;
+   max-width: 60%;
+   word-break: break-word;
+ }
+ 
+ .privacyBadge {
+   display: inline-block;
+   padding: 2px 8px;
+   border-radius: 4px;
+   font-size: 0.8rem;
+   font-weight: 500;
+ }
+ 
+ .privacyBadge.public {
+   background: #4caf50;
+   color: white;
+ }
+ 
+ .privacyBadge.private {
+   background: #ff9800;
+   color: white;
+ }
+ 
+ .actionsGrid {
+   display: grid;
+   grid-template-columns: 1fr 1fr;
+   gap: 12px;
+ }
+ 
+ .actionButton {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   gap: 8px;
+   padding: 12px;
+   background: white;
+   border: 1px solid #dee2e6;
+   border-radius: 6px;
+   color: #333;
+   text-decoration: none;
+   cursor: pointer;
+   transition: all 0.2s;
+   font-size: 0.95rem;
+ }
+ 
+ .actionButton:hover {
+   background: #f8f9fa;
+   border-color: #4a90e2;
+   color: #4a90e2;
+ }
+ 
+ .actionButton.deleteButton:hover {
+   background: #ffebee;
+   border-color: #f44336;
+   color: #f44336;
+ }
+ 
+ .actionButton.shareButton:hover {
+   background: #e8f5e9;
+   border-color: #4caf50;
+   color: #4caf50;
+ }
+ 
+ /* Адаптивность */
+ @media (max-width: 992px) {
+   .mainContent {
+     flex-direction: column;
+   }
+   
+   .sidePanel {
+     min-width: 100%;
+     max-width: 100%;
+     border-left: none;
+     border-top: 1px solid #dee2e6;
+     max-height: 300px;
+   }
+   
+   .mediaContainer {
+     min-height: 400px;
+   }
+ }
+ 
+ @media (max-width: 576px) {
+   .header {
+     flex-direction: column;
+     gap: 12px;
+   }
+   
+   .closeButton {
+     align-self: flex-end;
+     margin-top: -50px;
+   }
+   
+   .fileInfo {
+     flex-direction: column;
+     gap: 4px;
+   }
+   
+   .actionsGrid {
+     grid-template-columns: 1fr;
+   }
+ }
+
+ .actionButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

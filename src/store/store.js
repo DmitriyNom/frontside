@@ -5,6 +5,7 @@ import authReducer from '../features/authSlice'
 import notesReducer from '../features/notesSlice';
 import onboardingReducer from '../features/onboardingSlice';
 import profileReducer from '../features/profileSlice'
+import mediaReducer from '../features/mediaSlice'
 
 
 const store = configureStore({
@@ -13,7 +14,8 @@ const store = configureStore({
       auth: authReducer,
       notes: notesReducer,
       onboarding: onboardingReducer,
-      profile: profileReducer
+      profile: profileReducer,
+      media: mediaReducer
    },
 });
 

@@ -1,0 +1,58 @@
+/* ===================================================== */
+/* 5. ProfileTraining.module.css - ТОЛЬКО для ProfileTraining.jsx */
+/* ===================================================== */
+
+.trainingContent {
+   background: white;
+   border-radius: var(--radius-lg);
+   border: 1px solid var(--border-color);
+   box-shadow: var(--shadow-sm);
+   padding: 2rem;
+ }
+ 
+ .comingSoon {
+   text-align: center;
+   padding: 3rem 2rem;
+ }
+ 
+ .comingSoonIcon {
+   font-size: 4rem;
+   margin-bottom: 1rem;
+ }
+ 
+ .comingSoon h3 {
+   color: var(--text-primary);
+   margin-bottom: 1rem;
+ }
+ 
+ .comingSoon p {
+   color: var(--text-secondary);
+   margin-bottom: 2rem;
+ }
+ 
+ .featureList {
+   display: flex;
+   flex-direction: column;
+   gap: 0.5rem;
+   align-items: center;
+ }
+ 
+ .featureList span {
+   color: var(--text-secondary);
+   font-size: 0.875rem;
+ }
+ 
+ /* Responsive */
+ @media (max-width: 768px) {
+   .trainingContent {
+     padding: 1rem;
+   }
+   
+   .comingSoon {
+     padding: 2rem 1rem;
+   }
+   
+   .featureList {
+     align-items: flex-start;
+   }
+ }
