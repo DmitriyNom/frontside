@@ -7,22 +7,7 @@ export const useOnboarding = () => {
    const { user } = useSelector(state => state.auth);
    const { showOnboarding, skipped } = useSelector(state => state.onboarding);
 
-   // ДЕТАЛЬНАЯ ОТЛАДКА
-   console.log('🔍 useOnboarding ДЕТАЛЬНАЯ ОТЛАДКА:', {
-      user: user ? {
-         id: user.id,
-         email: user.email,
-         role: user.role,
-         roleType: typeof user.role,
-         isNull: user.role === null,
-         isUndefined: user.role === undefined,
-         isEmptyString: user.role === '',
-         truthy: !!user.role
-      } : 'NO USER',
-      skipped,
-      showOnboarding,
-      needsOnboarding: user && !user.role && !skipped
-   });
+
 
    // Логика определения нужно ли показывать onboarding
    const needsOnboarding = user &&

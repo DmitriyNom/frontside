@@ -13,13 +13,11 @@ const NoteList = () => {
    const totalPages = useSelector(selectTotalPages);
 
    useEffect(() => {
-      console.log('Загружаем заметки для страницы:', currentPage);
       dispatch(getAllNotes({ page: currentPage, limit: 10 }));
    }, [dispatch, currentPage]);
 
    const handlePageChange = (newPage) => {
       if (newPage >= 1 && newPage <= totalPages) {
-         console.log('Смена страницы на:', newPage);
          dispatch(setPage(newPage));
       }
    };

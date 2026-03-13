@@ -6,13 +6,7 @@ import ConfirmationModal from './ConfirmationModal';
 import { getMediaUrl } from '../../api/api';
 import styles from './MediaGallery.module.css';
 
-const MediaGallery = ({ media = [], onDeleteClick, onPrivacyChange, viewMode = 'grid' }) => {
-   console.log('🎬 MediaGallery rendered with:', {
-      mediaCount: media.length,
-      viewMode,
-      firstItems: media.slice(0, 2)
-   });
-
+const MediaGallery = ({ media = [], viewMode = 'grid' }) => {
    const dispatch = useDispatch();
    const [selectedMedia, setSelectedMedia] = useState(null);
    const [previewOpen, setPreviewOpen] = useState(false);
@@ -34,7 +28,6 @@ const MediaGallery = ({ media = [], onDeleteClick, onPrivacyChange, viewMode = '
 
    // Обработчик удаления - теперь открывает модалку
    const handleDeleteClick = (mediaId, mediaName) => {
-      console.log('🗑️ Requesting delete for media:', mediaId, mediaName);
       setDeleteModal({
          isOpen: true,
          mediaId,
@@ -45,7 +38,6 @@ const MediaGallery = ({ media = [], onDeleteClick, onPrivacyChange, viewMode = '
    // Подтверждение удаления
    const handleConfirmDelete = () => {
       if (deleteModal.mediaId) {
-         console.log('✅ Confirmed delete for:', deleteModal.mediaId);
          dispatch(deleteMedia(deleteModal.mediaId));
       }
       setDeleteModal({ isOpen: false, mediaId: null, mediaName: '' });
@@ -53,13 +45,11 @@ const MediaGallery = ({ media = [], onDeleteClick, onPrivacyChange, viewMode = '
 
    // Отмена удаления
    const handleCancelDelete = () => {
-      console.log('❌ Delete cancelled');
       setDeleteModal({ isOpen: false, mediaId: null, mediaName: '' });
    };
 
    // Открытие превью - вызывается при клике на любую часть карточки
    const handlePreview = (mediaItem) => {
-      console.log('👁️ Previewing media:', mediaItem.original_filename);
       setSelectedMedia(mediaItem);
       setPreviewOpen(true);
    };
@@ -76,7 +66,6 @@ const MediaGallery = ({ media = [], onDeleteClick, onPrivacyChange, viewMode = '
             year: 'numeric'
          });
       } catch (error) {
-         console.error('Date formatting error:', error);
          return 'Дата неизвестна';
       }
    };
@@ -97,7 +86,6 @@ const MediaGallery = ({ media = [], onDeleteClick, onPrivacyChange, viewMode = '
    };
 
    if (!media || media.length === 0) {
-      console.log('⚠️ MediaGallery: No media to display');
       return (
          <div className={styles.emptyState}>
             <div className={styles.emptyIcon}>🖼️</div>
@@ -132,7 +120,6 @@ const MediaGallery = ({ media = [], onDeleteClick, onPrivacyChange, viewMode = '
                                  loading="lazy"
                                  className={styles.previewImage}
                                  onError={(e) => {
-                                    console.error('❌ Image load error for URL:', mediaUrl);
                                     e.target.style.display = 'none';
                                     e.target.parentNode.innerHTML = `
                                        <div class="${styles.imageError}">
@@ -141,7 +128,6 @@ const MediaGallery = ({ media = [], onDeleteClick, onPrivacyChange, viewMode = '
                                        </div>
                                     `;
                                  }}
-                                 onLoad={() => console.log('✅ Image loaded:', mediaUrl)}
                               />
                               {!mediaUrl && (
                                  <div className={styles.imageError}>
@@ -192,8 +178,6 @@ const MediaGallery = ({ media = [], onDeleteClick, onPrivacyChange, viewMode = '
                               </div>
                            )}
                         </div>
-
-                        {/* ВСЕ КНОПКИ УДАЛЕНЫ - все действия теперь в модалке превью */}
                      </div>
                   </div>
                );

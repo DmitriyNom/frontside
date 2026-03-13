@@ -1,0 +1,260 @@
+/* OperationStatusModal.module.css */
+.modalOverlay {
+   position: fixed;
+   top: 0;
+   left: 0;
+   right: 0;
+   bottom: 0;
+   background: rgba(0, 0, 0, 0.85);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   z-index: 10050; /* Должен быть ВЫШЕ чем MediaPreviewModal (1000) */
+   opacity: 0;
+   visibility: hidden;
+   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+ }
+ 
+ .modalOverlay.show {
+   opacity: 1;
+   visibility: visible;
+ }
+ 
+ .modalContent {
+   background: white;
+   border-radius: 16px;
+   padding: 40px 30px 30px;
+   max-width: 400px;
+   width: 90%;
+   text-align: center;
+   transform: translateY(20px) scale(0.95);
+   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+   box-shadow: 0 25px 70px rgba(0, 0, 0, 0.5);
+   position: relative;
+   z-index: 10051;
+ }
+ 
+ .modalOverlay.show .modalContent {
+   transform: translateY(0) scale(1);
+ }
+ 
+ .statusIcon {
+   margin-bottom: 25px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   height: 80px;
+ }
+ 
+ .spinnerContainer {
+   width: 60px;
+   height: 60px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+ }
+ 
+ .spinner {
+   width: 50px;
+   height: 50px;
+   border: 4px solid rgba(52, 152, 219, 0.2);
+   border-top: 4px solid #3498db;
+   border-radius: 50%;
+   animation: spin 1s linear infinite;
+ }
+ 
+ .successIcon {
+   color: #2ecc71;
+   animation: scaleIn 0.3s ease-out;
+ }
+ 
+ .errorIcon {
+   color: #e74c3c;
+   animation: scaleIn 0.3s ease-out;
+ }
+ 
+ .infoIcon {
+   color: #3498db;
+   animation: scaleIn 0.3s ease-out;
+ }
+ 
+ .statusContent {
+   margin-bottom: 25px;
+ }
+ 
+ .statusTitle {
+   font-size: 24px;
+   font-weight: 700;
+   margin-bottom: 12px;
+   color: #2c3e50;
+   line-height: 1.3;
+ }
+ 
+ .statusMessage {
+   font-size: 16px;
+   color: #666;
+   line-height: 1.5;
+   white-space: pre-line;
+   margin: 0;
+ }
+ 
+ .progressContainer {
+   margin: 30px 0;
+ }
+ 
+ .progressBar {
+   height: 10px;
+   background: #f0f0f0;
+   border-radius: 5px;
+   overflow: hidden;
+   margin-bottom: 12px;
+   position: relative;
+ }
+ 
+ .progressFill {
+   height: 100%;
+   background: linear-gradient(90deg, #3498db, #2ecc71);
+   border-radius: 5px;
+   transition: width 0.4s ease-out;
+   position: relative;
+   overflow: hidden;
+ }
+ 
+ .progressFill::after {
+   content: '';
+   position: absolute;
+   top: 0;
+   left: 0;
+   bottom: 0;
+   right: 0;
+   background-image: linear-gradient(
+     90deg,
+     rgba(255, 255, 255, 0) 0%,
+     rgba(255, 255, 255, 0.4) 50%,
+     rgba(255, 255, 255, 0) 100%
+   );
+   animation: shimmer 1.5s infinite;
+ }
+ 
+ .progressText {
+   font-size: 14px;
+   color: #666;
+   font-weight: 600;
+   display: block;
+ }
+ 
+ .modalActions {
+   margin-top: 25px;
+ }
+ 
+ .closeButton {
+   background: #3498db;
+   color: white;
+   border: none;
+   padding: 14px 36px;
+   border-radius: 10px;
+   font-size: 16px;
+   font-weight: 600;
+   cursor: pointer;
+   transition: all 0.25s ease;
+   min-width: 140px;
+   outline: none;
+   letter-spacing: 0.3px;
+ }
+ 
+ .closeButton:hover:not(:disabled) {
+   background: #2980b9;
+   transform: translateY(-2px);
+   box-shadow: 0 6px 20px rgba(41, 128, 185, 0.4);
+ }
+ 
+ .closeButton:active:not(:disabled) {
+   transform: translateY(0);
+   box-shadow: 0 2px 10px rgba(41, 128, 185, 0.3);
+ }
+ 
+ .closeButton:disabled {
+   opacity: 0.7;
+   cursor: not-allowed;
+   background: #95a5a6;
+ }
+ 
+ .closeButton:focus:not(:disabled) {
+   outline: none;
+   box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.4);
+ }
+ 
+ /* Анимации */
+ @keyframes spin {
+   0% { transform: rotate(0deg); }
+   100% { transform: rotate(360deg); }
+ }
+ 
+ @keyframes scaleIn {
+   0% { transform: scale(0.7); opacity: 0; }
+   70% { transform: scale(1.05); opacity: 1; }
+   100% { transform: scale(1); opacity: 1; }
+ }
+ 
+ @keyframes shimmer {
+   0% { transform: translateX(-100%); }
+   100% { transform: translateX(100%); }
+ }
+ 
+ @keyframes pulse {
+   0% { opacity: 1; }
+   50% { opacity: 0.7; }
+   100% { opacity: 1; }
+ }
+ 
+ .loadingText {
+   animation: pulse 1.5s infinite;
+ }
+ 
+ /* Адаптивность */
+ @media (max-width: 480px) {
+   .modalContent {
+     padding: 35px 25px 25px;
+     width: 85%;
+     margin: 0 20px;
+   }
+   
+   .statusTitle {
+     font-size: 22px;
+   }
+   
+   .statusMessage {
+     font-size: 15px;
+     padding: 0 5px;
+   }
+   
+   .closeButton {
+     padding: 12px 28px;
+     font-size: 15px;
+     min-width: 130px;
+   }
+   
+   .progressBar {
+     height: 8px;
+   }
+ }
+ 
+ @media (max-width: 360px) {
+   .modalContent {
+     padding: 30px 20px 20px;
+   }
+   
+   .statusTitle {
+     font-size: 20px;
+   }
+   
+   .statusMessage {
+     font-size: 14px;
+   }
+   
+   .closeButton {
+     padding: 10px 24px;
+     font-size: 14px;
+     min-width: 120px;
+   }
+ }

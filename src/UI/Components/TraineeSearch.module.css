@@ -1,0 +1,622 @@
+/* UI/Components/TraineeSearch.module.css */
+.container {
+   padding: 20px;
+   max-width: 1200px;
+   margin: 0 auto;
+}
+
+.header {
+   margin-bottom: 30px;
+   text-align: center;
+}
+
+.title {
+   font-size: 28px;
+   margin-bottom: 10px;
+   color: #333;
+}
+
+.subtitle {
+   font-size: 16px;
+   color: #666;
+   margin-bottom: 20px;
+}
+
+.searchForm {
+   margin-bottom: 30px;
+   padding: 20px;
+   background-color: #f8f9fa;
+   border-radius: 10px;
+   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 🔥 КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: Выравнивание элементов */
+.searchControls {
+   display: flex;
+   gap: 15px;
+   align-items: flex-start;
+   flex-wrap: wrap;
+}
+
+/* 🔥 ОТДЕЛЬНЫЙ КОНТЕЙНЕР ДЛЯ ИНПУТОВ (без подписей) */
+.inputGroup {
+   flex: 1;
+   min-width: 250px;
+   display: flex;
+   flex-direction: column;
+}
+
+/* 🔥 КОНТЕЙНЕР ТОЛЬКО ДЛЯ ИНПУТА/SELECT */
+.inputContainer {
+   height: 44px;
+   display: flex;
+   align-items: center;
+}
+
+.searchInput,
+.trainingLevelSelect,
+.specializationSelect {  /* 🔥 ДОБАВЛЕНО: стиль для select специализации */
+   width: 100%;
+   height: 44px;
+   padding: 0 12px;
+   border: 1px solid #ddd;
+   border-radius: 6px;
+   font-size: 14px;
+   outline: none;
+   transition: border-color 0.3s;
+   background-color: white;
+   box-sizing: border-box;
+   line-height: 44px;
+}
+
+.searchInput:focus,
+.trainingLevelSelect:focus,
+.specializationSelect:focus {  /* 🔥 ДОБАВЛЕНО: фокус для специализации */
+   border-color: #007bff;
+}
+
+/* 🔥 ПОДПИСИ ОТДЕЛЬНО - не влияют на выравнивание */
+.helperText {
+   display: block;
+   margin-top: 4px;
+   font-size: 11px;
+   color: #6c757d;
+   font-style: italic;
+   height: 14px;
+}
+
+/* 🔥 ГРУППА КНОПОК - теперь на одном уровне с инпутами */
+.buttonGroup {
+   display: flex;
+   gap: 8px;
+   align-items: center;
+   height: 44px;
+   margin-top: 0;
+   flex-shrink: 0;
+}
+
+.searchButton,
+.clearButton {
+   height: 44px;
+   padding: 0 16px;
+   border: none;
+   border-radius: 6px;
+   font-size: 14px;
+   cursor: pointer;
+   transition: background-color 0.3s;
+   white-space: nowrap;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   box-sizing: border-box;
+}
+
+.searchButton {
+   background-color: #007bff;
+   color: white;
+   min-width: 80px;
+}
+
+.searchButton:hover {
+   background-color: #0056b3;
+}
+
+.searchButton:disabled {
+   background-color: #ccc;
+   cursor: not-allowed;
+}
+
+.clearButton {
+   background-color: #6c757d;
+   color: white;
+   min-width: 90px;
+   transition: all 0.3s ease;
+}
+
+.clearButton.hidden {
+   opacity: 0;
+   visibility: hidden;
+   width: 0;
+   min-width: 0;
+   padding: 0;
+   margin: 0;
+   border: 0;
+}
+
+.clearButton:hover:not(.hidden) {
+   background-color: #545b62;
+}
+
+.emptyButton {
+   padding: 10px 20px;
+   border: none;
+   border-radius: 6px;
+   font-size: 14px;
+   cursor: pointer;
+   transition: background-color 0.3s;
+   background-color: #007bff;
+   color: white;
+   margin-top: 15px;
+}
+
+.emptyButton:hover {
+   background-color: #0056b3;
+}
+
+.resultsInfo {
+   margin-bottom: 20px;
+   font-size: 16px;
+   color: #666;
+}
+
+.filterInfo {
+   margin-top: 5px;
+   padding: 5px 10px;
+   background-color: #e9ecef;
+   border-radius: 4px;
+   display: inline-block;
+   font-size: 14px;
+   margin-right: 8px;  /* 🔥 ДОБАВЛЕНО: отступ между фильтрами */
+}
+
+.errorMessage {
+   color: #dc3545;
+   margin-top: 5px;
+}
+
+/* Стили для спиннеров */
+.loadingState,
+.emptyState {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+   padding: 40px;
+   text-align: center;
+   background-color: #f8f9fa;
+   border-radius: 10px;
+   min-height: 300px;
+}
+
+.spinner {
+   width: 50px;
+   height: 50px;
+   border: 5px solid #f3f3f3;
+   border-top: 5px solid #007bff;
+   border-radius: 50%;
+   animation: spin 1s linear infinite;
+   margin-bottom: 20px;
+}
+
+.spinnerSmall {
+   display: inline-block;
+   width: 16px;
+   height: 16px;
+   border: 2px solid #f3f3f3;
+   border-top: 2px solid white;
+   border-radius: 50%;
+   animation: spin 1s linear infinite;
+   margin-right: 8px;
+}
+
+@keyframes spin {
+   0% { transform: rotate(0deg); }
+   100% { transform: rotate(360deg); }
+}
+
+.emptyIcon {
+   font-size: 60px;
+   margin-bottom: 20px;
+}
+
+/* Сетка подопечных */
+.traineesGrid {
+   display: grid;
+   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+   gap: 20px;
+   min-height: 300px;
+}
+
+/* Карточка подопечного */
+.traineeCard {
+   background-color: white;
+   border-radius: 10px;
+   padding: 20px;
+   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+   display: flex;
+   flex-direction: column;
+   height: 280px;  /* 🔥 УВЕЛИЧЕНО: было 260px, чтобы вместить все статусы */
+   transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.traineeCard:hover {
+   transform: translateY(-3px);
+   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.traineeHeader {
+   display: flex;
+   align-items: center;
+   margin-bottom: 15px;
+}
+
+.traineeAvatar {
+   width: 60px;
+   height: 60px;
+   border-radius: 50%;
+   object-fit: cover;
+   margin-right: 15px;
+   border: 3px solid #f0f0f0;
+}
+
+.traineeInfo {
+   flex: 1;
+}
+
+.traineeName {
+   margin: 0 0 5px 0;
+   font-size: 18px;
+   color: #333;
+}
+
+.traineeEmail {
+   margin: 0;
+   font-size: 14px;
+   color: #666;
+}
+
+.traineeDetails {
+   margin-bottom: 20px;
+   flex: 1;
+}
+
+.detailItem {
+   margin-bottom: 10px;
+   display: flex;
+   align-items: center;
+   flex-wrap: wrap;
+}
+
+.detailLabel {
+   font-weight: bold;
+   color: #555;
+   margin-right: 5px;
+   white-space: nowrap;
+}
+
+.detailValue {
+   color: #333;
+   margin-right: 5px;
+}
+
+.matchBadge {
+   display: inline-block;
+   padding: 2px 6px;
+   background-color: #d4edda;
+   color: #155724;
+   border-radius: 10px;
+   font-size: 11px;
+   font-weight: 500;
+}
+
+.traineeActions {
+   text-align: center;
+   margin-top: auto;
+}
+
+/* 🔥 ОСНОВНОЙ СТИЛЬ КНОПКИ ЗАПРОСА */
+.requestButton {
+   padding: 10px 20px;
+   border: none;
+   border-radius: 6px;
+   font-size: 14px;
+   cursor: pointer;
+   transition: background-color 0.3s;
+   background-color: #28a745;
+   color: white;
+   width: 100%;
+   height: 40px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+}
+
+.requestButton:hover {
+   background-color: #218838;
+}
+
+/* 🔥 НОВЫЙ СТИЛЬ: Кнопка в состоянии отправки */
+.sendingButton {
+   background-color: #ffc107 !important;
+   color: #212529 !important;
+   cursor: wait !important;
+   position: relative;
+   overflow: hidden;
+}
+
+.sendingButton::after {
+   content: '';
+   position: absolute;
+   top: 0;
+   left: -100%;
+   width: 100%;
+   height: 100%;
+   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+   animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+   100% { left: 100%; }
+}
+
+/* 🔥 НОВЫЙ СТИЛЬ: Кнопка для входящего запроса */
+.incomingButton {
+   background-color: #17a2b8 !important;
+   cursor: not-allowed !important;
+   opacity: 0.9;
+   position: relative;
+}
+
+.incomingButton::before {
+   content: '📨 ';
+   font-size: 14px;
+   margin-right: 5px;
+}
+
+/* 🔥 СТИЛИ СТАТУСОВ (полный набор) */
+.statusBadge {
+   display: inline-block;
+   padding: 3px 8px;
+   border-radius: 12px;
+   font-size: 12px;
+   font-weight: 500;
+   margin-top: 4px;
+}
+
+.statusBadge.pending {
+   background-color: #fff3cd;
+   color: #856404;
+   border: 1px solid #ffeaa7;
+}
+
+.statusBadge.connected {
+   background-color: #d4edda;
+   color: #155724;
+   border: 1px solid #c3e6cb;
+}
+
+.statusBadge.accepted {
+   background-color: #d1ecf1;
+   color: #0c5460;
+   border: 1px solid #bee5eb;
+}
+
+/* 🔥 НОВЫЙ СТАТУС: Входящий запрос */
+.statusBadge.incoming {
+   background-color: #d1ecf1;
+   color: #0c5460;
+   border: 1px solid #bee5eb;
+   animation: subtlePulse 2s infinite;
+}
+
+@keyframes subtlePulse {
+   0% { opacity: 1; }
+   50% { opacity: 0.8; }
+   100% { opacity: 1; }
+}
+
+/* 🔥 НОВЫЙ СТАТУС: Отправка */
+.statusBadge.sending {
+   background-color: #fff3cd;
+   color: #856404;
+   border: 1px solid #ffeaa7;
+   animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+   0% { opacity: 1; }
+   50% { opacity: 0.7; }
+   100% { opacity: 1; }
+}
+
+/* 🔥 Стили для отклоненных и отмененных */
+.statusBadge.rejected {
+   background-color: #f8d7da;
+   color: #721c24;
+   border: 1px solid #f5c6cb;
+}
+
+.statusBadge.cancelled {
+   background-color: #e2e3e5;
+   color: #383d41;
+   border: 1px solid #d6d8db;
+}
+
+/* 🔥 СТИЛИ КНОПОК ПО СТАТУСАМ */
+.disabledButton {
+   cursor: not-allowed !important;
+   pointer-events: none;
+}
+
+.connectedButton {
+   background-color: #28a745 !important;
+}
+
+.pendingButton {
+   background-color: #ffc107 !important;
+   color: #212529 !important;
+}
+
+.pendingButton:hover {
+   background-color: #ffc107 !important;
+}
+
+.acceptedButton {
+   background-color: #17a2b8 !important;
+}
+
+.rejectedButton {
+   background-color: #dc3545 !important;
+   cursor: pointer !important;
+   position: relative;
+}
+
+.rejectedButton:hover {
+   background-color: #c82333 !important;
+   opacity: 1;
+}
+
+/* 🔥 Добавляем иконку повторной отправки для rejected */
+.rejectedButton::after {
+   content: '↻';
+   margin-left: 5px;
+   font-size: 14px;
+   display: inline-block;
+}
+
+.cancelledButton {
+   background-color: #6c757d !important;
+   cursor: pointer !important;
+   position: relative;
+}
+
+.cancelledButton:hover {
+   background-color: #5a6268 !important;
+}
+
+.cancelledButton::after {
+   content: '↻';
+   margin-left: 5px;
+   font-size: 14px;
+}
+
+/* 🔥 СТИЛИ ДЛЯ ОТПРАВКИ (дублируем для надежности) */
+.sendingButton {
+   background-color: #ffc107 !important;
+   color: #212529 !important;
+   cursor: wait !important;
+   position: relative;
+   overflow: hidden;
+}
+
+.sendingButton::after {
+   content: '';
+   position: absolute;
+   top: 0;
+   left: -100%;
+   width: 100%;
+   height: 100%;
+   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+   animation: shimmer 1.5s infinite;
+}
+
+/* 🔥 DEBUG INFO - как в TrainerSearch */
+.debugInfo {
+   margin-top: 20px;
+   padding: 10px;
+   background-color: #f8f9fa;
+   border-radius: 5px;
+   font-size: 12px;
+   font-family: monospace;
+   color: #495057;
+   border-left: 4px solid #007bff;
+}
+
+/* 🔥 МЕДИА-ЗАПРОСЫ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ */
+@media (max-width: 768px) {
+   .searchControls {
+      flex-direction: column;
+   }
+   
+   .inputGroup {
+      width: 100%;
+   }
+   
+   .buttonGroup {
+      width: 100%;
+      height: auto;
+      flex-direction: row;
+      justify-content: stretch;
+   }
+   
+   .searchButton,
+   .clearButton {
+      flex: 1;
+   }
+   
+   .traineesGrid {
+      grid-template-columns: 1fr;
+   }
+   
+   .traineeCard {
+      height: auto;
+      min-height: 280px;
+   }
+}
+
+@media (max-width: 480px) {
+   .container {
+      padding: 10px;
+   }
+   
+   .title {
+      font-size: 24px;
+   }
+   
+   .subtitle {
+      font-size: 14px;
+   }
+   
+   .buttonGroup {
+      flex-direction: column;
+      gap: 5px;
+   }
+   
+   .searchButton,
+   .clearButton {
+      width: 100%;
+   }
+   
+   .traineeHeader {
+      flex-direction: column;
+      text-align: center;
+   }
+   
+   .traineeAvatar {
+      margin-right: 0;
+      margin-bottom: 10px;
+   }
+   
+   .traineeInfo {
+      text-align: center;
+   }
+   
+   .detailItem {
+      justify-content: center;
+   }
+}
+
+/* 🔥 СТАРЫЙ devInfo оставляем для обратной совместимости, но скрываем */
+.devInfo {
+   display: none;
+}

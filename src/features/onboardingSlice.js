@@ -1,16 +1,56 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { USER_ROLES } from '../constants/userRoles'; // ✅ ИМПОРТИРУЕМ КОНСТАНТЫ
+import { USER_ROLES } from '../constants/userRoles';
+
+// ✅ Функция для безопасной загрузки из localStorage
+const loadTempData = () => {
+   try {
+      const saved = localStorage.getItem('onboardingTempData');
+      if (saved) {
+         const parsed = JSON.parse(saved);
+         // ✅ Загружаем ТОЛЬКО роль и training_level, НЕ userName!
+         return {
+            role: parsed.role || null,
+            training_level: parsed.training_level || null,
+            // sport_specialization: parsed.sport_specialization || '', // если нужно
+         };
+      }
+   } catch (e) {
+      console.error('🔴 Ошибка загрузки tempData:', e);
+   }
+   return {
+      role: null,
+      training_level: null,
+   };
+};
 
 // ✅ РЕАЛЬНАЯ версия API с детальной отладкой
 export const updateOnboarding = createAsyncThunk(
    'onboarding/updateOnboarding',
-   async (onboardingData, { rejectWithValue }) => {
+   async (onboardingData, { getState, rejectWithValue }) => {
       try {
-         console.log('🟡 Отправляем onboarding данные:', onboardingData);
+         const state = getState();
+         const currentUser = state.auth.user;
 
-         // ✅ ВРЕМЕННО ИСПОЛЬЗУЕМ АБСОЛЮТНЫЙ URL ДЛЯ ТЕСТИРОВАНИЯ
-         const API_URL = 'http://localhost:5000/api/user/onboarding'; // ваш порт бэкенда
-         // ИЛИ: const API_URL = `${window.location.origin}/api/users/onboarding`;
+         // ✅ ВАЖНО: Берем userName ТОЛЬКО из текущего пользователя!
+         const submitData = {
+            role: onboardingData.role,
+            userName: currentUser?.userName, // ✅ userName из auth, НЕ из tempData!
+            allow_connections: onboardingData.allow_connections ?? true
+         };
+
+         // ✅ Добавляем training_level только для спортсмена и если он передан
+         if (onboardingData.role === USER_ROLES.TRAINEE && onboardingData.training_level) {
+            submitData.training_level = onboardingData.training_level;
+         }
+
+         // ✅ Добавляем sport_specialization если есть
+         if (onboardingData.sport_specialization) {
+            submitData.sport_specialization = onboardingData.sport_specialization;
+         }
+
+         console.log('🟡 Отправляем onboarding данные:', submitData);
+
+         const API_URL = 'http://localhost:5000/api/user/onboarding';
 
          console.log('🔍 Debug - полный URL:', API_URL);
          console.log('🔍 Debug - cookies:', document.cookie);
@@ -21,13 +61,12 @@ export const updateOnboarding = createAsyncThunk(
                'Content-Type': 'application/json',
             },
             credentials: 'include',
-            body: JSON.stringify(onboardingData),
+            body: JSON.stringify(submitData), // ✅ Отправляем submitData, а не onboardingData!
          });
 
          console.log('🔍 Debug - статус ответа:', response.status);
          console.log('🔍 Debug - заголовки ответа:', Object.fromEntries(response.headers.entries()));
 
-         // ✅ ПРОВЕРЯЕМ Content-Type перед парсингом
          const contentType = response.headers.get('content-type');
          console.log('🔍 Debug - Content-Type:', contentType);
 
@@ -48,7 +87,6 @@ export const updateOnboarding = createAsyncThunk(
       } catch (error) {
          console.error('🔴 Ошибка в updateOnboarding:', error);
 
-         // ✅ БОЛЕЕ ИНФОРМАТИВНАЯ ОШИБКА
          if (error.message.includes('Failed to fetch')) {
             return rejectWithValue('Не удалось подключиться к серверу. Убедитесь что бэкенд запущен.');
          }
@@ -61,52 +99,71 @@ export const updateOnboarding = createAsyncThunk(
 const onboardingSlice = createSlice({
    name: 'onboarding',
    initialState: {
-      // Статус показа onboarding
       showOnboarding: false,
-      // Было ли пропущено (устаревшее, теперь используем role: 'skipped')
       skipped: localStorage.getItem('onboardingSkipped') === 'true' || false,
-      // Загрузка
       isLoading: false,
-      // Ошибки
       error: null,
-      // Временные данные (пока не сохранены на сервере)
-      tempData: {
-         role: null
-      }
+      // ✅ ИСПРАВЛЕНО: Загружаем из localStorage БЕЗ userName
+      tempData: loadTempData()
    },
    reducers: {
-      // Показать/скрыть onboarding
       setShowOnboarding: (state, action) => {
          state.showOnboarding = action.payload;
          console.log('🟡 setShowOnboarding:', action.payload);
       },
 
-      // Установить пропуск (устаревшее, оставляем для совместимости)
       setSkipped: (state, action) => {
          state.skipped = action.payload;
          localStorage.setItem('onboardingSkipped', action.payload.toString());
-         console.log('🟡 setSkipped:', action.payload, '(saved to localStorage)');
+         console.log('🟡 setSkipped:', action.payload);
       },
 
-      // Обновить временные данные
+      // ✅ ИСПРАВЛЕНО: setTempData - сохраняем только нужные поля
       setTempData: (state, action) => {
-         state.tempData = { ...state.tempData, ...action.payload };
-         console.log('🟡 setTempData:', action.payload);
+         // Разрешаем сохранять только role и training_level
+         const allowedFields = {};
+         if (action.payload.role !== undefined) {
+            allowedFields.role = action.payload.role;
+         }
+         if (action.payload.training_level !== undefined) {
+            allowedFields.training_level = action.payload.training_level;
+         }
+         if (action.payload.sport_specialization !== undefined) {
+            allowedFields.sport_specialization = action.payload.sport_specialization;
+         }
+
+         state.tempData = { ...state.tempData, ...allowedFields };
+
+         // ✅ Сохраняем в localStorage (но без userName!)
+         const saveData = {
+            role: state.tempData.role,
+            training_level: state.tempData.training_level,
+            sport_specialization: state.tempData.sport_specialization,
+         };
+         localStorage.setItem('onboardingTempData', JSON.stringify(saveData));
+
+         console.log('🟡 setTempData:', allowedFields);
       },
 
-      // ✅ УЛУЧШЕННЫЙ СБРОС - полная очистка состояния
+      // ✅ ИСПРАВЛЕНО: ПОЛНЫЙ СБРОС с очисткой localStorage
       resetOnboarding: (state) => {
          state.showOnboarding = false;
          state.skipped = false;
          state.isLoading = false;
          state.error = null;
-         state.tempData = { role: null };
-         // ✅ ОЧИЩАЕМ LOCALSTORAGE
+         state.tempData = {
+            role: null,
+            training_level: null,
+            sport_specialization: ''
+         };
+
+         // ✅ ОЧИЩАЕМ ВЕСЬ localStorage
          localStorage.removeItem('onboardingSkipped');
+         localStorage.removeItem('onboardingTempData');
+
          console.log('🟡 resetOnboarding - ПОЛНЫЙ СБРОС');
       },
 
-      // ✅ ДОБАВЛЯЕМ: Принудительный показ onboarding (для отладки)
       forceShowOnboarding: (state) => {
          state.showOnboarding = true;
          state.skipped = false;
@@ -114,26 +171,31 @@ const onboardingSlice = createSlice({
          console.log('🟡 forceShowOnboarding - принудительный показ');
       },
 
-      // Очистить ошибки
       clearError: (state) => {
          state.error = null;
       }
    },
    extraReducers: (builder) => {
       builder
-         // updateOnboarding pending
          .addCase(updateOnboarding.pending, (state) => {
             state.isLoading = true;
             state.error = null;
             console.log('🟡 updateOnboarding pending');
          })
-         // updateOnboarding fulfilled
          .addCase(updateOnboarding.fulfilled, (state, action) => {
             state.isLoading = false;
-            state.showOnboarding = false; // Закрываем onboarding после успеха
-            state.tempData = { role: null }; // Очищаем временные данные
+            state.showOnboarding = false;
 
-            // ✅ УСТАНАВЛИВАЕМ ПРОПУСК В LOCALSTORAGE ЕСЛИ ROLE = 'skipped'
+            // ✅ Очищаем tempData
+            state.tempData = {
+               role: null,
+               training_level: null,
+               sport_specialization: ''
+            };
+
+            // ✅ Очищаем localStorage
+            localStorage.removeItem('onboardingTempData');
+
             if (action.payload.role === USER_ROLES.SKIPPED) {
                state.skipped = true;
                localStorage.setItem('onboardingSkipped', 'true');
@@ -145,7 +207,6 @@ const onboardingSlice = createSlice({
 
             console.log('🟢 updateOnboarding fulfilled - onboarding завершен');
          })
-         // updateOnboarding rejected
          .addCase(updateOnboarding.rejected, (state, action) => {
             state.isLoading = false;
             state.error = action.payload;

@@ -1,4 +1,4 @@
-/* CSS Variables */
+/* CSS Variables - оставляем в :root глобально */
 :root {
   --primary-color: #6366f1;
   --primary-hover: #4f46e5;
@@ -18,6 +18,9 @@
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
   --transition: all 0.2s ease-in-out;
+  --z-modal: 1000;
+  --z-modal-overlay: 999;
+  --z-fileupload: 1100; /* Выше чем основная модалка */
 }
 
 /* Modal Overlay */
@@ -33,7 +36,7 @@
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  z-index: 1000;
+  z-index: var(--z-modal-overlay);
   animation: overlayShow 0.2s ease-out;
 }
 
@@ -48,11 +51,14 @@
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
   width: 100%;
-  max-width: 520px; /* Увеличили ширину для новых полей */
-  max-height: 90vh;
+  max-width: 650px; /* Увеличили с 520px до 650px */
+  max-height: 85vh; /* Немного уменьшили, чтобы было место для модалки */
   overflow: hidden;
   animation: modalSlideIn 0.3s ease-out;
   border: 1px solid var(--border-color);
+  z-index: var(--z-modal);
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes modalSlideIn {
@@ -66,13 +72,15 @@
   }
 }
 
-/* Modal Header */
+/* Modal Header - фиксированный */
 .modalHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem 1.5rem 1rem;
   border-bottom: 1px solid var(--border-color);
+  background: white;
+  flex-shrink: 0;
 }
 
 .modalHeader h2 {
@@ -112,12 +120,34 @@
   transform: none;
 }
 
-/* Form */
+/* Form - прокручиваемая область */
 .form {
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0; /* Важно для правильной прокрутки */
+}
+
+/* Кастомный скроллбар */
+.form::-webkit-scrollbar {
+  width: 8px;
+}
+
+.form::-webkit-scrollbar-track {
+  background: var(--background-light);
+  border-radius: 4px;
+}
+
+.form::-webkit-scrollbar-thumb {
+  background: var(--text-light);
+  border-radius: 4px;
+}
+
+.form::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
 }
 
 /* Form Groups */
@@ -127,11 +157,12 @@
   gap: 0.5rem;
 }
 
-/* Новый стиль - Form Row */
+/* Form Row - для двух колонок */
 .formRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
+  width: 100%;
 }
 
 .label {
@@ -189,7 +220,24 @@
   line-height: 1.5;
 }
 
-/* Новый стиль - Toggle Button (для заметки выполнена) */
+/* Стили для числового поля */
+.input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.input[type="number"]::-webkit-outer-spin-button,
+.input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Стили для даты и времени */
+.input[type="date"],
+.input[type="time"] {
+  text-transform: uppercase;
+}
+
+/* Toggle Button (для заметки выполнена) */
 .toggleButton {
   padding: 0.75rem 1.5rem;
   border: 2px solid var(--border-color);
@@ -202,10 +250,10 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background: linear-gradient(135deg, #e2e8f0, #cbd5e1); /* Серый градиент по умолчанию */
+  background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
   color: var(--text-secondary);
-  width: 100%; /* Занимает всю ширину для заметности */
-  min-height: 48px; /* Больше высота для кнопки */
+  width: 100%;
+  min-height: 48px;
   box-shadow: var(--shadow-sm);
 }
 
@@ -215,13 +263,13 @@
 }
 
 .toggleActive {
-  background: linear-gradient(135deg, var(--success-color), #059669); /* Зелёный при выполнена */
+  background: linear-gradient(135deg, var(--success-color), #059669);
   color: white;
   border-color: var(--success-color);
 }
 
 .toggleInactive {
-  background: linear-gradient(135deg, #e2e8f0, #cbd5e1); /* Серый при не выполнена */
+  background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
   color: var(--text-secondary);
 }
 
@@ -301,12 +349,16 @@
   margin: 0;
 }
 
-/* Actions */
+/* Actions - фиксированные внизу */
 .actions {
   display: flex;
   gap: 0.75rem;
   justify-content: flex-end;
   padding-top: 0.5rem;
+  border-top: 1px solid var(--border-color);
+  margin-top: 0.5rem;
+  background: white;
+  flex-shrink: 0;
 }
 
 .cancelButton,
@@ -368,14 +420,184 @@
   100% { transform: rotate(360deg); }
 }
 
+/* Type Selector */
+.typeSelector {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  background: var(--background-light);
+  padding: 0.5rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+}
+
+.typeButton {
+  flex: 1;
+  padding: 0.75rem 0.5rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.typeButton:hover:not(:disabled) {
+  background: white;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.typeActive {
+  background: white;
+  color: var(--primary-color);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--primary-color);
+}
+
+.typeButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Difficulty Selector */
+.difficultySelector {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.difficultyButton {
+  flex: 1;
+  padding: 0.5rem;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: white;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.difficultyButton:hover:not(:disabled) {
+  border-color: var(--warning-color);
+  color: var(--warning-color);
+  transform: translateY(-1px);
+}
+
+.difficultyActive {
+  background: var(--warning-color);
+  border-color: var(--warning-color);
+  color: white;
+}
+
+.difficultyButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Selected User */
+.selectedUser {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem;
+  background: var(--background-light);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.userAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.selectUserButton,
+.removeUserButton {
+  padding: 0.5rem 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: white;
+  color: var(--text-secondary);
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.selectUserButton {
+  width: 100%;
+  text-align: center;
+}
+
+.selectUserButton:hover:not(:disabled) {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.removeUserButton {
+  border-color: var(--danger-color);
+  color: var(--danger-color);
+  padding: 0.25rem 0.75rem;
+}
+
+.removeUserButton:hover:not(:disabled) {
+  background: var(--danger-color);
+  color: white;
+}
+
+/* Media Section */
+.mediaSection {
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  background: var(--background-light);
+}
+
+.mediaHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.addMediaButton {
+  padding: 0.5rem 1rem;
+  border: 2px solid var(--primary-color);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--primary-color);
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.addMediaButton:hover:not(:disabled) {
+  background: var(--primary-color);
+  color: white;
+}
+
 /* Responsive Design */
 @media (max-width: 640px) {
   .modal {
     margin: 1rem;
     max-height: calc(100vh - 2rem);
+    max-width: calc(100vw - 2rem);
   }
   
-  /* Адаптив для новых полей */
   .formRow {
     grid-template-columns: 1fr;
   }
@@ -398,7 +620,29 @@
   }
   
   .toggleButton {
-    width: 100%; /* На мобильных toggle занимает всю ширину */
+    width: 100%;
+  }
+  
+  .typeSelector {
+    flex-direction: column;
+  }
+  
+  .difficultySelector {
+    flex-wrap: wrap;
+  }
+  
+  .difficultyButton {
+    min-width: calc(20% - 0.4rem);
+  }
+  
+  .mediaHeader {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+  
+  .addMediaButton {
+    width: 100%;
   }
 }
 

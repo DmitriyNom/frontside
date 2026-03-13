@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { updateOnboarding, setTempData } from '../../../features/onboardingSlice';
-import { setUserRole } from '../../../features/authSlice';
+import { updateOnboarding, setTempData, resetOnboarding } from '../../../features/onboardingSlice';
+import { setUserRole, fetchUserProfile } from '../../../features/authSlice'; // ✅ Импортируем fetchUserProfile
 import { USER_ROLES, needsOnboarding } from '../../../constants/userRoles';
 import styles from './OnboardingPage.module.css';
 
@@ -10,21 +10,33 @@ const OnboardingPage = () => {
    const dispatch = useDispatch();
    const navigate = useNavigate();
 
-   // Берем данные из двух slices
    const { user } = useSelector(state => state.auth);
    const { tempData, isLoading, error } = useSelector(state => state.onboarding);
 
    const [selectedRole, setSelectedRole] = useState(tempData.role || null);
-   const [skipAttempted, setSkipAttempted] = useState(false); // Отслеживаем попытку пропуска
-   const [skipCompleted, setSkipCompleted] = useState(false); // ✅ Отслеживаем успешное завершение пропуска
+   const [skipAttempted, setSkipAttempted] = useState(false);
+   const [skipCompleted, setSkipCompleted] = useState(false);
+   const [selectedLevel, setSelectedLevel] = useState(tempData.training_level || null);
 
-   // Проверяем, нужен ли пользователю onboarding
    const userNeedsOnboarding = user && needsOnboarding(user.role);
 
    const handleRoleSelect = (role) => {
       console.log('🟢 Выбрана роль:', role);
       setSelectedRole(role);
+
+      // ✅ Сохраняем только роль, БЕЗ userName!
       dispatch(setTempData({ role }));
+
+      // Сбрасываем уровень при смене роли
+      if (role !== USER_ROLES.TRAINEE) {
+         setSelectedLevel(null);
+      }
+   };
+
+   const handleLevelSelect = (level) => {
+      console.log('🟢 Выбран уровень:', level);
+      setSelectedLevel(level);
+      dispatch(setTempData({ training_level: level }));
    };
 
    const handleSubmit = async () => {
@@ -35,13 +47,34 @@ const OnboardingPage = () => {
 
       try {
          console.log('🟡 Отправляем роль на сервер:', selectedRole);
-         const result = await dispatch(updateOnboarding({ role: selectedRole })).unwrap();
 
-         dispatch(setUserRole(result.role));
-         console.log('🟢 Роль успешно сохранена:', result.role);
+         // ✅ Отправляем ТОЛЬКО роль и минимальные данные
+         const submitData = { role: selectedRole };
 
-         // Редирект после успеха
+         // Добавляем уровень подготовки только для спортсмена
+         if (selectedRole === USER_ROLES.TRAINEE && selectedLevel) {
+            submitData.training_level = selectedLevel;
+         }
+
+         console.log('🟡 Отправляемые данные:', submitData);
+
+         const result = await dispatch(updateOnboarding(submitData)).unwrap();
+         console.log('🟢 Ответ от сервера:', result);
+
+         // ✅ 1. Обновляем роль в Redux
+         dispatch(setUserRole(selectedRole));
+
+         // ✅ 2. КРИТИЧЕСКИ ВАЖНО: Загружаем полный профиль!
+         console.log('🟡 Загружаем полный профиль...');
+         await dispatch(fetchUserProfile());
+         console.log('🟢 Профиль загружен');
+
+         // ✅ 3. Очищаем onboarding состояние
+         dispatch(resetOnboarding());
+
+         console.log('🟢 Онбординг завершен, редирект на профиль');
          navigate('/profile', { replace: true });
+
       } catch (error) {
          console.error('🔴 Ошибка сохранения роли:', error);
          alert(`Ошибка сохранения роли: ${error.message}`);
@@ -51,13 +84,11 @@ const OnboardingPage = () => {
    const handleSkip = async () => {
       console.log('🟡 Нажата кнопка "Пропустить"');
 
-      // ✅ ПРОВЕРКА 1: Если пропуск уже в процессе или уже завершен - игнорируем
       if (skipAttempted || skipCompleted) {
-         console.log('⚠️ Пропуск уже в процессе или завершен, игнорируем нажатие');
+         console.log('⚠️ Пропуск уже в процессе или завершен');
          return;
       }
 
-      // ✅ ПРОВЕРКА 2: Если уже есть роль 'skipped' - сразу редирект
       if (user?.role === USER_ROLES.SKIPPED) {
          console.log('🟢 Уже есть role="skipped", редирект');
          navigate('/profile', { replace: true });
@@ -68,79 +99,82 @@ const OnboardingPage = () => {
       console.log('🟡 Начинаем процесс пропуска...');
 
       try {
-         // ✅ ШАГ 1: Отправляем запрос на сервер
-         console.log('🟡 Отправляем role="skipped" на сервер');
-         const result = await dispatch(updateOnboarding({
-            role: USER_ROLES.SKIPPED,
-            skipped: true // для обратной совместимости
-         })).unwrap();
+         // ✅ Отправляем ТОЛЬКО роль skipped
+         const submitData = { role: USER_ROLES.SKIPPED };
 
-         console.log('🟢 Сервер ответил успешно:', result);
+         console.log('🟡 Отправляем данные пропуска:', submitData);
 
-         // ✅ ШАГ 2: Обновляем роль в Redux
+         const result = await dispatch(updateOnboarding(submitData)).unwrap();
+         console.log('🟢 Ответ от сервера:', result);
+
+         // ✅ 1. Обновляем роль в Redux
          dispatch(setUserRole(USER_ROLES.SKIPPED));
 
-         // ✅ ШАГ 3: Помечаем пропуск как завершенный
-         setSkipCompleted(true);
-         console.log('🟢 Пропуск помечен как завершенный');
+         // ✅ 2. КРИТИЧЕСКИ ВАЖНО: Загружаем полный профиль!
+         console.log('🟡 Загружаем полный профиль...');
+         await dispatch(fetchUserProfile());
+         console.log('🟢 Профиль загружен');
 
-         // ✅ ШАГ 4: Немедленный редирект
-         console.log('🟢 Выполняем редирект на /profile');
+         // ✅ 3. Очищаем onboarding состояние
+         dispatch(resetOnboarding());
+
+         setSkipCompleted(true);
+         console.log('🟢 Пропуск завершен, редирект');
          navigate('/profile', { replace: true });
 
       } catch (error) {
          console.error('🔴 Ошибка при пропуске:', error);
 
-         // ✅ РЕЗЕРВНЫЙ СЦЕНАРИЙ: При ошибке сервера пропускаем локально
+         // ✅ РЕЗЕРВНЫЙ СЦЕНАРИЙ: пропускаем локально
          console.log('⚠️ Ошибка сервера, пропускаем локально');
 
          // Обновляем роль локально
          dispatch(setUserRole(USER_ROLES.SKIPPED));
 
-         // Помечаем как завершенный
+         // Пытаемся загрузить профиль
+         try {
+            await dispatch(fetchUserProfile());
+         } catch (profileError) {
+            console.warn('⚠️ Не удалось загрузить профиль:', profileError);
+         }
+
+         // Очищаем onboarding
+         dispatch(resetOnboarding());
+
          setSkipCompleted(true);
-
-         // Выполняем редирект
-         setTimeout(() => {
-            console.log('🟢 Локальный редирект на /profile');
-            navigate('/profile', { replace: true });
-         }, 50);
-
-         // Разблокируем для повторной попытки (если редирект не сработает)
-         setTimeout(() => {
-            if (window.location.pathname.includes('/onboarding')) {
-               console.log('⚠️ Редирект не сработал, разблокируем кнопку');
-               setSkipAttempted(false);
-            }
-         }, 1000);
+         navigate('/profile', { replace: true });
       }
    };
 
-   // ✅ УПРОЩЕННАЯ ПРОВЕРКА ДЛЯ РЕДИРЕКТА
+   // ✅ РЕДИРЕКТ при наличии роли
    useEffect(() => {
-      // Если пропуск уже завершен - сразу редирект
       if (skipCompleted) {
-         console.log('🟡 useEffect: skipCompleted=true, редирект');
-         navigate('/profile', { replace: true });
+         console.log('🟡 useEffect: skipCompleted=true');
          return;
       }
 
-      // Если у пользователя уже есть валидная роль
-      if (user?.role && (user.role === USER_ROLES.SKIPPED ||
+      if (user?.role && (
+         user.role === USER_ROLES.SKIPPED ||
          user.role === USER_ROLES.TRAINEE ||
-         user.role === USER_ROLES.TRAINER)) {
-         console.log('🟡 useEffect: Уже есть роль', user.role, ', редирект');
+         user.role === USER_ROLES.TRAINER
+      )) {
+         console.log('🟡 useEffect: Уже есть роль', user.role);
          navigate('/profile', { replace: true });
       }
    }, [user, navigate, skipCompleted]);
 
-   // Если onboarding не нужен, не показываем страницу
+   // ✅ Очистка при размонтировании
+   useEffect(() => {
+      return () => {
+         // Не очищаем здесь, чтобы не сбрасывать данные при редиректе
+      };
+   }, []);
+
    if (user && !userNeedsOnboarding) {
-      console.log('🟡 Onboarding не нужен, скрываем страницу');
+      console.log('🟡 Onboarding не нужен');
       return null;
    }
 
-   // ✅ Показываем состояние загрузки при пропуске
    if (skipAttempted && !skipCompleted) {
       return (
          <div className={styles.onboardingPage}>
@@ -160,73 +194,88 @@ const OnboardingPage = () => {
    return (
       <div className={styles.onboardingPage}>
          <div className={styles.container}>
-            {/* Заголовок */}
             <div className={styles.header}>
                <h1>Добро пожаловать! 👋</h1>
                <p>Выберите вашу роль для персонализации опыта</p>
             </div>
 
-            {/* Выбор роли */}
             <div className={styles.roleSelection}>
                <div
-                  className={`${styles.roleCard} ${selectedRole === 'trainee' ? styles.selected : ''}`}
-                  onClick={() => handleRoleSelect('trainee')}
+                  className={`${styles.roleCard} ${selectedRole === USER_ROLES.TRAINEE ? styles.selected : ''}`}
+                  onClick={() => handleRoleSelect(USER_ROLES.TRAINEE)}
                >
                   <div className={styles.icon}>🏃‍♂️</div>
                   <h3>Спортсмен</h3>
                   <p>Буду тренироваться и выполнять задания</p>
-                  <ul className={styles.features}>
-                     <li>✅ Получение тренировочных программ</li>
-                     <li>✅ Отслеживание прогресса</li>
-                     <li>✅ Работа с тренером</li>
-                  </ul>
                </div>
 
                <div
-                  className={`${styles.roleCard} ${selectedRole === 'trainer' ? styles.selected : ''}`}
-                  onClick={() => handleRoleSelect('trainer')}
+                  className={`${styles.roleCard} ${selectedRole === USER_ROLES.TRAINER ? styles.selected : ''}`}
+                  onClick={() => handleRoleSelect(USER_ROLES.TRAINER)}
                >
                   <div className={styles.icon}>👨‍🏫</div>
                   <h3>Тренер</h3>
                   <p>Буду создавать программы и руководить</p>
-                  <ul className={styles.features}>
-                     <li>✅ Создание тренировочных планов</li>
-                     <li>✅ Управление спортсменами</li>
-                     <li>✅ Анализ прогресса подопечных</li>
-                  </ul>
                </div>
             </div>
 
-            {/* Показ ошибок */}
+            {/* ✅ Показываем выбор уровня только для спортсмена */}
+            {selectedRole === USER_ROLES.TRAINEE && (
+               <div className={styles.levelSelection}>
+                  <h3>Уровень подготовки (рекомендуем указать)</h3>
+                  <div className={styles.levelOptions}>
+                     <button
+                        className={`${styles.levelButton} ${selectedLevel === 'beginner' ? styles.selected : ''}`}
+                        onClick={() => handleLevelSelect('beginner')}
+                     >
+                        Начинающий
+                     </button>
+                     <button
+                        className={`${styles.levelButton} ${selectedLevel === 'intermediate' ? styles.selected : ''}`}
+                        onClick={() => handleLevelSelect('intermediate')}
+                     >
+                        Средний
+                     </button>
+                     <button
+                        className={`${styles.levelButton} ${selectedLevel === 'advanced' ? styles.selected : ''}`}
+                        onClick={() => handleLevelSelect('advanced')}
+                     >
+                        Продвинутый
+                     </button>
+                  </div>
+                  <p className={styles.levelHint}>Можно указать позже в настройках</p>
+               </div>
+            )}
+
             {error && (
                <div className={styles.error}>
                   ❌ Ошибка: {error}
                </div>
             )}
 
-            {/* Кнопки действий */}
             <div className={styles.actions}>
                <button
                   className={styles.skipButton}
                   onClick={handleSkip}
                   disabled={isLoading || skipAttempted || skipCompleted}
                >
-                  {isLoading || skipAttempted ? '⏳ Пропускаем...' : '⏩ Пропустить (выбрать позже)'}
+                  {isLoading || skipAttempted ? '⏳ Пропускаем...' : '⏩ Пропустить'}
                </button>
                <button
                   className={styles.continueButton}
                   onClick={handleSubmit}
                   disabled={!selectedRole || isLoading || skipAttempted || skipCompleted}
                >
-                  {isLoading ? '⏳ Сохранение...' : '✅ Подтвердить выбор'}
+                  {isLoading ? '⏳ Сохранение...' : '✅ Подтвердить'}
                </button>
             </div>
 
-            {/* Отладочная информация */}
+            {/* Отладка (можно убрать в продакшне) */}
             <div className={styles.debugInfo}>
-               <p><strong>Отладка:</strong> Роль: {selectedRole || 'не выбрана'} | Загрузка: {isLoading ? 'да' : 'нет'}</p>
-               <p><strong>Статус пропуска:</strong> Попытка: {skipAttempted ? 'да' : 'нет'} | Завершен: {skipCompleted ? 'да' : 'нет'}</p>
-               <p><strong>Пользователь:</strong> {user?.email} | Роль: {user?.role || 'не выбрана'} | needsOnboarding: {userNeedsOnboarding ? 'да' : 'нет'}</p>
+               <p>Роль: {selectedRole || 'не выбрана'}</p>
+               <p>Уровень: {selectedLevel || 'не указан'}</p>
+               <p>Загрузка: {isLoading ? 'да' : 'нет'}</p>
+               <p>Пользователь: {user?.email} | роль: {user?.role}</p>
             </div>
          </div>
       </div>

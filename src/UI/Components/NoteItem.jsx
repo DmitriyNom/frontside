@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { deleteNote, updateNote } from '../../features/notesSlice';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import NoteForm from '../Forms/NoteForm';
 import ConfirmationModal from './ConfirmationModal';
 import NoteViewModal from './NoteViewModal';
@@ -11,7 +13,8 @@ const NoteItem = ({ note }) => {
    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
    const [isStatusConfirmModalOpen, setIsStatusConfirmModalOpen] = useState(false);
-   const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] = useState(false); // 👈 Новое состояние для удаления
+   const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] = useState(false);
+   const [isDeleting, setIsDeleting] = useState(false); // 👈 Новое состояние для отслеживания процесса удаления
 
    const isOverdue = () => {
       if (!note.note_expiration_date || note.note_is_completed) return false;
@@ -96,28 +99,100 @@ const NoteItem = ({ note }) => {
       setIsEditModalOpen(true);
    };
 
-   // 👇 ИЗМЕНЕННАЯ ФУНКЦИЯ - Открытие модалки удаления вместо alert
    const handleDeleteClick = () => {
       setIsDeleteConfirmModalOpen(true);
    };
 
-   // 👇 НОВАЯ ФУНКЦИЯ - Подтверждение удаления
+   // 👇 ИЗМЕНЕННАЯ ФУНКЦИЯ - Добавлены toast-уведомления
    const handleDeleteConfirm = async () => {
-      await dispatch(deleteNote(note.id));
-      setIsDeleteConfirmModalOpen(false);
+      setIsDeleting(true);
+
+      try {
+         const result = await dispatch(deleteNote(note.id));
+
+         if (result.meta.requestStatus === 'fulfilled') {
+            // Успешное удаление
+            toast.success(`Заметка "${note.note_name}" успешно удалена`, {
+               position: "top-right",
+               autoClose: 3000,
+               hideProgressBar: false,
+               closeOnClick: true,
+               pauseOnHover: true,
+               draggable: true,
+               progress: undefined,
+               theme: "light",
+               icon: "🗑️",
+            });
+         } else {
+            // Ошибка удаления
+            toast.error(`Не удалось удалить заметку "${note.note_name}"`, {
+               position: "top-right",
+               autoClose: 4000,
+               hideProgressBar: false,
+               closeOnClick: true,
+               pauseOnHover: true,
+               draggable: true,
+               progress: undefined,
+               theme: "light",
+               icon: "❌",
+            });
+         }
+      } catch (error) {
+         // Ошибка при выполнении операции
+         toast.error('Произошла ошибка при удалении заметки', {
+            position: "top-right",
+            autoClose: 4000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            icon: "⚠️",
+         });
+         console.error('Ошибка при удалении заметки:', error);
+      } finally {
+         setIsDeleting(false);
+         setIsDeleteConfirmModalOpen(false);
+      }
    };
 
    const handleStatusClick = () => {
       setIsStatusConfirmModalOpen(true);
    };
 
+   // 👇 ОБНОВЛЕННАЯ ФУНКЦИЯ - Добавлены toast-уведомления для статуса
    const handleStatusConfirm = async () => {
-      const updatedNote = {
-         ...note,
-         note_is_completed: !note.note_is_completed
-      };
-      await dispatch(updateNote({ id: note.id, noteData: updatedNote }));
-      setIsStatusConfirmModalOpen(false);
+      try {
+         const updatedNote = {
+            ...note,
+            note_is_completed: !note.note_is_completed
+         };
+
+         const result = await dispatch(updateNote({ id: note.id, noteData: updatedNote }));
+
+         if (result.meta.requestStatus === 'fulfilled') {
+            const newStatus = updatedNote.note_is_completed ? 'выполнена' : 'в процессе';
+            toast.success(`Заметка отмечена как ${newStatus}`, {
+               position: "top-right",
+               autoClose: 2500,
+               hideProgressBar: true,
+               closeOnClick: true,
+               pauseOnHover: true,
+               draggable: true,
+               theme: "light",
+               icon: updatedNote.note_is_completed ? "✅" : "⏳",
+            });
+         }
+      } catch (error) {
+         toast.error('Ошибка при изменении статуса', {
+            position: "top-right",
+            autoClose: 3000,
+            theme: "light",
+         });
+      } finally {
+         setIsStatusConfirmModalOpen(false);
+      }
    };
 
    const closeEditModal = () => {
@@ -132,7 +207,6 @@ const NoteItem = ({ note }) => {
       setIsStatusConfirmModalOpen(false);
    };
 
-   // 👇 НОВАЯ ФУНКЦИЯ - Закрытие модалки удаления
    const closeDeleteConfirmModal = () => {
       setIsDeleteConfirmModalOpen(false);
    };
@@ -214,14 +288,18 @@ const NoteItem = ({ note }) => {
                   <span className={styles.buttonIcon}>✏️</span>
                   <span className={styles.buttonText}>Редактировать</span>
                </button>
-               {/* 👇 ИЗМЕНЕННАЯ КНОПКА - Теперь открывает модалку */}
                <button
                   onClick={handleDeleteClick}
                   className={styles.deleteButton}
                   title="Удалить заметку"
+                  disabled={isDeleting} // 👈 Блокировка кнопки во время удаления
                >
-                  <span className={styles.buttonIcon}>🗑️</span>
-                  <span className={styles.buttonText}>Удалить</span>
+                  <span className={styles.buttonIcon}>
+                     {isDeleting ? '⏳' : '🗑️'}
+                  </span>
+                  <span className={styles.buttonText}>
+                     {isDeleting ? 'Удаление...' : 'Удалить'}
+                  </span>
                </button>
             </div>
          </div>
@@ -244,7 +322,7 @@ const NoteItem = ({ note }) => {
             note={note}
          />
 
-         {/* 👇 МОДАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ СТАТУСА */}
+         {/* Модальное окно подтверждения статуса */}
          <ConfirmationModal
             isOpen={isStatusConfirmModalOpen}
             onClose={closeStatusConfirmModal}
@@ -256,19 +334,20 @@ const NoteItem = ({ note }) => {
             }
             confirmText="Да"
             cancelText="Нет"
-            type="status" // 👈 Добавляем тип для разных стилей
+            type="status"
          />
 
-         {/* 👇 НОВОЕ МОДАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ УДАЛЕНИЯ */}
+         {/* Модальное окно подтверждения удаления */}
          <ConfirmationModal
             isOpen={isDeleteConfirmModalOpen}
             onClose={closeDeleteConfirmModal}
             onConfirm={handleDeleteConfirm}
             title="Удалить заметку?"
             message={`Вы уверены, что хотите удалить заметку "${note.note_name}"? Это действие невозможно отменить.`}
-            confirmText="Удалить"
+            confirmText={isDeleting ? "Удаление..." : "Удалить"}
             cancelText="Отмена"
-            type="delete" // 👈 Тип для стилей удаления
+            type="delete"
+            isProcessing={isDeleting} // 👈 Передаем состояние обработки в модалку
          />
       </>
    );

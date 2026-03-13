@@ -1,5 +1,5 @@
 // src/UI/Pages/Profile/ProfileOverview.jsx
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -11,68 +11,122 @@ import {
 import {
    fetchUserMedia,
    selectMediaItems,
-   selectMediaLoading
+   selectMediaLoading,
+   selectMediaError,
+   selectShouldFetchMedia,
+   selectIsInitialMediaLoadComplete,
+   clearMediaError
 } from '../../../features/mediaSlice';
 import { getTrainingLevelLabel } from '../../../constants/trainingLevels';
 import { getUserRoleLabel } from '../../../constants/userRoles';
-
-// Импортируем новый компонент
 import MiniMediaGallery from '../../Components/MiniMediaGallery';
-
 import styles from './ProfileOverview.module.css';
 
-// Компонент для главной страницы профиля
-const ProfileOverview = ({ user, onSwitchToMedia }) => {
+const ProfileOverview = ({ user: propUser, onSwitchToMedia }) => {
    const dispatch = useDispatch();
    const navigate = useNavigate();
 
-   // Данные из profileSlice
+   // Данные из profileSlice (могут быть старыми/устаревшими)
    const profile = useSelector(selectProfile);
    const isLoading = useSelector(selectIsLoading);
    const isProfileLoaded = useSelector(selectIsProfileLoaded);
 
-   // Получаем медиа из Redux
+   // Медиа данные
    const mediaItems = useSelector(selectMediaItems);
    const mediaLoading = useSelector(selectMediaLoading);
+   const mediaError = useSelector(selectMediaError);
+   const shouldFetchMedia = useSelector(selectShouldFetchMedia);
+   const isInitialMediaLoadComplete = useSelector(selectIsInitialMediaLoadComplete);
 
-   // Получаем данные из профиля
-   const sportSpecialization = profile?.sport_specialization || '';
-   const trainingLevel = profile?.training_level || '';
-   const userRole = profile?.role || '';
-   const allowConnections = profile?.allow_connections !== false;
-   const userName = profile?.userName || '';
-   const userEmail = profile?.email || '';
+   // 🔑 КЛЮЧЕВОЕ РЕШЕНИЕ: Приоритет у пропса user (из authSlice)
+   // profileSlice используем как fallback
+   const userData = useMemo(() => {
+      // Если есть пропс user - используем его (сайдбар уже показывает его)
+      if (propUser) {
+         console.log('📊 ProfileOverview: используем пропс user', propUser.email);
+         return propUser;
+      }
 
-   // Определяем роль из профиля
+      // Если нет пропса, но есть profile - используем его
+      if (profile) {
+         console.log('📊 ProfileOverview: используем profile из стора', profile.email);
+         return profile;
+      }
+
+      // Нет данных
+      return null;
+   }, [propUser, profile]);
+
+   // 🔍 ДИАГНОСТИКА: логируем источник данных
+   useEffect(() => {
+      console.log('📊 ProfileOverview - источник данных:', {
+         hasPropUser: !!propUser,
+         hasProfile: !!profile,
+         используем: propUser ? 'пропс (auth)' : profile ? 'profileSlice' : 'нет данных',
+         email: userData?.email,
+         роль: userData?.role
+      });
+   }, [propUser, profile, userData]);
+
+   // Извлекаем данные из userData (приоритет) или profile (fallback)
+   const sportSpecialization = userData?.sport_specialization || profile?.sport_specialization || '';
+   const trainingLevel = userData?.training_level || profile?.training_level || '';
+   const userRole = userData?.role || profile?.role || '';
+   const allowConnections = userData?.allow_connections !== false;
+   const userName = userData?.userName || profile?.userName || '';
+   const userEmail = userData?.email || profile?.email || '';
+   const birthDate = userData?.birthDate || profile?.birthDate;
+   const createdAt = userData?.createdAt || profile?.createdAt;
+   const updatedAt = userData?.updatedAt || profile?.updatedAt;
+
    const isTrainer = userRole === 'trainer';
    const isTrainee = userRole === 'trainee';
 
-   // Загружаем профиль при монтировании
+   // Загрузка профиля - только если нет пропса и нет профиля
    useEffect(() => {
-      if (!isProfileLoaded && !isLoading) {
-         console.log('🟡 ProfileOverview: Загрузка профиля...');
+      // Если есть пропс user - не загружаем профиль
+      if (propUser) {
+         console.log('📊 ProfileOverview: пропс уже есть, пропускаем загрузку profileSlice');
+         return;
+      }
+
+      // Если нет пропса и нет профиля - загружаем
+      if (!profile && !isLoading && !isProfileLoaded) {
+         console.log('📊 ProfileOverview: загружаем профиль из profileSlice');
          dispatch(loadProfile());
       }
-   }, [dispatch, isProfileLoaded, isLoading]);
+   }, [dispatch, propUser, profile, isLoading, isProfileLoaded]);
 
-   // Загружаем медиа при монтировании
+   // Загрузка медиа (всегда, если нужно)
    useEffect(() => {
-      console.log('🖼️ ProfileOverview: Проверяем медиа...');
-      if (mediaItems.length === 0 && !mediaLoading) {
-         console.log('🔄 Загружаем медиа...');
+      if (shouldFetchMedia) {
+         console.log('📊 ProfileOverview: загружаем медиа');
          dispatch(fetchUserMedia());
       }
-   }, [dispatch, mediaItems.length, mediaLoading]);
+   }, [dispatch, shouldFetchMedia]);
 
-   // Обработчик перехода к медиа-библиотеке
+   // Очистка ошибки при размонтировании
+   useEffect(() => {
+      return () => {
+         dispatch(clearMediaError());
+      };
+   }, [dispatch]);
+
    const handleViewAllMedia = () => {
       if (onSwitchToMedia) {
          onSwitchToMedia();
+      } else {
+         navigate('/media');
       }
    };
 
-   // Показываем загрузку
-   if (isLoading && !profile) {
+   const handleRetryMedia = () => {
+      dispatch(clearMediaError());
+      dispatch(fetchUserMedia());
+   };
+
+   // Показываем загрузку только если действительно нет данных
+   if (isLoading && !userData && !profile) {
       return (
          <div className={styles.loadingContainer}>
             <div className={styles.spinner}></div>
@@ -81,8 +135,8 @@ const ProfileOverview = ({ user, onSwitchToMedia }) => {
       );
    }
 
-   // Если профиль не загружен
-   if (!profile && isProfileLoaded) {
+   // Если нет данных после загрузки
+   if (!userData && !profile && isProfileLoaded) {
       return (
          <div className={styles.errorContainer}>
             <div className={styles.errorIcon}>⚠️</div>
@@ -98,7 +152,15 @@ const ProfileOverview = ({ user, onSwitchToMedia }) => {
       );
    }
 
-   // Функция для отображения тегов из строки через запятую
+   // Если нет данных, но загрузка не завершена
+   if (!userData && !profile) {
+      return (
+         <div className={styles.checkingContainer}>
+            <p>Проверка данных профиля...</p>
+         </div>
+      );
+   }
+
    const renderTags = (tagsString) => {
       if (!tagsString || !tagsString.trim()) return null;
 
@@ -120,7 +182,6 @@ const ProfileOverview = ({ user, onSwitchToMedia }) => {
       );
    };
 
-   // Функция для отображения тегов в карточке (первые 3)
    const renderLimitedTags = (tagsString) => {
       if (!tagsString || !tagsString.trim()) return null;
 
@@ -128,7 +189,7 @@ const ProfileOverview = ({ user, onSwitchToMedia }) => {
          .split(',')
          .map(tag => tag.trim())
          .filter(tag => tag.length > 0)
-         .slice(0, 3); // Показываем только первые 3 тега
+         .slice(0, 3);
 
       if (tags.length === 0) return null;
 
@@ -156,7 +217,6 @@ const ProfileOverview = ({ user, onSwitchToMedia }) => {
          </header>
 
          <div className={styles.statsGrid}>
-            {/* Карточка профиля */}
             <div className={styles.statCard}>
                <div className={styles.statIcon}>👤</div>
                <div className={styles.statContent}>
@@ -177,7 +237,6 @@ const ProfileOverview = ({ user, onSwitchToMedia }) => {
                </div>
             </div>
 
-            {/* Карточка заметок */}
             <div className={styles.statCard}>
                <div className={styles.statIcon}>📝</div>
                <div className={styles.statContent}>
@@ -186,7 +245,6 @@ const ProfileOverview = ({ user, onSwitchToMedia }) => {
                </div>
             </div>
 
-            {/* Карточка для тренера */}
             {isTrainer && (
                <div className={styles.statCard}>
                   <div className={styles.statIcon}>👥</div>
@@ -198,7 +256,6 @@ const ProfileOverview = ({ user, onSwitchToMedia }) => {
                </div>
             )}
 
-            {/* Карточка для спортсмена */}
             {isTrainee && (
                <div className={styles.statCard}>
                   <div className={styles.statIcon}>💪</div>
@@ -210,7 +267,6 @@ const ProfileOverview = ({ user, onSwitchToMedia }) => {
                </div>
             )}
 
-            {/* Карточка настроек */}
             <div className={styles.statCard}>
                <div className={styles.statIcon}>⚙️</div>
                <div className={styles.statContent}>
@@ -220,11 +276,9 @@ const ProfileOverview = ({ user, onSwitchToMedia }) => {
             </div>
          </div>
 
-         {/* Детальная информация о профиле */}
          <div className={styles.userDetails}>
             <h3>Информация о профиле</h3>
             <div className={styles.detailsGrid}>
-               {/* Роль */}
                {userRole && (
                   <div className={styles.detailItem}>
                      <label>Роль в системе:</label>
@@ -234,7 +288,6 @@ const ProfileOverview = ({ user, onSwitchToMedia }) => {
                   </div>
                )}
 
-               {/* Уровень подготовки */}
                {trainingLevel && (
                   <div className={styles.detailItem}>
                      <label>Уровень подготовки:</label>
@@ -244,7 +297,6 @@ const ProfileOverview = ({ user, onSwitchToMedia }) => {
                   </div>
                )}
 
-               {/* Специализация/Интересы */}
                {sportSpecialization && (
                   <div className={styles.detailItem}>
                      <label>
@@ -256,7 +308,6 @@ const ProfileOverview = ({ user, onSwitchToMedia }) => {
                   </div>
                )}
 
-               {/* Доступ для подключений */}
                <div className={styles.detailItem}>
                   <label>Доступен для подключений:</label>
                   <span className={styles.detailValue}>
@@ -264,7 +315,6 @@ const ProfileOverview = ({ user, onSwitchToMedia }) => {
                   </span>
                </div>
 
-               {/* Email (если есть в профиле) */}
                {userEmail && (
                   <div className={styles.detailItem}>
                      <label>Email:</label>
@@ -272,29 +322,26 @@ const ProfileOverview = ({ user, onSwitchToMedia }) => {
                   </div>
                )}
 
-               {/* Дата рождения (если есть в профиле) */}
-               {profile?.birthDate && (
+               {birthDate && (
                   <div className={styles.detailItem}>
                      <label>Дата рождения:</label>
                      <span className={styles.detailValue}>
-                        {new Date(profile.birthDate).toLocaleDateString('ru-RU')}
+                        {new Date(birthDate).toLocaleDateString('ru-RU')}
                      </span>
                   </div>
                )}
 
-               {/* Дата создания профиля */}
-               {profile?.createdAt && (
+               {createdAt && (
                   <div className={styles.detailItem}>
                      <label>Дата регистрации:</label>
                      <span className={styles.detailValue}>
-                        {new Date(profile.createdAt).toLocaleDateString('ru-RU')}
+                        {new Date(createdAt).toLocaleDateString('ru-RU')}
                      </span>
                   </div>
                )}
             </div>
          </div>
 
-         {/* Последние действия */}
          <div className={styles.recentActivity}>
             <h3>Последние действия</h3>
             <div className={styles.activityList}>
@@ -305,13 +352,13 @@ const ProfileOverview = ({ user, onSwitchToMedia }) => {
                      <span className={styles.activityTime}>Только что</span>
                   </div>
                </div>
-               {profile?.updatedAt && (
+               {updatedAt && (
                   <div className={styles.activityItem}>
                      <span className={styles.activityIcon}>📱</span>
                      <div className={styles.activityContent}>
                         <p>Профиль обновлен</p>
                         <span className={styles.activityTime}>
-                           {new Date(profile.updatedAt).toLocaleDateString('ru-RU')}
+                           {new Date(updatedAt).toLocaleDateString('ru-RU')}
                         </span>
                      </div>
                   </div>
@@ -326,10 +373,17 @@ const ProfileOverview = ({ user, onSwitchToMedia }) => {
             </div>
          </div>
 
-         {/* ✅ НОВАЯ СЕКЦИЯ: Последние медиа */}
          <div className={styles.recentMedia}>
             <div className={styles.mediaHeader}>
                <h3>Последние медиа</h3>
+               {mediaError && (
+                  <button
+                     className={styles.retryButton}
+                     onClick={handleRetryMedia}
+                  >
+                     🔄 Повторить
+                  </button>
+               )}
                <button
                   className={styles.viewAllButton}
                   onClick={handleViewAllMedia}
@@ -338,6 +392,18 @@ const ProfileOverview = ({ user, onSwitchToMedia }) => {
                </button>
             </div>
 
+            {mediaError && !mediaLoading && (
+               <div className={styles.mediaError}>
+                  <p>⚠️ Не удалось загрузить медиа</p>
+                  <button
+                     className={styles.retrySmallButton}
+                     onClick={handleRetryMedia}
+                  >
+                     Повторить попытку
+                  </button>
+               </div>
+            )}
+
             <MiniMediaGallery
                mediaItems={mediaItems}
                loading={mediaLoading}
@@ -345,9 +411,17 @@ const ProfileOverview = ({ user, onSwitchToMedia }) => {
                onViewAll={handleViewAllMedia}
             />
 
-            <p className={styles.mediaHint}>
-               Загружайте фото и видео тренировок, чтобы отслеживать прогресс
-            </p>
+            {!mediaError && (
+               <p className={styles.mediaHint}>
+                  Загружайте фото и видео тренировок, чтобы отслеживать прогресс
+               </p>
+            )}
+
+            {!mediaLoading && isInitialMediaLoadComplete && mediaItems.length === 0 && !mediaError && (
+               <p className={styles.noMediaMessage}>
+                  У вас пока нет загруженных медиа. Нажмите "Все медиа →", чтобы добавить.
+               </p>
+            )}
          </div>
       </div>
    );

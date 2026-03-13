@@ -1,4 +1,3 @@
-// src/UI/Components/MiniMediaGallery.jsx
 import React, { useState, useEffect, useMemo } from 'react';
 import MediaPreviewModal from './MediaPreviewModal';
 import { getMediaUrl } from '../../api/api';
@@ -10,18 +9,12 @@ const MiniMediaGallery = ({
    limit = 6,
    onViewAll
 }) => {
-   console.log('🖼️ MiniMediaGallery rendered with items:', mediaItems.length);
-
    const [selectedMedia, setSelectedMedia] = useState(null);
    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
    // Функция для получения правильного URL
    const getLocalMediaUrl = (media) => {
       if (!media) return '';
-
-      console.log('🔗 Getting URL for media:', media);
-
-      // Используем универсальную функцию из api.js
       return media.storage_url
          ? getMediaUrl(media.storage_url)
          : '';
@@ -31,8 +24,6 @@ const MiniMediaGallery = ({
    const latestMedia = useMemo(() => {
       if (!mediaItems || mediaItems.length === 0) return [];
 
-      console.log('📊 Calculating latestMedia from', mediaItems.length, 'items');
-
       const sorted = [...mediaItems]
          .sort((a, b) => {
             const dateA = a.uploaded_at || a.created_at;
@@ -41,33 +32,11 @@ const MiniMediaGallery = ({
          })
          .slice(0, limit);
 
-      console.log('📊 Latest media:', sorted.map(m => ({
-         id: m.id,
-         name: m.original_filename,
-         url: getLocalMediaUrl(m)
-      })));
-
       return sorted;
    }, [mediaItems, limit]);
 
-   // Проверяем URL для дебага
-   useEffect(() => {
-      if (latestMedia.length > 0) {
-         console.log('🔍 Testing first media URL:');
-         const testUrl = getLocalMediaUrl(latestMedia[0]);
-         console.log('URL:', testUrl);
-
-         // Тестируем загрузку изображения
-         const img = new Image();
-         img.onload = () => console.log('✅ Image loads successfully');
-         img.onerror = () => console.log('❌ Image failed to load');
-         img.src = testUrl;
-      }
-   }, [latestMedia]);
-
    // Обработчик клика по медиа
    const handleMediaClick = (media) => {
-      console.log('🖱️ Clicked on media:', media.original_filename);
       setSelectedMedia(media);
       setIsPreviewOpen(true);
    };
@@ -104,7 +73,6 @@ const MiniMediaGallery = ({
             });
          }
       } catch (error) {
-         console.error('Date formatting error:', error);
          return 'Дата неизвестна';
       }
    };
@@ -159,10 +127,6 @@ const MiniMediaGallery = ({
 
    return (
       <div className={styles.miniGallery}>
-         <div className={styles.debugInfo} style={{ display: 'none' }}>
-            Items: {mediaItems.length}, Latest: {latestMedia.length}
-         </div>
-
          {/* Контейнер с адаптивной сеткой */}
          <div
             className={styles.mediaGrid}
@@ -189,10 +153,8 @@ const MiniMediaGallery = ({
                                  className={styles.previewImage}
                                  loading="lazy"
                                  onError={(e) => {
-                                    console.error('❌ Image load error:', mediaUrl);
                                     e.target.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="150" viewBox="0 0 200 150"><rect width="200" height="150" fill="%23f0f0f0"/><text x="100" y="80" font-family="Arial" font-size="14" fill="%23999" text-anchor="middle">Ошибка загрузки</text></svg>';
                                  }}
-                                 onLoad={() => console.log('✅ Image loaded:', mediaUrl)}
                               />
                               {!mediaUrl && (
                                  <div className={styles.noImage}>

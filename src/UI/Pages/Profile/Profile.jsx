@@ -1,10 +1,9 @@
 // src/UI/Pages/Profile/Profile.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
    fetchUserProfile,
-   logoutUser,
    selectUser,
    selectLoading,
    selectError,
@@ -12,83 +11,151 @@ import {
    selectIsTrainer,
    selectIsTrainee
 } from '../../../features/authSlice';
-// import { selectNotes } from '../../../features/notesSlice';
+import { logoutUser } from '../../../store/rootActions';
 import NoteForm from '../../Forms/NoteForm';
 import { getUserRoleLabel } from '../../../constants/userRoles';
 import styles from './Profile.module.css';
 
-// Импортируем новые компоненты вкладок
 import ProfileOverview from './ProfileOverview';
 import ProfileNotes from './ProfileNotes';
 import ProfileTraining from './ProfileTraining';
-import ProfileSettings from './ProfileSettings'; // Новая расширенная версия
-import ProfileMedia from './ProfileMedia'; // ✅ НОВЫЙ: Импортируем компонент медиа
+import ProfileSettings from './ProfileSettings';
+import ProfileMedia from './ProfileMedia';
+import ProfileConnections from './ProfileConnections';
 
 const Profile = () => {
    const dispatch = useDispatch();
    const navigate = useNavigate();
+   const location = useLocation();
 
    const [activeTab, setActiveTab] = useState('overview');
    const [isNoteFormOpen, setIsNoteFormOpen] = useState(false);
 
+   // Селекторы
    const user = useSelector(selectUser);
    const loading = useSelector(selectLoading);
    const error = useSelector(selectError);
    const isProfileFetched = useSelector(selectIsProfileFetched);
-   // const notes = useSelector(selectNotes);
    const isTrainer = useSelector(selectIsTrainer);
    const isTrainee = useSelector(selectIsTrainee);
 
-   const handleLogout = async () => {
+   // Мемоизированный ключ компонента
+   const componentKey = useMemo(() => {
+      return `${user?.id || 'no-user'}-${location.pathname}`;
+   }, [user?.id, location.pathname]);
+
+   // Мемоизированная информация о пользователе для логов
+   const userInfo = useMemo(() => ({
+      email: user?.email,
+      role: user?.role,
+      id: user?.id
+   }), [user?.email, user?.role, user?.id]);
+
+   // Лог монтирования - исправлен!
+   useEffect(() => {
+      console.log('🟢 Profile МОНТИРУЕТСЯ');
+      console.log('🟢 Key:', componentKey);
+      console.log('🟢 User:', userInfo.email);
+      console.log('🟢 Роль:', userInfo.role);
+
+      return () => {
+         console.log('🔴 Profile РАЗМОНТИРУЕТСЯ с key:', componentKey);
+      };
+      // ✅ Добавляем зависимости, но эффект сработает только при монтировании/размонтировании
+      // потому что в массиве нет изменяющихся значений
+   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+   // ⬆️ Отключаем правило для этого эффекта, так как нам нужен только mount/unmount
+
+   // Лог изменения user - теперь с правильными зависимостями
+   useEffect(() => {
+      console.log('🟡 user ИЗМЕНИЛСЯ:', userInfo.email, 'роль:', userInfo.role);
+   }, [userInfo]);
+
+   // Лог изменения location
+   useEffect(() => {
+      console.log('🟡 location ИЗМЕНИЛСЯ:', location.pathname);
+   }, [location.pathname]);
+
+   // Обработчик логаута
+   const handleLogout = useCallback(async () => {
+      console.log('🚪 Логаут пользователя:', userInfo.email);
       await dispatch(logoutUser());
-      navigate('/login');
-   };
+      console.log('✅ Логаут выполнен, редирект на /login');
+      navigate('/login', { replace: true });
+   }, [dispatch, navigate, userInfo.email]);
 
-   const openNoteForm = () => setIsNoteFormOpen(true);
-   const closeNoteForm = () => setIsNoteFormOpen(false);
+   // Открыть/закрыть форму заметки
+   const openNoteForm = useCallback(() => setIsNoteFormOpen(true), []);
+   const closeNoteForm = useCallback(() => setIsNoteFormOpen(false), []);
 
-   // Сбрасываем скролл при смене вкладки
+   // Скролл при смене вкладки
    useEffect(() => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
    }, [activeTab]);
 
+   // Загрузка профиля - исправлено!
    useEffect(() => {
+      console.log('📡 Проверка загрузки профиля:', {
+         hasUser: !!user,
+         isProfileFetched,
+         loading,
+         key: componentKey
+      });
+
       if (!user && !isProfileFetched && !loading) {
+         console.log('📡 Загружаем профиль...');
          dispatch(fetchUserProfile());
       }
-   }, [dispatch, user, isProfileFetched, loading]);
+   }, [dispatch, user, isProfileFetched, loading, componentKey]);
 
+   // Проверка редиректа - исправлено!
    useEffect(() => {
-      if (!loading && !user && isProfileFetched) {
-         navigate('/login');
-      }
-   }, [navigate, user, loading, isProfileFetched]);
+      console.log('🚦 Проверка редиректа:', {
+         loading,
+         hasUser: !!user,
+         isProfileFetched,
+         key: componentKey
+      });
 
-   // Рендер контента в зависимости от активной вкладки
-   const renderContent = () => {
+      if (!loading && !user && isProfileFetched) {
+         console.log('🚦 Редирект на /login');
+         navigate('/login', { replace: true });
+      }
+   }, [navigate, user, loading, isProfileFetched, componentKey]);
+
+   // Рендер контента вкладок - мемоизирован
+   const renderContent = useCallback(() => {
+      console.log('🎨 Рендер контента для user:', userInfo.email);
+
       switch (activeTab) {
          case 'overview':
-            return <ProfileOverview
-               user={user}
-               onSwitchToMedia={() => setActiveTab('media')} // ✅ Передаем функцию переключения
-            />;
+            return (
+               <ProfileOverview
+                  user={user}
+                  onSwitchToMedia={() => setActiveTab('media')}
+               />
+            );
          case 'notes':
             return <ProfileNotes onOpenNoteForm={openNoteForm} />;
          case 'settings':
             return <ProfileSettings />;
          case 'training':
-            // Используем один case, но внутри компонент сам решит что показывать
             return <ProfileTraining user={user} />;
          case 'media':
             return <ProfileMedia />;
+         case 'connections':
+            return <ProfileConnections />;
          default:
-            return <ProfileOverview
-               user={user}
-               onSwitchToMedia={() => setActiveTab('media')}
-            />;
+            return (
+               <ProfileOverview
+                  user={user}
+                  onSwitchToMedia={() => setActiveTab('media')}
+               />
+            );
       }
-   };
+   }, [activeTab, user, userInfo.email, openNoteForm]);
 
+   // Загрузка
    if (loading) {
       return (
          <div className={styles.loadingContainer}>
@@ -98,22 +165,28 @@ const Profile = () => {
       );
    }
 
+   // Ошибка
    if (error) {
       return (
          <div className={styles.errorContainer}>
             <div className={styles.errorIcon}>⚠️</div>
             <h2>Ошибка загрузки</h2>
             <p>{error}</p>
-            <button className={styles.retryButton} onClick={() => dispatch(fetchUserProfile())}>
+            <button
+               className={styles.retryButton}
+               onClick={() => dispatch(fetchUserProfile())}
+               type="button"
+            >
                Попробовать снова
             </button>
          </div>
       );
    }
 
+   // Успешная загрузка с пользователем
    if (user) {
       return (
-         <div className={styles.profileContainer}>
+         <div key={componentKey} className={styles.profileContainer}>
             <div className={styles.profileLayout}>
                {/* Сайдбар */}
                <aside className={styles.sidebar}>
@@ -130,6 +203,7 @@ const Profile = () => {
                      </div>
                   </div>
 
+                  {/* Навигация */}
                   <nav className={styles.navigation}>
                      <button
                         className={`${styles.navLink} ${activeTab === 'overview' ? styles.navLinkActive : ''}`}
@@ -145,8 +219,6 @@ const Profile = () => {
                      >
                         📝 Заметки
                      </button>
-
-                     {/* ✅ НОВЫЙ: Кнопка для медиа-библиотеки */}
                      <button
                         className={`${styles.navLink} ${activeTab === 'media' ? styles.navLinkActive : ''}`}
                         onClick={() => setActiveTab('media')}
@@ -154,8 +226,6 @@ const Profile = () => {
                      >
                         🖼️ Медиа
                      </button>
-
-                     {/* Объединяем training для обеих ролей в одну кнопку */}
                      {(isTrainee || isTrainer) && (
                         <button
                            className={`${styles.navLink} ${activeTab === 'training' ? styles.navLinkActive : ''}`}
@@ -165,7 +235,13 @@ const Profile = () => {
                            {isTrainer ? '👥 Мои подопечные' : '💪 Тренировки'}
                         </button>
                      )}
-
+                     <button
+                        className={`${styles.navLink} ${activeTab === 'connections' ? styles.navLinkActive : ''}`}
+                        onClick={() => setActiveTab('connections')}
+                        type="button"
+                     >
+                        🤝 Связи
+                     </button>
                      <button
                         className={`${styles.navLink} ${activeTab === 'settings' ? styles.navLinkActive : ''}`}
                         onClick={() => setActiveTab('settings')}
@@ -190,7 +266,7 @@ const Profile = () => {
                </main>
             </div>
 
-            {/* Модальное окно для создания заметки */}
+            {/* Модальное окно для заметки */}
             {isNoteFormOpen && (
                <NoteForm
                   isOpen={isNoteFormOpen}
@@ -202,6 +278,7 @@ const Profile = () => {
       );
    }
 
+   // Проверка профиля
    return <div className={styles.checking}>Проверяем профиль...</div>;
 };
 

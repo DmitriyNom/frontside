@@ -2,22 +2,18 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify'; // Импортируем toast
+import { toast } from 'react-toastify';
 import {
    selectUser,
    selectLoading as selectAuthLoading,
    setUserRole
 } from '../../../features/authSlice';
 import { USER_ROLES } from '../../../constants/userRoles';
-
-// Импорты из profileSlice
 import {
-   // Actions
    loadProfile,
    updateProfile,
    fetchTrainingLevels,
    clearErrors,
-   // Selectors
    selectProfile,
    selectTrainingLevels,
    selectIsLoading,
@@ -27,11 +23,12 @@ import {
    selectSaveError,
    selectIsProfileLoaded
 } from '../../../features/profileSlice';
-
 import ConfirmRoleChangeModal from '../../Components/ConfirmRoleChangeModal';
 import styles from './ProfileSettings.module.css';
 
-// Компонент выбора роли
+// ============================================================================
+// КОМПОНЕНТ ВЫБОРА РОЛИ
+// ============================================================================
 const RoleSelector = ({ selectedRole, onRoleSelect }) => {
    return (
       <div className={styles.roleSelectorEnhanced}>
@@ -70,7 +67,9 @@ const RoleSelector = ({ selectedRole, onRoleSelect }) => {
    );
 };
 
-// Компонент выбора уровня подготовки
+// ============================================================================
+// КОМПОНЕНТ ВЫБОРА УРОВНЯ ПОДГОТОВКИ
+// ============================================================================
 const TrainingLevelSelector = ({ value, onChange, levels, isLoading }) => {
    if (isLoading) {
       return (
@@ -122,16 +121,30 @@ const TrainingLevelSelector = ({ value, onChange, levels, isLoading }) => {
    );
 };
 
-// Основной компонент страницы настроек
+// ============================================================================
+// КОМПОНЕНТ ПОДСКАЗКИ
+// ============================================================================
+const RecommendationBox = ({ icon, title, message, hint }) => (
+   <div className={styles.recommendationBox}>
+      <span className={styles.recommendationIcon}>{icon}</span>
+      <div>
+         <strong>{title}</strong>
+         <p>{message}</p>
+         {hint && <small>{hint}</small>}
+      </div>
+   </div>
+);
+
+// ============================================================================
+// ОСНОВНОЙ КОМПОНЕНТ
+// ============================================================================
 const ProfileSettings = () => {
    const dispatch = useDispatch();
    const navigate = useNavigate();
 
-   // Данные из auth
+   // ===== Redux селекторы =====
    const user = useSelector(selectUser);
    const authLoading = useSelector(selectAuthLoading);
-
-   // Данные из profileSlice
    const profile = useSelector(selectProfile);
    const trainingLevels = useSelector(selectTrainingLevels);
    const isLoadingProfile = useSelector(selectIsLoading);
@@ -141,12 +154,12 @@ const ProfileSettings = () => {
    const saveError = useSelector(selectSaveError);
    const isProfileLoaded = useSelector(selectIsProfileLoaded);
 
+   // ===== Локальное состояние =====
    const [isLoading, setIsLoading] = useState(false);
    const [hasPendingRoleChange, setHasPendingRoleChange] = useState(false);
-
-   // Состояния для модалки подтверждения смены роли
    const [showRoleChangeModal, setShowRoleChangeModal] = useState(false);
    const [pendingRoleChange, setPendingRoleChange] = useState(null);
+   const [isFormDirty, setIsFormDirty] = useState(false);
 
    const [formData, setFormData] = useState({
       role: '',
@@ -157,23 +170,23 @@ const ProfileSettings = () => {
       birthDate: ''
    });
 
-   // 🔄 Загружаем профиль пользователя
+   // ===== ЭФФЕКТЫ =====
+
+   // 🔄 Загрузка профиля
    useEffect(() => {
       if (!isProfileLoaded && !isLoadingProfile && !profile) {
-         console.log('🟡 Загрузка профиля...');
          dispatch(loadProfile());
       }
    }, [dispatch, isProfileLoaded, isLoadingProfile, profile]);
 
-   // 🔄 Загружаем уровни подготовки
+   // 🔄 Загрузка уровней подготовки
    useEffect(() => {
       if (trainingLevels.length === 0 && !isLoadingLevels) {
-         console.log('🟡 Загрузка уровней подготовки...');
          dispatch(fetchTrainingLevels());
       }
    }, [dispatch, trainingLevels.length, isLoadingLevels]);
 
-   // 🔄 Обновление формы когда профиль загружен
+   // 🔄 Инициализация формы данными профиля
    useEffect(() => {
       if (profile) {
          setFormData({
@@ -184,6 +197,7 @@ const ProfileSettings = () => {
             userName: profile.userName || '',
             birthDate: profile.birthDate ? new Date(profile.birthDate).toISOString().split('T')[0] : ''
          });
+         setIsFormDirty(false);
       }
    }, [profile]);
 
@@ -194,7 +208,7 @@ const ProfileSettings = () => {
       };
    }, [dispatch]);
 
-   // 🔄 Отображение ошибок из Redux через toast
+   // 🔄 Отображение ошибок из Redux
    useEffect(() => {
       if (profileError) {
          toast.error(`Ошибка загрузки профиля: ${profileError}`, {
@@ -210,37 +224,54 @@ const ProfileSettings = () => {
       }
    }, [profileError, saveError]);
 
-   // Обработчик смены роли
-   const handleRoleChange = (newRole) => {
-      if (formData.role === newRole) return;
+   // ===== ОБРАБОТЧИКИ =====
 
-      if (formData.role && formData.role !== 'skipped' && newRole !== 'skipped') {
-         setPendingRoleChange(newRole);
-         setShowRoleChangeModal(true);
-      } else {
-         applyRoleChange(newRole);
-      }
-   };
-
-   // Функция применения смены роли
+   /**
+    * Применяет смену роли в форме
+    */
    const applyRoleChange = (newRole) => {
       setFormData(prev => ({
          ...prev,
          role: newRole,
-         ...(newRole === USER_ROLES.TRAINEE && { sport_specialization: '' }),
-         ...(newRole === USER_ROLES.TRAINER && { training_level: '' })
+         // Очищаем связанные поля при смене роли
+         ...(newRole === USER_ROLES.TRAINEE && {
+            sport_specialization: '',
+            training_level: prev.training_level // Сохраняем уровень, если был
+         }),
+         ...(newRole === USER_ROLES.TRAINER && {
+            training_level: '',
+            sport_specialization: prev.sport_specialization // Сохраняем специализацию, если была
+         })
       }));
 
       setHasPendingRoleChange(true);
+      setIsFormDirty(true);
 
-      // Показываем toast-уведомление о смене роли
-      toast.warning('Роль изменена. Не забудьте сохранить изменения!', {
+      toast.warning('🔄 Роль изменена. Не забудьте сохранить изменения!', {
          position: "top-right",
          autoClose: 5000,
       });
    };
 
-   // Обработчик подтверждения смены роли
+   /**
+    * Обработчик смены роли с подтверждением
+    */
+   const handleRoleChange = (newRole) => {
+      if (formData.role === newRole) return;
+
+      // Если роль уже была выбрана (не skipped) - показываем модалку
+      if (formData.role && formData.role !== 'skipped' && newRole !== 'skipped') {
+         setPendingRoleChange(newRole);
+         setShowRoleChangeModal(true);
+      } else {
+         // Первичный выбор роли или со skipped
+         applyRoleChange(newRole);
+      }
+   };
+
+   /**
+    * Подтверждение смены роли в модалке
+    */
    const handleConfirmRoleChange = () => {
       if (pendingRoleChange) {
          applyRoleChange(pendingRoleChange);
@@ -249,22 +280,26 @@ const ProfileSettings = () => {
       }
    };
 
-   // Обработчик отмены смены роли
+   /**
+    * Отмена смены роли
+    */
    const handleCancelRoleChange = () => {
       setShowRoleChangeModal(false);
       setPendingRoleChange(null);
    };
 
+   /**
+    * Обработчик изменений полей формы
+    */
    const handleInputChange = (e) => {
       const { name, value, type, checked } = e.target;
 
-      // Автоформатирование для sport_specialization
       let processedValue = value;
       if (name === 'sport_specialization') {
-         // Убираем лишние пробелы вокруг запятых
+         // Форматируем специализацию: убираем лишние пробелы и запятые
          processedValue = value
-            .replace(/\s*,\s*/g, ', ')  // "Бег,  Плавание ,Йога" → "Бег, Плавание, Йога"
-            .replace(/\s+/g, ' ')       // Убираем двойные пробелы
+            .replace(/\s*,\s*/g, ', ')
+            .replace(/\s+/g, ' ')
             .trim();
       }
 
@@ -272,31 +307,43 @@ const ProfileSettings = () => {
          ...prev,
          [name]: type === 'checkbox' ? checked : processedValue
       }));
+
+      setIsFormDirty(true);
    };
 
-   // Обработчик изменения уровня подготовки (без автосохранения)
+   /**
+    * Обработчик выбора уровня подготовки
+    */
    const handleTrainingLevelChange = (level) => {
       setFormData(prev => ({ ...prev, training_level: level }));
+      setIsFormDirty(true);
    };
 
+   /**
+    * ✅ ОПТИМИЗИРОВАННАЯ ВАЛИДАЦИЯ
+    * Только критические ошибки блокируют отправку
+    * Рекомендации не блокируют, а только предупреждают
+    */
    const validateForm = () => {
       const errors = [];
 
+      // ===== 🔴 КРИТИЧЕСКИЕ ОШИБКИ (блокируют отправку) =====
+
+      // 1. Роль - ОБЯЗАТЕЛЬНА
       if (!formData.role || formData.role === 'skipped') {
-         errors.push('Выберите роль (Спортсмен или Тренер)');
+         errors.push('❌ Выберите роль (Спортсмен или Тренер)');
       }
 
-      if (formData.role === USER_ROLES.TRAINEE && formData.training_level) {
-         const levelExists = trainingLevels.some(level => level.id === formData.training_level);
-         if (!levelExists) {
-            errors.push('Выбран несуществующий уровень подготовки');
-         }
-      }
-
+      // 2. Имя пользователя - ОБЯЗАТЕЛЬНО, минимум 2 символа
       if (!formData.userName.trim()) {
-         errors.push('Имя пользователя обязательно');
+         errors.push('❌ Имя пользователя обязательно');
+      } else if (formData.userName.trim().length < 2) {
+         errors.push('❌ Имя пользователя должно содержать минимум 2 символа');
+      } else if (formData.userName.trim().length > 50) {
+         errors.push('❌ Имя пользователя не может превышать 50 символов');
       }
 
+      // 3. Проверка даты рождения (только если указана)
       if (formData.birthDate) {
          const birthDate = new Date(formData.birthDate);
          const today = new Date();
@@ -306,22 +353,60 @@ const ProfileSettings = () => {
          maxAgeDate.setFullYear(today.getFullYear() - 13);
 
          if (birthDate < minAgeDate) {
-            errors.push('Дата рождения не может быть ранее 100 лет назад');
+            errors.push('❌ Дата рождения не может быть ранее 100 лет назад');
          }
          if (birthDate > maxAgeDate) {
-            errors.push('Вам должно быть не менее 13 лет');
+            errors.push('❌ Вам должно быть не менее 13 лет');
+         }
+      }
+
+      // 4. Проверка существования выбранного уровня (если выбран)
+      if (formData.role === USER_ROLES.TRAINEE && formData.training_level) {
+         const levelExists = trainingLevels.some(level => level.id === formData.training_level);
+         if (!levelExists) {
+            errors.push('❌ Выбран несуществующий уровень подготовки');
          }
       }
 
       return errors;
    };
 
+   /**
+    * 🟡 ПОЛУЧЕНИЕ РЕКОМЕНДАЦИЙ (НЕ блокируют отправку)
+    */
+   const getRecommendations = () => {
+      const recommendations = [];
+
+      if (formData.role === USER_ROLES.TRAINEE && !formData.training_level) {
+         recommendations.push('💡 Рекомендуем указать уровень подготовки для персонализированных тренировок');
+      }
+
+      if (formData.role === USER_ROLES.TRAINER && !formData.sport_specialization.trim()) {
+         recommendations.push('💡 Рекомендуем указать специализацию, чтобы подопечные могли вас найти');
+      }
+
+      if (formData.role === USER_ROLES.TRAINEE && !formData.sport_specialization.trim()) {
+         recommendations.push('💡 Укажите спортивные интересы для более точного подбора тренера');
+      }
+
+      if (formData.sport_specialization.trim().length > 200) {
+         recommendations.push('💡 Специализация слишком длинная, рекомендуем сократить до 200 символов');
+      }
+
+      return recommendations;
+   };
+
+   /**
+    * Отправка формы
+    */
    const handleSubmit = async (e) => {
       e.preventDefault();
 
       const errors = validateForm();
+      const recommendations = getRecommendations();
+
+      // 🔴 БЛОКИРУЕМ отправку только при критических ошибках
       if (errors.length > 0) {
-         // Показываем все ошибки через toast
          errors.forEach(error => {
             toast.error(error, {
                position: "top-right",
@@ -331,29 +416,32 @@ const ProfileSettings = () => {
          return;
       }
 
+      // 🟡 Показываем рекомендации, но НЕ блокируем отправку
+      if (recommendations.length > 0) {
+         recommendations.forEach(recommendation => {
+            toast.info(recommendation, {
+               position: "top-right",
+               autoClose: 4000,
+            });
+         });
+      }
+
       setIsLoading(true);
 
       try {
-         // Подготавливаем данные для отправки
+         // Подготовка данных для отправки
          const submitData = {
             role: formData.role,
             userName: formData.userName.trim(),
             allow_connections: formData.allow_connections
          };
 
-         // Добавляем поля в зависимости от роли
-         if (formData.role === USER_ROLES.TRAINEE) {
-            if (formData.training_level) {
-               submitData.training_level = formData.training_level;
-            }
-            // ✅ ДОБАВЛЯЕМ специализацию для спортсмена (спортивные интересы)
-            if (formData.sport_specialization.trim()) {
-               submitData.sport_specialization = formData.sport_specialization.trim();
-            }
+         // Добавляем поля только если они заполнены
+         if (formData.training_level) {
+            submitData.training_level = formData.training_level;
          }
 
-         // ✅ Для тренера - специализация (необязательное поле)
-         if (formData.role === USER_ROLES.TRAINER && formData.sport_specialization.trim()) {
+         if (formData.sport_specialization.trim()) {
             submitData.sport_specialization = formData.sport_specialization.trim();
          }
 
@@ -362,34 +450,36 @@ const ProfileSettings = () => {
             submitData.birthDate = formData.birthDate;
          }
 
-         console.log('🟡 Отправляем данные профиля:', submitData);
+         console.log('🟡 Отправка данных профиля:', submitData);
 
-         // Отправляем данные
+         // Отправляем запрос на обновление
          const result = await dispatch(updateProfile(submitData)).unwrap();
 
-         console.log('🟢 Профиль обновлен:', result);
+         console.log('🟢 Профиль успешно обновлен:', result);
 
-         // Обновляем роль пользователя в authSlice
+         // 🔥 КЛЮЧЕВОЕ: ОБНОВЛЯЕМ REDUX STORE!
          if (result.role) {
             dispatch(setUserRole(result.role));
+            console.log('✅ Роль в Redux обновлена на:', result.role);
          }
 
-         // Сбрасываем флаг после успешного сохранения
-         setHasPendingRoleChange(false);
+         // Принудительно запрашиваем актуальный профиль
+         await dispatch(loadProfile());
 
-         // Показываем toast-уведомление об успехе
-         toast.success('Профиль успешно обновлен!', {
+         // Сбрасываем состояния
+         setHasPendingRoleChange(false);
+         setIsFormDirty(false);
+         setIsLoading(false);
+
+         toast.success('✅ Профиль успешно обновлен!', {
             position: "top-right",
             autoClose: 3000,
          });
 
-         setIsLoading(false);
-
       } catch (error) {
          console.error('🔴 Ошибка обновления профиля:', error);
 
-         // Показываем toast-уведомление об ошибке
-         toast.error(error.message || 'Произошла ошибка при обновлении профиля', {
+         toast.error(error.message || '❌ Произошла ошибка при обновлении профиля', {
             position: "top-right",
             autoClose: 5000,
          });
@@ -398,26 +488,65 @@ const ProfileSettings = () => {
       }
    };
 
+   /**
+    * Отмена изменений
+    */
    const handleCancel = () => {
-      // Если есть несохраненные изменения роли, показываем предупреждение
-      if (hasPendingRoleChange) {
+      if (isFormDirty || hasPendingRoleChange) {
          const userConfirmed = window.confirm(
-            'У вас есть несохраненные изменения. Вы уверены, что хотите отменить?'
+            '⚠️ У вас есть несохраненные изменения. Вы уверены, что хотите отменить?'
          );
          if (!userConfirmed) return;
       }
 
-      // Сбрасываем состояния
+      // Восстанавливаем исходные данные из профиля
+      if (profile) {
+         setFormData({
+            role: profile.role || '',
+            training_level: profile.training_level || '',
+            sport_specialization: profile.sport_specialization || '',
+            allow_connections: profile.allow_connections !== false,
+            userName: profile.userName || '',
+            birthDate: profile.birthDate ? new Date(profile.birthDate).toISOString().split('T')[0] : ''
+         });
+      }
+
       setIsLoading(false);
       setHasPendingRoleChange(false);
+      setIsFormDirty(false);
 
-      // Навигация
-      navigate('/');
+      navigate('/profile');
    };
 
-   // Объединяем состояния загрузки
+   // ===== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ =====
+
+   /**
+    * Форматирование возраста
+    */
+   const calculateAge = (birthDate) => {
+      if (!birthDate) return null;
+      const age = Math.floor((new Date() - new Date(birthDate)) / (365.25 * 24 * 60 * 60 * 1000));
+      return age;
+   };
+
+   /**
+    * Проверка, нужно ли показывать блок с рекомендациями
+    */
+   const shouldShowRecommendations = () => {
+      if (!formData.role || formData.role === 'skipped') return false;
+
+      if (formData.role === USER_ROLES.TRAINEE && !formData.training_level) return true;
+      if (formData.role === USER_ROLES.TRAINER && !formData.sport_specialization.trim()) return true;
+      if (formData.role === USER_ROLES.TRAINEE && !formData.sport_specialization.trim()) return true;
+
+      return false;
+   };
+
+   // ===== УСЛОВНЫЙ РЕНДЕРИНГ =====
+
    const isPageLoading = authLoading || isLoadingProfile;
    const isSaving = isLoading || isSavingProfile;
+   const isSaveDisabled = isSaving || !isFormDirty;
 
    if (isPageLoading) {
       return (
@@ -434,7 +563,10 @@ const ProfileSettings = () => {
             <div className={styles.errorIcon}>⚠️</div>
             <h2>Пользователь не найден</h2>
             <p>Пожалуйста, войдите в систему</p>
-            <button className={styles.retryButton} onClick={() => navigate('/login')}>
+            <button
+               className={styles.retryButton}
+               onClick={() => navigate('/login')}
+            >
                Войти
             </button>
          </div>
@@ -443,6 +575,7 @@ const ProfileSettings = () => {
 
    const displayUser = profile || user;
 
+   // ===== ОСНОВНОЙ РЕНДЕРИНГ =====
    return (
       <>
          <div className={styles.settingsEnhancedContainer}>
@@ -451,16 +584,16 @@ const ProfileSettings = () => {
                <p>Управление вашими персональными данными</p>
             </header>
 
-            {/* Предупреждение о несохраненной смене роли */}
+            {/* Предупреждение о несохраненных изменениях */}
             {hasPendingRoleChange && (
                <div className={styles.warningMessage}>
                   <span className={styles.warningIcon}>⚠️</span>
-                  Несохраненная смена роли! Нажмите "Сохранить изменения" для подтверждения.
+                  <strong>Несохраненная смена роли!</strong> Нажмите "Сохранить изменения" для подтверждения.
                   <button
                      className={styles.closeWarningButton}
                      onClick={() => {
                         setHasPendingRoleChange(false);
-                        toast.info('Предупреждение о несохраненных изменениях скрыто', {
+                        toast.info('Предупреждение скрыто', {
                            position: "top-right",
                            autoClose: 2000,
                         });
@@ -472,10 +605,40 @@ const ProfileSettings = () => {
                </div>
             )}
 
+            {/* Блок рекомендаций */}
+            {shouldShowRecommendations() && !isSaving && (
+               <div className={styles.recommendationsContainer}>
+                  {formData.role === USER_ROLES.TRAINEE && !formData.training_level && (
+                     <RecommendationBox
+                        icon="💪"
+                        title="Уровень подготовки"
+                        message="Укажите ваш уровень подготовки для получения персонализированных тренировок"
+                        hint="Можно указать позже в настройках"
+                     />
+                  )}
+                  {formData.role === USER_ROLES.TRAINER && !formData.sport_specialization.trim() && (
+                     <RecommendationBox
+                        icon="🎓"
+                        title="Специализация"
+                        message="Укажите вашу специализацию, чтобы подопечные могли вас найти"
+                        hint="Можно указать позже в настройках"
+                     />
+                  )}
+                  {formData.role === USER_ROLES.TRAINEE && !formData.sport_specialization.trim() && (
+                     <RecommendationBox
+                        icon="🎯"
+                        title="Спортивные интересы"
+                        message="Укажите ваши спортивные интересы для более точного подбора тренера"
+                        hint="Можно указать позже в настройках"
+                     />
+                  )}
+               </div>
+            )}
+
             <form onSubmit={handleSubmit} className={styles.settingsForm}>
                <div className={styles.formSections}>
 
-                  {/* Секция 1: Основная информация */}
+                  {/* ===== Секция 1: Основная информация ===== */}
                   <section className={styles.formSection}>
                      <h2 className={styles.sectionTitle}>
                         <span className={styles.sectionIcon}>👤</span>
@@ -483,7 +646,9 @@ const ProfileSettings = () => {
                      </h2>
 
                      <div className={styles.formGroup}>
-                        <label htmlFor="userName">Имя пользователя *</label>
+                        <label htmlFor="userName">
+                           Имя пользователя <span className={styles.required}>*</span>
+                        </label>
                         <input
                            type="text"
                            id="userName"
@@ -492,9 +657,16 @@ const ProfileSettings = () => {
                            onChange={handleInputChange}
                            placeholder="Введите ваше имя"
                            required
-                           className={styles.textInput}
+                           className={`${styles.textInput} ${formData.userName.trim().length < 2 && formData.userName.trim().length > 0 ? styles.inputError : ''}`}
                            disabled={isSaving}
+                           maxLength={50}
                         />
+                        <small className={styles.inputHint}>
+                           {formData.userName.length}/50 символов
+                           {formData.userName.trim().length < 2 && formData.userName.trim().length > 0 && (
+                              <span className={styles.errorText}> минимум 2 символа</span>
+                           )}
+                        </small>
                      </div>
 
                      <div className={styles.formGroup}>
@@ -511,17 +683,17 @@ const ProfileSettings = () => {
                         />
                         {formData.birthDate && (
                            <small className={styles.inputHint}>
-                              Возраст: {Math.floor((new Date() - new Date(formData.birthDate)) / (365.25 * 24 * 60 * 60 * 1000))} лет
+                              Возраст: {calculateAge(formData.birthDate)} лет
                            </small>
                         )}
                      </div>
                   </section>
 
-                  {/* Секция 2: Роль в системе */}
+                  {/* ===== Секция 2: Роль в системе ===== */}
                   <section className={styles.formSection}>
                      <h2 className={styles.sectionTitle}>
                         <span className={styles.sectionIcon}>🎯</span>
-                        Роль в системе *
+                        Роль в системе <span className={styles.required}>*</span>
                      </h2>
                      <p className={styles.sectionDescription}>
                         Выберите вашу основную роль. Это определит доступные функции.
@@ -533,7 +705,7 @@ const ProfileSettings = () => {
                      />
                   </section>
 
-                  {/* Секция 3: Настройки в зависимости от роли */}
+                  {/* ===== Секция 3: Для спортсмена ===== */}
                   {formData.role === USER_ROLES.TRAINEE && (
                      <>
                         <section className={styles.formSection}>
@@ -555,12 +727,15 @@ const ProfileSettings = () => {
                            {!formData.training_level && (
                               <div className={styles.infoBox}>
                                  <span className={styles.infoIcon}>💡</span>
-                                 <p>Выберите уровень подготовки, чтобы получать персонализированные тренировки</p>
+                                 <p>
+                                    <strong>Рекомендуем указать уровень подготовки</strong>
+                                    <br />
+                                    Это поможет получать персонализированные тренировки
+                                 </p>
                               </div>
                            )}
                         </section>
 
-                        {/* ✅ НОВАЯ СЕКЦИЯ: Спортивные интересы для спортсмена */}
                         <section className={styles.formSection}>
                            <h2 className={styles.sectionTitle}>
                               <span className={styles.sectionIcon}>🎯</span>
@@ -582,11 +757,10 @@ const ProfileSettings = () => {
                                  maxLength={200}
                               />
                               <small className={styles.inputHint}>
-                                 Укажите через запятую. Это поможет найти подходящего тренера и единомышленников.
+                                 {formData.sport_specialization.length}/200 символов
                               </small>
                            </div>
 
-                           {/* Показываем визуальные теги */}
                            {formData.sport_specialization.trim() && (
                               <div className={styles.tagPreview}>
                                  <div className={styles.tagsContainer}>
@@ -606,6 +780,7 @@ const ProfileSettings = () => {
                      </>
                   )}
 
+                  {/* ===== Секция 4: Для тренера ===== */}
                   {formData.role === USER_ROLES.TRAINER && (
                      <section className={styles.formSection}>
                         <h2 className={styles.sectionTitle}>
@@ -628,11 +803,21 @@ const ProfileSettings = () => {
                               maxLength={200}
                            />
                            <small className={styles.inputHint}>
-                              Укажите через запятую все направления, в которых вы работаете как тренер.
+                              {formData.sport_specialization.length}/200 символов
                            </small>
                         </div>
 
-                        {/* Показываем визуальные теги */}
+                        {!formData.sport_specialization.trim() && (
+                           <div className={styles.infoBox}>
+                              <span className={styles.infoIcon}>💡</span>
+                              <p>
+                                 <strong>Рекомендуем указать специализацию</strong>
+                                 <br />
+                                 Это поможет подопечным найти вас
+                              </p>
+                           </div>
+                        )}
+
                         {formData.sport_specialization.trim() && (
                            <div className={styles.tagPreview}>
                               <div className={styles.tagsContainer}>
@@ -651,7 +836,7 @@ const ProfileSettings = () => {
                      </section>
                   )}
 
-                  {/* Секция 4: Настройки приватности */}
+                  {/* ===== Секция 5: Настройки приватности ===== */}
                   <section className={styles.formSection}>
                      <h2 className={styles.sectionTitle}>
                         <span className={styles.sectionIcon}>🔒</span>
@@ -677,7 +862,7 @@ const ProfileSettings = () => {
                      </div>
                   </section>
 
-                  {/* Секция 5: Текущие настройки */}
+                  {/* ===== Секция 6: Учетная запись ===== */}
                   <section className={styles.formSection}>
                      <h2 className={styles.sectionTitle}>
                         <span className={styles.sectionIcon}>📧</span>
@@ -696,23 +881,32 @@ const ProfileSettings = () => {
                         <div className={styles.infoRow}>
                            <span className={styles.infoLabel}>Дата регистрации:</span>
                            <span className={styles.infoValue}>
-                              {new Date(displayUser.createdAt || Date.now()).toLocaleDateString('ru-RU')}
+                              {new Date(displayUser.createdAt || Date.now()).toLocaleDateString('ru-RU', {
+                                 day: 'numeric',
+                                 month: 'long',
+                                 year: 'numeric'
+                              })}
                            </span>
                         </div>
-                        <div className={styles.infoRow}>
-                           <span className={styles.infoLabel}>Последнее обновление:</span>
-                           <span className={styles.infoValue}>
-                              {displayUser.updatedAt
-                                 ? new Date(displayUser.updatedAt).toLocaleDateString('ru-RU')
-                                 : 'Не обновлялся'
-                              }
-                           </span>
-                        </div>
+                        {displayUser.updatedAt && (
+                           <div className={styles.infoRow}>
+                              <span className={styles.infoLabel}>Последнее обновление:</span>
+                              <span className={styles.infoValue}>
+                                 {new Date(displayUser.updatedAt).toLocaleString('ru-RU', {
+                                    day: 'numeric',
+                                    month: 'long',
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                 })}
+                              </span>
+                           </div>
+                        )}
                      </div>
                   </section>
                </div>
 
-               {/* Кнопки действий */}
+               {/* ===== Кнопки действий ===== */}
                <div className={styles.formActions}>
                   <button
                      type="button"
@@ -720,13 +914,13 @@ const ProfileSettings = () => {
                      className={styles.cancelButton}
                      disabled={isSaving}
                   >
-                     Отмена
+                     {isFormDirty ? 'Отменить изменения' : 'Назад'}
                   </button>
 
                   <button
                      type="submit"
                      className={styles.submitButton}
-                     disabled={isSaving}
+                     disabled={isSaveDisabled}
                   >
                      {isSaving ? (
                         <>
@@ -740,10 +934,14 @@ const ProfileSettings = () => {
                </div>
 
                <div className={styles.formHint}>
-                  <p>* Обязательные для заполнения поля</p>
-                  <p className={styles.apiInfo}>
-                     {profile?.updatedAt && `Последнее обновление: ${new Date(profile.updatedAt).toLocaleString('ru-RU')}`}
+                  <p>
+                     <span className={styles.required}>*</span> Обязательные для заполнения поля
                   </p>
+                  {isFormDirty && (
+                     <p className={styles.unsavedHint}>
+                        ⚠️ Есть несохраненные изменения
+                     </p>
+                  )}
                </div>
             </form>
          </div>

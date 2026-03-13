@@ -1,8 +1,6 @@
-// src/features/mediaSlice.js - ИСПРАВЛЕННАЯ ВЕРСИЯ (исправлена структура ответа)
+// src/features/mediaSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../api/api';
-
-// Асинхронные Thunk-actions
 
 // 1. Получить медиа текущего пользователя
 export const fetchUserMedia = createAsyncThunk(
@@ -22,11 +20,8 @@ export const uploadMedia = createAsyncThunk(
    'media/uploadMedia',
    async ({ file, privacy = 'private' }, { rejectWithValue, dispatch }) => {
       try {
-         console.log('🚀 START uploadMedia for file:', file.name, file.size, 'bytes');
-
          // Шаг 1: Получаем upload request
          dispatch(setUploadProgress(10));
-         console.log('📤 Step 1: Requesting upload URL...');
 
          const uploadRequest = await api.post('/api/media/upload-request', {
             filename: file.name,
@@ -37,25 +32,14 @@ export const uploadMedia = createAsyncThunk(
             isPublic: privacy === 'public'
          });
 
-         console.log('✅ Step 1 OK. Response:', uploadRequest.data);
-
          const { uploadUrl: uploadUrlObj, mediaId } = uploadRequest.data;
          const { url: actualUploadUrl, fields, headers: uploadHeaders } = uploadUrlObj;
 
-         console.log('📊 Upload details:', {
-            actualUploadUrl,
-            fields,
-            uploadHeaders,  // Проверьте, есть ли тут X-Temp-File
-            mediaId
-         });
-
          // Шаг 2: Загружаем файл
          dispatch(setUploadProgress(30));
-         console.log('📤 Step 2: Uploading file to:', actualUploadUrl);
 
          const formData = new FormData();
 
-         // Добавляем поля
          if (fields && typeof fields === 'object') {
             Object.keys(fields).forEach(key => {
                formData.append(key, fields[key]);
@@ -63,14 +47,10 @@ export const uploadMedia = createAsyncThunk(
          }
          formData.append('file', file);
 
-         // Очищаем заголовки от Content-Type
          const cleanedHeaders = { ...uploadHeaders };
          if (cleanedHeaders['Content-Type']) {
-            console.log('⚠️ Removing Content-Type header for FormData');
             delete cleanedHeaders['Content-Type'];
          }
-
-         console.log('📤 Sending fetch request with headers:', cleanedHeaders);
 
          const uploadResponse = await fetch(actualUploadUrl, {
             method: 'POST',
@@ -79,29 +59,22 @@ export const uploadMedia = createAsyncThunk(
             headers: cleanedHeaders
          });
 
-         console.log('📡 Fetch response status:', uploadResponse.status);
-
          if (!uploadResponse.ok) {
-            const errorText = await uploadResponse.text();
-            console.error('❌ Fetch error:', errorText);
+            await uploadResponse.text();
             throw new Error(`Upload failed: ${uploadResponse.status}`);
          }
 
-         const uploadResult = await uploadResponse.json();
-         console.log('✅ Step 2 OK. Upload result:', uploadResult);
+         await uploadResponse.json();
 
          // Шаг 3: Подтверждаем загрузку
          dispatch(setUploadProgress(80));
-         console.log('📤 Step 3: Confirming upload...');
 
          const confirmResponse = await api.post('/api/media/confirm', { mediaId });
-         console.log('✅ Step 3 OK. Confirm response:', confirmResponse.data);
 
          dispatch(setUploadProgress(100));
          return confirmResponse.data;
 
       } catch (error) {
-         console.error('💥 UPLOAD ERROR:', error);
          return rejectWithValue(error.message);
       }
    }
@@ -149,6 +122,27 @@ export const shareMedia = createAsyncThunk(
    }
 );
 
+// 6. Обновить медиа
+export const updateMedia = createAsyncThunk(
+   'media/updateMedia',
+   async ({ mediaId, updateData }, { rejectWithValue }) => {
+      try {
+         const response = await api.put(`/api/media/${mediaId}`, updateData);
+         return response.data;
+      } catch (error) {
+         return rejectWithValue(error.response?.data?.message || error.message);
+      }
+   }
+);
+
+// 7. Сбросить состояние медиа (для выхода из системы)
+export const resetMediaState = createAsyncThunk(
+   'media/resetMediaState',
+   async () => {
+      return null;
+   }
+);
+
 const mediaSlice = createSlice({
    name: 'media',
    initialState: {
@@ -158,10 +152,15 @@ const mediaSlice = createSlice({
       isUploading: false,
       error: null,
       uploadProgress: 0,
+      hasError: false,
+      retryCount: 0,
+      lastFetchAttempt: null,
+      isInitialLoadComplete: false,
    },
    reducers: {
       clearMediaError: (state) => {
          state.error = null;
+         state.hasError = false;
       },
       setCurrentMedia: (state, action) => {
          state.currentItem = action.payload;
@@ -172,6 +171,18 @@ const mediaSlice = createSlice({
       setUploadProgress: (state, action) => {
          state.uploadProgress = action.payload;
       },
+      resetMedia: (state) => {
+         state.items = [];
+         state.currentItem = null;
+         state.isLoading = false;
+         state.isUploading = false;
+         state.error = null;
+         state.uploadProgress = 0;
+         state.hasError = false;
+         state.retryCount = 0;
+         state.lastFetchAttempt = null;
+         state.isInitialLoadComplete = false;
+      },
    },
    extraReducers: (builder) => {
       builder
@@ -179,31 +190,48 @@ const mediaSlice = createSlice({
          .addCase(fetchUserMedia.pending, (state) => {
             state.isLoading = true;
             state.error = null;
+            state.hasError = false;
+            state.lastFetchAttempt = Date.now();
          })
          .addCase(fetchUserMedia.fulfilled, (state, action) => {
             state.isLoading = false;
             state.items = action.payload;
+            state.hasError = false;
+            state.retryCount = 0;
+            state.isInitialLoadComplete = true;
+            state.error = null;
          })
          .addCase(fetchUserMedia.rejected, (state, action) => {
             state.isLoading = false;
             state.error = action.payload;
+            state.hasError = true;
+            state.retryCount += 1;
+            if (state.retryCount >= 3) {
+               state.isInitialLoadComplete = true;
+            }
          })
+
          // ===== UPLOAD MEDIA =====
          .addCase(uploadMedia.pending, (state) => {
             state.isUploading = true;
             state.uploadProgress = 0;
             state.error = null;
+            state.hasError = false;
          })
          .addCase(uploadMedia.fulfilled, (state, action) => {
             state.isUploading = false;
             state.uploadProgress = 100;
             state.items.unshift(action.payload);
+            state.hasError = false;
+            state.error = null;
          })
          .addCase(uploadMedia.rejected, (state, action) => {
             state.isUploading = false;
             state.uploadProgress = 0;
             state.error = action.payload;
+            state.hasError = true;
          })
+
          // ===== DELETE MEDIA =====
          .addCase(deleteMedia.fulfilled, (state, action) => {
             state.items = state.items.filter(item => item.id !== action.payload);
@@ -211,7 +239,8 @@ const mediaSlice = createSlice({
                state.currentItem = null;
             }
          })
-         // ===== UPDATE PRIVACY =====
+
+         // ===== UPDATE MEDIA PRIVACY =====
          .addCase(updateMediaPrivacy.fulfilled, (state, action) => {
             const index = state.items.findIndex(item => item.id === action.payload.id);
             if (index !== -1) {
@@ -221,12 +250,38 @@ const mediaSlice = createSlice({
                state.currentItem = action.payload;
             }
          })
+
          // ===== SHARE MEDIA =====
          .addCase(shareMedia.fulfilled, (state, action) => {
             const index = state.items.findIndex(item => item.id === action.payload.mediaId);
             if (index !== -1) {
                state.items[index].shared_count = (state.items[index].shared_count || 0) + 1;
             }
+         })
+
+         // ===== UPDATE MEDIA =====
+         .addCase(updateMedia.fulfilled, (state, action) => {
+            const index = state.items.findIndex(item => item.id === action.payload.id);
+            if (index !== -1) {
+               state.items[index] = { ...state.items[index], ...action.payload };
+            }
+            if (state.currentItem?.id === action.payload.id) {
+               state.currentItem = { ...state.currentItem, ...action.payload };
+            }
+         })
+
+         // ===== RESET MEDIA STATE =====
+         .addCase(resetMediaState.fulfilled, (state) => {
+            state.items = [];
+            state.currentItem = null;
+            state.isLoading = false;
+            state.isUploading = false;
+            state.error = null;
+            state.uploadProgress = 0;
+            state.hasError = false;
+            state.retryCount = 0;
+            state.lastFetchAttempt = null;
+            state.isInitialLoadComplete = false;
          });
    },
 });
@@ -235,15 +290,32 @@ export const {
    clearMediaError,
    setCurrentMedia,
    clearCurrentMedia,
-   setUploadProgress
+   setUploadProgress,
+   resetMedia,
 } = mediaSlice.actions;
 
-// ===== SELECTORS =====
+// ===== СЕЛЕКТОРЫ =====
 export const selectMediaItems = (state) => state.media.items;
 export const selectMediaLoading = (state) => state.media.isLoading;
 export const selectMediaError = (state) => state.media.error;
 export const selectCurrentMedia = (state) => state.media.currentItem;
 export const selectIsUploading = (state) => state.media.isUploading;
 export const selectUploadProgress = (state) => state.media.uploadProgress;
+export const selectMediaHasError = (state) => state.media.hasError;
+export const selectMediaRetryCount = (state) => state.media.retryCount;
+export const selectMediaLastFetchAttempt = (state) => state.media.lastFetchAttempt;
+export const selectIsInitialMediaLoadComplete = (state) => state.media.isInitialLoadComplete;
+
+// 🔥 Составной селектор для проверки, нужно ли загружать медиа
+export const selectShouldFetchMedia = (state) => {
+   const media = state.media;
+   return (
+      !media.isLoading &&
+      !media.hasError &&
+      !media.isInitialLoadComplete &&
+      media.retryCount < 3 &&
+      media.items.length === 0
+   );
+};
 
 export default mediaSlice.reducer;

@@ -3,6 +3,11 @@
  * @param {Object} userData - данные пользователя с сервера
  * @returns {Object} нормализованные данные пользователя
  */
+/**
+ * Обеспечивает обратную совместимость пользовательских данных
+ * @param {Object} userData - данные пользователя с сервера
+ * @returns {Object} нормализованные данные пользователя
+ */
 export const ensureUserCompatibility = (userData) => {
    if (!userData) return null;
 
@@ -20,6 +25,9 @@ export const ensureUserCompatibility = (userData) => {
       sport_specialization: userData.sport_specialization || '',
       training_level: userData.training_level || null,
       allow_connections: userData.allow_connections !== false,
+
+      // ВАЖНО: СОХРАНЯЕМ connectionStatus!
+      connectionStatus: userData.connectionStatus
    };
 };
 

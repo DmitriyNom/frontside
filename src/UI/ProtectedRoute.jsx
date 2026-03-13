@@ -1,70 +1,56 @@
-import React, { useEffect, useState } from 'react';
+// src/UI/ProtectedRoute.jsx
+import React from 'react';
+import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { fetchUserProfile, selectUser, selectLoading, selectIsProfileFetched } from '../features/authSlice';
-import { needsOnboarding } from '../constants/userRoles'; // ✅ ИМПОРТИРУЕМ
+import {
+   selectIsAuthenticated,
+   selectIsCheckingAuth,
+   selectUser
+} from '../features/authSlice';
+import { needsOnboarding } from '../constants/userRoles';
 
-const ProtectedRoute = ({ element }) => {
-   const dispatch = useDispatch();
+const ProtectedRoute = ({ children }) => {
+   const isAuthenticated = useSelector(selectIsAuthenticated);
+   const isCheckingAuth = useSelector(selectIsCheckingAuth);
    const user = useSelector(selectUser);
-   const loading = useSelector(selectLoading);
-   const isProfileFetched = useSelector(selectIsProfileFetched);
 
-   const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
+   const currentPath = window.location.pathname;
+   const isOnboardingPage = currentPath.includes('/onboarding');
 
-   useEffect(() => {
-      if (!isProfileFetched && !loading) {
-         dispatch(fetchUserProfile());
-      }
-   }, [dispatch, isProfileFetched, loading]);
+   // 🔑 Добавляем ключ для принудительного обновления дочерних компонентов
+   const childKey = user?.id || 'no-user';
 
-   useEffect(() => {
-      if (!loading && isProfileFetched && !hasCheckedAuth) {
-         setHasCheckedAuth(true);
-      }
-   }, [loading, isProfileFetched, user, hasCheckedAuth]);
-
-   // ✅ ОБНОВЛЯЕМ: Используем новую утилиту
-   const userNeedsOnboarding = user && needsOnboarding(user.role);
-   const isOnboardingPage = window.location.pathname.includes('/onboarding');
-
-   console.log('🔍 ProtectedRoute - статус:', {
-      user: user?.email,
-      userRole: user?.role,
-      loading,
-      hasCheckedAuth,
-      userNeedsOnboarding,
-      currentPath: window.location.pathname,
-      isOnboardingPage
-   });
-
-   if (loading) {
-      return <div>Загрузка...</div>;
+   if (isCheckingAuth) {
+      return (
+         <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh',
+            fontSize: '18px',
+            color: '#666'
+         }}>
+            Проверка авторизации...
+         </div>
+      );
    }
 
-   if (!user && hasCheckedAuth) {
-      console.log('🟡 ProtectedRoute → /login (нет пользователя)');
+   if (!isAuthenticated || !user) {
       return <Navigate to="/login" replace />;
    }
 
-   if (user && hasCheckedAuth) {
-      // ✅ СЦЕНАРИЙ 1: Пользователь нуждается в onboarding и НЕ на странице onboarding
-      if (userNeedsOnboarding && !isOnboardingPage) {
-         console.log('🟡 ProtectedRoute → /onboarding (нужен onboarding)');
-         return <Navigate to="/onboarding" replace />;
-      }
+   const shouldOnboard = needsOnboarding(user.role);
 
-      // ✅ СЦЕНАРИЙ 2: Onboarding уже завершен (выбрана роль или пропущен) и пользователь на странице onboarding
-      if (!userNeedsOnboarding && isOnboardingPage) {
-         console.log('🟡 ProtectedRoute → /profile (редирект с onboarding, т.к. onboarding завершен)');
-         return <Navigate to="/profile" replace />;
-      }
-
-      console.log('🟡 ProtectedRoute → элемент (доступ разрешен)');
-      return element;
+   if (shouldOnboard && !isOnboardingPage) {
+      return <Navigate to="/onboarding" replace />;
    }
 
-   return <div>Проверяем авторизацию...</div>;
+   if (!shouldOnboard && isOnboardingPage) {
+      return <Navigate to="/profile" replace />;
+   }
+
+   // 🔑 Ключ заставит React пересоздать children при смене пользователя
+   return React.cloneElement(children, { key: childKey });
 };
 
 export default ProtectedRoute;
