@@ -7,6 +7,7 @@ import onboardingReducer from '../features/onboardingSlice';
 import profileReducer from '../features/profileSlice'
 import mediaReducer from '../features/mediaSlice'
 import connectionsReducer from '../features/connectionsSlice';
+import friendsReducer from '../features/friendsSlice';
 
 
 const store = configureStore({
@@ -17,7 +18,8 @@ const store = configureStore({
       onboarding: onboardingReducer,
       profile: profileReducer,
       media: mediaReducer,
-      connections: connectionsReducer
+      connections: connectionsReducer,
+      friends: friendsReducer,
    },
 });
 

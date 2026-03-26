@@ -1,0 +1,368 @@
+/* ==================================================== */
+/* UserProfile.module.css - Публичный профиль */
+/* ==================================================== */
+
+:root {
+   --primary-color: #6366f1;
+   --primary-hover: #4f46e5;
+   --primary-light: #a5b4fc;
+   --primary-dark: #4338ca;
+   --secondary-color: #f8fafc;
+   --accent-color: #06d6a0;
+   --text-primary: #1e293b;
+   --text-secondary: #64748b;
+   --text-tertiary: #94a3b8;
+   --border-color: #e2e8f0;
+   --border-light: #f1f5f9;
+   --card-background: #ffffff;
+   --hover-background: #f8fafc;
+   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+   --radius-sm: 0.375rem;
+   --radius-md: 0.5rem;
+   --radius-lg: 0.75rem;
+   --transition: all 0.3s ease-in-out;
+   --tag-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+   --tag-color: white;
+}
+
+/* Основной контейнер */
+.userProfileContainer {
+   max-width: 1200px;
+   margin: 0 auto;
+   padding: 24px;
+}
+
+/* Загрузка и ошибки */
+.loadingContainer,
+.errorContainer {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+   min-height: 400px;
+   color: var(--text-secondary);
+}
+
+.spinner {
+   width: 40px;
+   height: 40px;
+   border: 3px solid var(--border-light);
+   border-top-color: var(--primary-color);
+   border-radius: 50%;
+   animation: spin 1s linear infinite;
+   margin-bottom: 1rem;
+}
+
+@keyframes spin {
+   to { transform: rotate(360deg); }
+}
+
+.errorIcon {
+   font-size: 48px;
+   margin-bottom: 1rem;
+}
+
+/* Шапка профиля */
+.profileHeader {
+   background: white;
+   border-radius: var(--radius-lg);
+   border: 1px solid var(--border-color);
+   box-shadow: var(--shadow-sm);
+   padding: 24px;
+   margin-bottom: 24px;
+   position: relative;
+}
+
+.backButton {
+   padding: 8px 16px;
+   background: none;
+   border: 1px solid var(--border-color);
+   border-radius: var(--radius-md);
+   color: var(--text-secondary);
+   font-size: 14px;
+   cursor: pointer;
+   transition: var(--transition);
+   margin-bottom: 16px;
+}
+
+.backButton:hover {
+   background: var(--hover-background);
+   color: var(--text-primary);
+   transform: translateX(-4px);
+}
+
+.profileHeaderContent {
+   display: flex;
+   align-items: center;
+   gap: 24px;
+}
+
+.avatar {
+   width: 100px;
+   height: 100px;
+   border-radius: 50%;
+   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+   color: white;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   font-size: 40px;
+   font-weight: 600;
+   flex-shrink: 0;
+}
+
+.headerInfo {
+   flex: 1;
+}
+
+.headerInfo h1 {
+   margin: 0 0 4px 0;
+   color: var(--text-primary);
+   font-size: 2rem;
+   font-weight: 600;
+}
+
+.userEmail {
+   margin: 0 0 12px 0;
+   color: var(--text-secondary);
+   font-size: 1rem;
+}
+
+.userBadges {
+   display: flex;
+   gap: 8px;
+   flex-wrap: wrap;
+}
+
+.roleBadge {
+   padding: 4px 12px;
+   border-radius: 20px;
+   font-size: 0.875rem;
+   font-weight: 500;
+   display: inline-block;
+}
+
+.roleBadge.trainee {
+   background: rgba(16, 185, 129, 0.1);
+   color: #059669;
+   border: 1px solid #10b981;
+}
+
+.roleBadge.trainer {
+   background: rgba(99, 102, 241, 0.1);
+   color: #4f46e5;
+   border: 1px solid #6366f1;
+}
+
+.levelBadge {
+   background: rgba(245, 158, 11, 0.1);
+   color: #d97706;
+   border: 1px solid #f59e0b;
+   padding: 4px 12px;
+   border-radius: 20px;
+   font-size: 0.875rem;
+   font-weight: 500;
+}
+
+.friendButtonContainer {
+   margin-left: auto;
+}
+
+/* Вкладки */
+.profileTabs {
+   display: flex;
+   gap: 8px;
+   margin-bottom: 24px;
+   border-bottom: 1px solid var(--border-color);
+   padding-bottom: 8px;
+}
+
+.tab {
+   padding: 10px 20px;
+   background: none;
+   border: none;
+   border-radius: var(--radius-md) var(--radius-md) 0 0;
+   font-size: 1rem;
+   font-weight: 500;
+   color: var(--text-secondary);
+   cursor: pointer;
+   transition: var(--transition);
+   position: relative;
+}
+
+.tab:hover {
+   color: var(--text-primary);
+   background: var(--hover-background);
+}
+
+.tabActive {
+   color: var(--primary-color);
+   font-weight: 600;
+}
+
+.tabActive::after {
+   content: '';
+   position: absolute;
+   bottom: -9px;
+   left: 0;
+   right: 0;
+   height: 2px;
+   background: var(--primary-color);
+   border-radius: 2px 2px 0 0;
+}
+
+/* Контент вкладок */
+.tabContent {
+   min-height: 400px;
+}
+
+/* Обзор */
+.overview {
+   display: grid;
+   gap: 24px;
+}
+
+.infoCard {
+   background: white;
+   border-radius: var(--radius-lg);
+   border: 1px solid var(--border-color);
+   box-shadow: var(--shadow-sm);
+   padding: 24px;
+}
+
+.infoCard h3 {
+   margin: 0 0 20px 0;
+   color: var(--text-primary);
+   font-size: 1.25rem;
+   font-weight: 600;
+}
+
+.infoGrid {
+   display: grid;
+   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+   gap: 20px;
+}
+
+.infoItem {
+   display: flex;
+   flex-direction: column;
+   gap: 4px;
+}
+
+.infoItem label {
+   color: var(--text-secondary);
+   font-size: 0.875rem;
+   font-weight: 500;
+}
+
+.infoItem span {
+   color: var(--text-primary);
+   font-weight: 500;
+}
+
+.yes {
+   color: #10b981 !important;
+}
+
+.no {
+   color: #ef4444 !important;
+}
+
+/* Теги */
+.tagsContainer {
+   display: flex;
+   flex-wrap: wrap;
+   gap: 8px;
+   margin-top: 4px;
+}
+
+.tagChip {
+   background: var(--tag-bg);
+   color: var(--tag-color);
+   padding: 4px 12px;
+   border-radius: 20px;
+   font-size: 0.875rem;
+   font-weight: 500;
+   box-shadow: var(--shadow-sm);
+   transition: var(--transition);
+}
+
+.tagChip:hover {
+   transform: translateY(-2px);
+   box-shadow: var(--shadow-md);
+}
+
+/* Заглушки для будущих вкладок */
+.friendsTab,
+.trainingTab {
+   background: white;
+   border-radius: var(--radius-lg);
+   border: 1px solid var(--border-color);
+   box-shadow: var(--shadow-sm);
+   padding: 24px;
+   min-height: 300px;
+}
+
+.comingSoon {
+   text-align: center;
+   color: var(--text-secondary);
+   font-size: 1rem;
+   margin-top: 60px;
+   font-style: italic;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+   .profileHeaderContent {
+      flex-direction: column;
+      text-align: center;
+   }
+
+   .friendButtonContainer {
+      margin-left: 0;
+      width: 100%;
+   }
+
+   .headerInfo {
+      width: 100%;
+   }
+
+   .userBadges {
+      justify-content: center;
+   }
+
+   .profileTabs {
+      justify-content: center;
+   }
+
+   .infoGrid {
+      grid-template-columns: 1fr;
+   }
+}
+
+@media (max-width: 480px) {
+   .userProfileContainer {
+      padding: 16px;
+   }
+
+   .profileHeader {
+      padding: 16px;
+   }
+
+   .avatar {
+      width: 80px;
+      height: 80px;
+      font-size: 32px;
+   }
+
+   .headerInfo h1 {
+      font-size: 1.5rem;
+   }
+
+   .tab {
+      padding: 8px 12px;
+      font-size: 0.875rem;
+   }
+}

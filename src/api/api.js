@@ -548,5 +548,113 @@ export const userAPI = {
       api.get(`/api/user/${userId}`)
 };
 
+// Добавьте в конец файла api.js, рядом с connectionsAPI
+
+export const friendsAPI = {
+   // ============ ЗАПРОСЫ В ДРУЗЬЯ ============
+
+   /**
+    * Отправить запрос в друзья
+    */
+   sendRequest: (receiverId, message = '') =>
+      api.post('/api/friends/request', { receiver_id: receiverId, message }),
+
+   /**
+    * Ответить на запрос (accept/reject)
+    */
+   respondToRequest: (requestId, action) =>
+      api.put(`/api/friends/request/${requestId}`, { action }),
+
+   /**
+    * Отменить исходящий запрос
+    */
+   cancelRequest: (requestId) =>
+      api.delete(`/api/friends/request/${requestId}`),
+
+   /**
+    * Получить запросы в друзья
+    */
+   getRequests: (direction = 'all', status = 'pending') =>
+      api.get('/api/friends/requests', { params: { direction, status } }),
+
+   /**
+    * Получить количество ожидающих запросов
+    */
+   getRequestsCount: () =>
+      api.get('/api/friends/requests/count'),
+
+   // ============ УПРАВЛЕНИЕ ДРУЗЬЯМИ ============
+
+   /**
+    * Получить список друзей
+    */
+   getFriends: (params = {}) =>
+      api.get('/api/friends', { params }),
+
+   /**
+    * Удалить из друзей
+    */
+   removeFriend: (friendId) =>
+      api.delete(`/api/friends/${friendId}`),
+
+   /**
+    * Проверить статус отношений с пользователем
+    */
+   getFriendStatus: (targetUserId) =>
+      api.get(`/api/friends/status/${targetUserId}`),
+
+   /**
+    * Быстрая проверка: является ли пользователь другом
+    */
+   checkIsFriend: (targetUserId) =>
+      api.get(`/api/friends/check/${targetUserId}`),
+
+   /**
+    * Получить статистику друзей
+    */
+   getFriendStats: () =>
+      api.get('/api/friends/stats'),
+
+   // ============ ПОИСК И РЕКОМЕНДАЦИИ ============
+
+   /**
+    * Поиск по друзьям
+    */
+   searchFriends: (query, params = {}) =>
+      api.get('/api/friends/search', { params: { q: query, ...params } }),
+
+   /**
+    * Получить общих друзей с пользователем
+    */
+   getMutualFriends: (targetUserId) =>
+      api.get(`/api/friends/mutual/${targetUserId}`),
+
+   /**
+    * Получить рекомендации друзей
+    */
+   getRecommendations: (limit = 10) =>
+      api.get('/api/friends/recommendations', { params: { limit } }),
+
+   // ============ БЛОКИРОВКИ ============
+
+   /**
+    * Заблокировать пользователя
+    */
+   blockUser: (userId) =>
+      api.post(`/api/friends/${userId}/block`),
+
+   /**
+    * Разблокировать пользователя
+    */
+   unblockUser: (userId) =>
+      api.delete(`/api/friends/${userId}/block`),
+
+   /**
+    * Получить список заблокированных
+    */
+   getBlockedUsers: () =>
+      api.get('/api/friends/blocked')
+};
+
 // Экспортируем все методы
 export default api;

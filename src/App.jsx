@@ -247,6 +247,7 @@ import Profile from '../src/UI/Pages/Profile/Profile';
 import MediaLibraryPage from '../src/UI/Pages/MediaLibraryPage';
 import ProtectedRoute from '../src/UI/ProtectedRoute';
 import HomeRedirect from '../src/UI/HomeRedirect';
+import UserProfile from './UI/Pages/User/UserProfile';
 
 import {
    checkAuth,
@@ -325,6 +326,11 @@ const App = () => {
             <Route path="/media" element={
                <ProtectedRoute>
                   <MediaLibraryPage />
+               </ProtectedRoute>
+            } />
+            <Route path="/user/:userId" element={
+               <ProtectedRoute>
+                  <UserProfile />
                </ProtectedRoute>
             } />
             <Route path="/" element={<HomeRedirect />} />

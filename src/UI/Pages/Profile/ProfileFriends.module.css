@@ -1,0 +1,442 @@
+/* ==================================================== */
+/* ProfileFriends.module.css - Страница друзей */
+/* ==================================================== */
+
+:root {
+   --primary-color: #6366f1;
+   --primary-hover: #4f46e5;
+   --primary-light: #a5b4fc;
+   --primary-dark: #4338ca;
+   --secondary-color: #f8fafc;
+   --accent-color: #06d6a0;
+   --text-primary: #1e293b;
+   --text-secondary: #64748b;
+   --text-tertiary: #94a3b8;
+   --border-color: #e2e8f0;
+   --border-light: #f1f5f9;
+   --card-background: #ffffff;
+   --hover-background: #f8fafc;
+   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+   --radius-sm: 0.375rem;
+   --radius-md: 0.5rem;
+   --radius-lg: 0.75rem;
+   --transition: all 0.3s ease-in-out;
+   --danger-color: #ef4444;
+   --success-color: #10b981;
+   --warning-color: #f59e0b;
+}
+
+/* Основной контейнер - как в overview */
+.friendsContainer {
+   max-width: 1200px;
+   margin: 0 auto;
+}
+
+/* Заголовок страницы - копируем из overview */
+.pageHeader {
+   margin-bottom: 2rem;
+}
+
+.pageHeader h1 {
+   font-size: 2.5rem;
+   font-weight: 700;
+   background: linear-gradient(135deg, var(--text-primary), var(--primary-color));
+   -webkit-background-clip: text;
+   -webkit-text-fill-color: transparent;
+   background-clip: text;
+   margin: 0 0 0.5rem 0;
+}
+
+.pageHeader p {
+   color: var(--text-secondary);
+   font-size: 1.125rem;
+   margin: 0;
+}
+
+/* Вкладки второго уровня */
+.subTabs {
+   display: flex;
+   gap: 0.5rem;
+   margin-bottom: 2rem;
+   border-bottom: 1px solid var(--border-color);
+   padding-bottom: 0.5rem;
+}
+
+.subTab {
+   padding: 0.5rem 1rem;
+   background: none;
+   border: none;
+   border-radius: 2rem;
+   font-size: 0.875rem;
+   font-weight: 500;
+   color: var(--text-secondary);
+   cursor: pointer;
+   transition: var(--transition);
+   position: relative;
+}
+
+.subTab:hover {
+   background: var(--hover-background);
+   color: var(--text-primary);
+}
+
+.subTabActive {
+   background: rgba(99, 102, 241, 0.1);
+   color: var(--primary-color);
+   font-weight: 600;
+}
+
+.requestBadge {
+   display: inline-flex;
+   align-items: center;
+   justify-content: center;
+   min-width: 1.25rem;
+   height: 1.25rem;
+   padding: 0 0.375rem;
+   background: var(--danger-color);
+   color: white;
+   font-size: 0.75rem;
+   font-weight: 600;
+   border-radius: 1rem;
+   margin-left: 0.5rem;
+}
+
+/* Контейнер контента вкладок */
+.subTabContent {
+   min-height: 400px;
+   background: white;
+   border-radius: var(--radius-lg);
+   border: 1px solid var(--border-color);
+   box-shadow: var(--shadow-sm);
+   padding: 1.5rem;
+}
+
+/* Стили для загрузки - как в overview */
+.loadingContainer,
+.checkingContainer {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+   min-height: 200px;
+   color: var(--text-secondary);
+}
+
+.spinner {
+   width: 40px;
+   height: 40px;
+   border: 3px solid var(--border-light);
+   border-top-color: var(--primary-color);
+   border-radius: 50%;
+   animation: spin 1s linear infinite;
+   margin-bottom: 1rem;
+}
+
+@keyframes spin {
+   to { transform: rotate(360deg); }
+}
+
+/* Стили для карточек друзей/запросов - будут использоваться в компонентах */
+.friendsGrid {
+   display: grid;
+   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+   gap: 1rem;
+   margin-top: 1rem;
+}
+
+.friendCard {
+   background: white;
+   border: 1px solid var(--border-color);
+   border-radius: var(--radius-lg);
+   padding: 1rem;
+   display: flex;
+   align-items: center;
+   gap: 1rem;
+   transition: var(--transition);
+   cursor: pointer;
+}
+
+.friendCard:hover {
+   transform: translateY(-2px);
+   box-shadow: var(--shadow-md);
+   border-color: var(--primary-color);
+}
+
+.friendAvatar {
+   width: 48px;
+   height: 48px;
+   border-radius: 50%;
+   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+   color: white;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   font-weight: 600;
+   font-size: 1.25rem;
+   flex-shrink: 0;
+}
+
+.friendInfo {
+   flex: 1;
+   min-width: 0;
+}
+
+.friendName {
+   font-weight: 600;
+   color: var(--text-primary);
+   margin-bottom: 0.25rem;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+}
+
+.friendMeta {
+   display: flex;
+   align-items: center;
+   gap: 0.5rem;
+   font-size: 0.75rem;
+   color: var(--text-secondary);
+}
+
+.friendRole {
+   padding: 0.125rem 0.5rem;
+   border-radius: 1rem;
+   font-weight: 500;
+}
+
+.friendRole.trainee {
+   background: rgba(16, 185, 129, 0.1);
+   color: #059669;
+}
+
+.friendRole.trainer {
+   background: rgba(99, 102, 241, 0.1);
+   color: #4f46e5;
+}
+
+/* Кнопки действий */
+.actionButton {
+   padding: 0.5rem 1rem;
+   border: none;
+   border-radius: var(--radius-md);
+   font-weight: 500;
+   font-size: 0.875rem;
+   cursor: pointer;
+   transition: var(--transition);
+   background: var(--secondary-color);
+   color: var(--text-primary);
+   border: 1px solid var(--border-color);
+}
+
+.actionButton:hover {
+   background: var(--hover-background);
+   transform: translateY(-1px);
+}
+
+.actionButton.primary {
+   background: var(--primary-color);
+   color: white;
+   border: none;
+}
+
+.actionButton.primary:hover {
+   background: var(--primary-hover);
+}
+
+.actionButton.danger {
+   background: #fee2e2;
+   color: var(--danger-color);
+   border: 1px solid #fecaca;
+}
+
+.actionButton.danger:hover {
+   background: #fecaca;
+}
+
+.actionButton.success {
+   background: #d1fae5;
+   color: #059669;
+   border: 1px solid #a7f3d0;
+}
+
+.actionButton.success:hover {
+   background: #a7f3d0;
+}
+
+/* Секции запросов */
+.requestsSection {
+   margin-bottom: 2rem;
+}
+
+.requestsSection h3 {
+   color: var(--text-primary);
+   font-size: 1.125rem;
+   font-weight: 600;
+   margin: 0 0 1rem 0;
+   padding-bottom: 0.5rem;
+   border-bottom: 1px solid var(--border-light);
+}
+
+.requestsList {
+   display: flex;
+   flex-direction: column;
+   gap: 0.75rem;
+}
+
+.requestItem {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   padding: 0.75rem;
+   background: var(--secondary-color);
+   border-radius: var(--radius-md);
+   border: 1px solid var(--border-color);
+}
+
+.requestUserInfo {
+   display: flex;
+   align-items: center;
+   gap: 0.75rem;
+}
+
+.requestAvatar {
+   width: 40px;
+   height: 40px;
+   border-radius: 50%;
+   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+   color: white;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   font-weight: 600;
+}
+
+.requestDetails {
+   display: flex;
+   flex-direction: column;
+}
+
+.requestName {
+   font-weight: 500;
+   color: var(--text-primary);
+}
+
+.requestDate {
+   font-size: 0.75rem;
+   color: var(--text-secondary);
+}
+
+.requestActions {
+   display: flex;
+   gap: 0.5rem;
+}
+
+/* Поиск */
+.searchContainer {
+   margin-bottom: 1.5rem;
+}
+
+.searchInput {
+   width: 100%;
+   padding: 0.75rem 1rem;
+   border: 1px solid var(--border-color);
+   border-radius: var(--radius-md);
+   font-size: 1rem;
+   transition: var(--transition);
+}
+
+.searchInput:focus {
+   outline: none;
+   border-color: var(--primary-color);
+   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.searchResults {
+   margin-top: 1rem;
+}
+
+/* Пустые состояния */
+.emptyState {
+   text-align: center;
+   padding: 3rem 1rem;
+   color: var(--text-secondary);
+}
+
+.emptyStateIcon {
+   font-size: 3rem;
+   margin-bottom: 1rem;
+   opacity: 0.5;
+}
+
+.emptyStateTitle {
+   font-size: 1.25rem;
+   font-weight: 600;
+   color: var(--text-primary);
+   margin-bottom: 0.5rem;
+}
+
+.emptyStateDescription {
+   font-size: 0.875rem;
+   max-width: 400px;
+   margin: 0 auto;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+   .pageHeader h1 {
+      font-size: 2rem;
+   }
+   
+   .subTabs {
+      flex-wrap: wrap;
+   }
+   
+   .subTab {
+      flex: 1;
+      text-align: center;
+   }
+   
+   .friendsGrid {
+      grid-template-columns: 1fr;
+   }
+   
+   .requestItem {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+   }
+   
+   .requestActions {
+      width: 100%;
+      justify-content: flex-end;
+   }
+}
+
+@media (max-width: 480px) {
+   .pageHeader h1 {
+      font-size: 1.75rem;
+   }
+   
+   .subTabContent {
+      padding: 1rem;
+   }
+   
+   .friendCard {
+      flex-direction: column;
+      text-align: center;
+   }
+   
+   .friendInfo {
+      width: 100%;
+   }
+   
+   .requestActions {
+      flex-direction: column;
+   }
+   
+   .actionButton {
+      width: 100%;
+   }
+}

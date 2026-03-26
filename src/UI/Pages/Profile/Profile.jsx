@@ -22,6 +22,7 @@ import ProfileTraining from './ProfileTraining';
 import ProfileSettings from './ProfileSettings';
 import ProfileMedia from './ProfileMedia';
 import ProfileConnections from './ProfileConnections';
+import ProfileFriends from './ProfileFriends';
 
 const Profile = () => {
    const dispatch = useDispatch();
@@ -145,6 +146,8 @@ const Profile = () => {
             return <ProfileMedia />;
          case 'connections':
             return <ProfileConnections />;
+         case 'friends': // 👈 НОВЫЙ CASE
+            return <ProfileFriends />;
          default:
             return (
                <ProfileOverview
@@ -154,7 +157,6 @@ const Profile = () => {
             );
       }
    }, [activeTab, user, userInfo.email, openNoteForm]);
-
    // Загрузка
    if (loading) {
       return (
@@ -241,6 +243,18 @@ const Profile = () => {
                         type="button"
                      >
                         🤝 Связи
+                     </button>
+                     {/* 👇 НОВЫЙ ПУНКТ - ДРУЗЬЯ */}
+                     <button
+                        className={`${styles.navLink} ${activeTab === 'friends' ? styles.navLinkActive : ''}`}
+                        onClick={() => setActiveTab('friends')}
+                        type="button"
+                     >
+                        👥 Друзья
+                        {/* Можно добавить бейдж с количеством запросов позже */}
+                        {/* {requestsCount > 0 && (
+         <span className={styles.badge}>{requestsCount}</span>
+      )} */}
                      </button>
                      <button
                         className={`${styles.navLink} ${activeTab === 'settings' ? styles.navLinkActive : ''}`}
