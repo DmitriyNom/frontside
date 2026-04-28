@@ -21,7 +21,6 @@ import ProfileNotes from './ProfileNotes';
 import ProfileTraining from './ProfileTraining';
 import ProfileSettings from './ProfileSettings';
 import ProfileMedia from './ProfileMedia';
-import ProfileConnections from './ProfileConnections';
 import ProfileFriends from './ProfileFriends';
 
 const Profile = () => {
@@ -144,8 +143,6 @@ const Profile = () => {
             return <ProfileTraining user={user} />;
          case 'media':
             return <ProfileMedia />;
-         case 'connections':
-            return <ProfileConnections />;
          case 'friends': // 👈 НОВЫЙ CASE
             return <ProfileFriends />;
          default:

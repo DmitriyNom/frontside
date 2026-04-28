@@ -9,10 +9,12 @@ import {
    selectFriends,
    selectFriendsLoading,
    selectFriendsPagination,
-   selectFriendsErrors  // Добавить в friendsSlice.js
+   selectFriendsErrors
 } from '../../features/friendsSlice';
 import { getUserRoleLabel } from '../../constants/userRoles';
-import { getAvatarUrl } from '../../api/api';  // Добавить импорт
+import { getAvatarUrl } from '../../api/api';
+import { selectUser } from '../../features/authSlice';
+import CreateTrainingContextModal from './CreateTrainingContextModal';
 import styles from './FriendsList.module.css';
 
 const FriendsList = ({ isOwnProfile = true }) => {
@@ -22,11 +24,14 @@ const FriendsList = ({ isOwnProfile = true }) => {
    const [searchQuery, setSearchQuery] = useState('');
    const [filter, setFilter] = useState('all'); // all, trainers, trainees
    const [showRemoveConfirm, setShowRemoveConfirm] = useState(null);
+   const [selectedFriendForTraining, setSelectedFriendForTraining] = useState(null);
 
    const friends = useSelector(selectFriends);
    const loading = useSelector(selectFriendsLoading);
    const pagination = useSelector(selectFriendsPagination);
    const errors = useSelector(selectFriendsErrors);
+   const currentUser = useSelector(selectUser);
+   const currentUserId = currentUser?.id;
 
    // Загружаем друзей при монтировании
    useEffect(() => {
@@ -71,6 +76,19 @@ const FriendsList = ({ isOwnProfile = true }) => {
    const handleViewProfile = useCallback((friendId) => {
       navigate(`/user/${friendId}`);
    }, [navigate]);
+
+   const openTrainingModal = (friend) => {
+      setSelectedFriendForTraining(friend);
+   };
+
+   const closeTrainingModal = () => {
+      setSelectedFriendForTraining(null);
+   };
+
+   const handleTrainingCreated = () => {
+      // Обновляем список друзей после создания контекста
+      dispatch(fetchFriends({ limit: 50 }));
+   };
 
    // Фильтрация по роли
    const filteredFriends = React.useMemo(() => {
@@ -118,217 +136,243 @@ const FriendsList = ({ isOwnProfile = true }) => {
    }
 
    return (
-      <div className={styles.friendsListContainer}>
-         {/* Заголовок и поиск */}
-         <div className={styles.header}>
-            <h3>
-               Мои друзья
-               {friends.length > 0 && (
-                  <span className={styles.friendsCount}>{friends.length}</span>
-               )}
-            </h3>
+      <>
+         <div className={styles.friendsListContainer}>
+            {/* Заголовок и поиск */}
+            <div className={styles.header}>
+               <h3>
+                  Мои друзья
+                  {friends.length > 0 && (
+                     <span className={styles.friendsCount}>{friends.length}</span>
+                  )}
+               </h3>
 
-            <div className={styles.searchContainer}>
-               <input
-                  type="text"
-                  className={styles.searchInput}
-                  placeholder="Поиск по друзьям..."
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-               />
-               {loading.search ? (
-                  <span className={styles.searchSpinner}></span>
-               ) : (
-                  <span className={styles.searchIcon}>🔍</span>
-               )}
-            </div>
-         </div>
-
-         {/* Фильтры по ролям */}
-         <div className={styles.filters}>
-            <button
-               className={`${styles.filterButton} ${filter === 'all' ? styles.active : ''}`}
-               onClick={() => setFilter('all')}
-            >
-               Все
-               <span className={styles.filterCount}>
-                  {friends.length}
-               </span>
-            </button>
-            <button
-               className={`${styles.filterButton} ${filter === 'trainers' ? styles.active : ''}`}
-               onClick={() => setFilter('trainers')}
-            >
-               Тренеры
-               <span className={styles.filterCount}>
-                  {friends.filter(f => f.role === 'trainer').length}
-               </span>
-            </button>
-            <button
-               className={`${styles.filterButton} ${filter === 'trainees' ? styles.active : ''}`}
-               onClick={() => setFilter('trainees')}
-            >
-               Спортсмены
-               <span className={styles.filterCount}>
-                  {friends.filter(f => f.role === 'trainee').length}
-               </span>
-            </button>
-         </div>
-
-         {/* Список друзей */}
-         {filteredFriends.length === 0 ? (
-            <div className={styles.emptyState}>
-               <div className={styles.emptyStateIcon}>
-                  {searchQuery ? '🔍' : '👥'}
+               <div className={styles.searchContainer}>
+                  <input
+                     type="text"
+                     className={styles.searchInput}
+                     placeholder="Поиск по друзьям..."
+                     value={searchQuery}
+                     onChange={handleSearchChange}
+                  />
+                  {loading.search ? (
+                     <span className={styles.searchSpinner}></span>
+                  ) : (
+                     <span className={styles.searchIcon}>🔍</span>
+                  )}
                </div>
-               <h4>
-                  {searchQuery
-                     ? 'Ничего не найдено'
-                     : 'Друзей пока нет'
-                  }
-               </h4>
-               <p>
-                  {searchQuery
-                     ? 'Попробуйте изменить параметры поиска'
-                     : 'Найдите новых друзей через поиск или принимайте входящие запросы'}
-               </p>
-               {searchQuery && (
-                  <button
-                     className={styles.clearSearchButton}
-                     onClick={() => {
-                        setSearchQuery('');
-                        dispatch(fetchFriends({ limit: 50 }));
-                     }}
-                  >
-                     Очистить поиск
-                  </button>
-               )}
             </div>
-         ) : (
-            <div className={styles.friendsGrid}>
-               {filteredFriends.map((friend) => (
-                  <div key={friend.id} className={styles.friendCard}>
-                     <div
-                        className={styles.friendAvatar}
-                        onClick={() => handleViewProfile(friend.id)}
-                     >
-                        {friend.userAvatar ? (
-                           <img
-                              src={getAvatarUrl(friend.userAvatar)}
-                              alt={friend.userName}
-                              className={styles.friendAvatarImage}
-                           />
-                        ) : (
-                           friend.userName?.charAt(0).toUpperCase() || 'U'
-                        )}
-                     </div>
 
-                     <div className={styles.friendInfo}>
-                        <h4
-                           className={styles.friendName}
+            {/* Фильтры по ролям */}
+            <div className={styles.filters}>
+               <button
+                  className={`${styles.filterButton} ${filter === 'all' ? styles.active : ''}`}
+                  onClick={() => setFilter('all')}
+               >
+                  Все
+                  <span className={styles.filterCount}>
+                     {friends.length}
+                  </span>
+               </button>
+               <button
+                  className={`${styles.filterButton} ${filter === 'trainers' ? styles.active : ''}`}
+                  onClick={() => setFilter('trainers')}
+               >
+                  Тренеры
+                  <span className={styles.filterCount}>
+                     {friends.filter(f => f.role === 'trainer').length}
+                  </span>
+               </button>
+               <button
+                  className={`${styles.filterButton} ${filter === 'trainees' ? styles.active : ''}`}
+                  onClick={() => setFilter('trainees')}
+               >
+                  Спортсмены
+                  <span className={styles.filterCount}>
+                     {friends.filter(f => f.role === 'trainee').length}
+                  </span>
+               </button>
+            </div>
+
+            {/* Список друзей */}
+            {filteredFriends.length === 0 ? (
+               <div className={styles.emptyState}>
+                  <div className={styles.emptyStateIcon}>
+                     {searchQuery ? '🔍' : '👥'}
+                  </div>
+                  <h4>
+                     {searchQuery
+                        ? 'Ничего не найдено'
+                        : 'Друзей пока нет'
+                     }
+                  </h4>
+                  <p>
+                     {searchQuery
+                        ? 'Попробуйте изменить параметры поиска'
+                        : 'Найдите новых друзей через поиск или принимайте входящие запросы'}
+                  </p>
+                  {searchQuery && (
+                     <button
+                        className={styles.clearSearchButton}
+                        onClick={() => {
+                           setSearchQuery('');
+                           dispatch(fetchFriends({ limit: 50 }));
+                        }}
+                     >
+                        Очистить поиск
+                     </button>
+                  )}
+               </div>
+            ) : (
+               <div className={styles.friendsGrid}>
+                  {filteredFriends.map((friend) => (
+                     <div key={friend.id} className={styles.friendCard}>
+                        <div
+                           className={styles.friendAvatar}
                            onClick={() => handleViewProfile(friend.id)}
                         >
-                           {friend.userName}
-                        </h4>
-
-                        <div className={styles.friendMeta}>
-                           <span className={`${styles.roleBadge} ${styles[friend.role]}`}>
-                              {getUserRoleLabel(friend.role)}
-                           </span>
-
-                           {friend.training_level && (
-                              <span className={styles.levelBadge}>
-                                 {friend.training_level}
-                              </span>
+                           {friend.userAvatar ? (
+                              <img
+                                 src={getAvatarUrl(friend.userAvatar)}
+                                 alt={friend.userName}
+                                 className={styles.friendAvatarImage}
+                              />
+                           ) : (
+                              friend.userName?.charAt(0).toUpperCase() || 'U'
                            )}
                         </div>
 
-                        {friend.sport_specialization && (
-                           <div className={styles.sportSpecialization}>
-                              {friend.sport_specialization.split(',').map((tag, i) => (
-                                 <span key={i} className={styles.sportTag}>
-                                    {tag.trim()}
-                                 </span>
-                              ))}
-                           </div>
-                        )}
-
-                        {friend.mutualFriendsCount > 0 && (
-                           <div
-                              className={styles.mutualFriends}
-                              onClick={() => navigate(`/friends/mutual/${friend.id}`)}
+                        <div className={styles.friendInfo}>
+                           <h4
+                              className={styles.friendName}
+                              onClick={() => handleViewProfile(friend.id)}
                            >
-                              👥 {friend.mutualFriendsCount} общих друзей
-                           </div>
-                        )}
-                     </div>
+                              {friend.userName}
+                           </h4>
 
-                     {/* Действия */}
-                     {isOwnProfile && (
-                        <div className={styles.friendActions}>
-                           {showRemoveConfirm === friend.id ? (
-                              <div className={styles.confirmActions}>
-                                 <button
-                                    className={`${styles.actionButton} ${styles.confirmYes}`}
-                                    onClick={() => handleRemoveFriend(friend.id)}
-                                    disabled={loading.action}
-                                    title="Подтвердить удаление"
-                                 >
-                                    ✓
-                                 </button>
-                                 <button
-                                    className={`${styles.actionButton} ${styles.confirmNo}`}
-                                    onClick={() => setShowRemoveConfirm(null)}
-                                    disabled={loading.action}
-                                    title="Отменить"
-                                 >
-                                    ✕
-                                 </button>
+                           <div className={styles.friendMeta}>
+                              <span className={`${styles.roleBadge} ${styles[friend.role]}`}>
+                                 {getUserRoleLabel(friend.role)}
+                              </span>
+
+                              {friend.training_level && (
+                                 <span className={styles.levelBadge}>
+                                    {friend.training_level}
+                                 </span>
+                              )}
+                           </div>
+
+                           {friend.sport_specialization && (
+                              <div className={styles.sportSpecialization}>
+                                 {friend.sport_specialization.split(',').map((tag, i) => (
+                                    <span key={i} className={styles.sportTag}>
+                                       {tag.trim()}
+                                    </span>
+                                 ))}
                               </div>
-                           ) : (
-                              <button
-                                 className={`${styles.actionButton} ${styles.removeButton}`}
-                                 onClick={() => setShowRemoveConfirm(friend.id)}
-                                 disabled={loading.action}
-                                 title="Удалить из друзей"
+                           )}
+
+                           {friend.mutualFriendsCount > 0 && (
+                              <div
+                                 className={styles.mutualFriends}
+                                 onClick={() => navigate(`/friends/mutual/${friend.id}`)}
                               >
-                                 {loading.action && showRemoveConfirm === friend.id ? (
-                                    <span className={styles.buttonSpinner}></span>
-                                 ) : (
-                                    '✕'
-                                 )}
+                                 👥 {friend.mutualFriendsCount} общих друзей
+                              </div>
+                           )}
+                        </div>
+
+                        {/* Действия */}
+                        <div className={styles.friendActions}>
+                           {/* Кнопка создания тренировки */}
+                           {isOwnProfile && (
+                              <button
+                                 className={styles.trainButton}
+                                 onClick={() => openTrainingModal(friend)}
+                                 disabled={friend.contexts_count > 0}
+                                 title={friend.contexts_count > 0 ? "Уже есть активная тренировка" : "Начать тренировки"}
+                              >
+                                 {friend.contexts_count > 0 ? '🏒' : '🏒'}
                               </button>
                            )}
-                        </div>
-                     )}
-                  </div>
-               ))}
-            </div>
-         )}
 
-         {/* Кнопка "Загрузить еще" */}
-         {pagination.hasMore && filteredFriends.length > 0 && (
-            <div className={styles.loadMoreContainer}>
-               <button
-                  className={styles.loadMoreButton}
-                  onClick={loadMore}
-                  disabled={loading.friends}
-               >
-                  {loading.friends ? (
-                     <>
-                        <span className={styles.buttonSpinner}></span>
-                        Загрузка...
-                     </>
-                  ) : (
-                     'Загрузить еще'
-                  )}
-               </button>
-               <div className={styles.loadMoreInfo}>
-                  Показано {friends.length} из {pagination.total || '...'}
+                           {/* Кнопка удаления */}
+                           {isOwnProfile && (
+                              <>
+                                 {showRemoveConfirm === friend.id ? (
+                                    <div className={styles.confirmActions}>
+                                       <button
+                                          className={`${styles.actionButton} ${styles.confirmYes}`}
+                                          onClick={() => handleRemoveFriend(friend.id)}
+                                          disabled={loading.action}
+                                          title="Подтвердить удаление"
+                                       >
+                                          ✓
+                                       </button>
+                                       <button
+                                          className={`${styles.actionButton} ${styles.confirmNo}`}
+                                          onClick={() => setShowRemoveConfirm(null)}
+                                          disabled={loading.action}
+                                          title="Отменить"
+                                       >
+                                          ✕
+                                       </button>
+                                    </div>
+                                 ) : (
+                                    <button
+                                       className={`${styles.actionButton} ${styles.removeButton}`}
+                                       onClick={() => setShowRemoveConfirm(friend.id)}
+                                       disabled={loading.action}
+                                       title="Удалить из друзей"
+                                    >
+                                       {loading.action && showRemoveConfirm === friend.id ? (
+                                          <span className={styles.buttonSpinner}></span>
+                                       ) : (
+                                          '✕'
+                                       )}
+                                    </button>
+                                 )}
+                              </>
+                           )}
+                        </div>
+                     </div>
+                  ))}
                </div>
-            </div>
-         )}
-      </div>
+            )}
+
+            {/* Кнопка "Загрузить еще" */}
+            {pagination.hasMore && filteredFriends.length > 0 && (
+               <div className={styles.loadMoreContainer}>
+                  <button
+                     className={styles.loadMoreButton}
+                     onClick={loadMore}
+                     disabled={loading.friends}
+                  >
+                     {loading.friends ? (
+                        <>
+                           <span className={styles.buttonSpinner}></span>
+                           Загрузка...
+                        </>
+                     ) : (
+                        'Загрузить еще'
+                     )}
+                  </button>
+                  <div className={styles.loadMoreInfo}>
+                     Показано {friends.length} из {pagination.total || '...'}
+                  </div>
+               </div>
+            )}
+         </div>
+
+         {/* Модалка создания контекста тренировки */}
+         <CreateTrainingContextModal
+            isOpen={!!selectedFriendForTraining}
+            onClose={closeTrainingModal}
+            friend={selectedFriendForTraining}
+            currentUserId={currentUserId}
+            onSuccess={handleTrainingCreated}
+         />
+      </>
    );
 };
 

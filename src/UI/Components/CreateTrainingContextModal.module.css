@@ -1,0 +1,369 @@
+/* frontend/src/UI/Components/CreateTrainingContextModal.module.css */
+
+:root {
+   --primary-color: #6366f1;
+   --primary-hover: #4f46e5;
+   --primary-light: #a5b4fc;
+   --success-color: #10b981;
+   --danger-color: #ef4444;
+   --text-primary: #1e293b;
+   --text-secondary: #64748b;
+   --border-color: #e2e8f0;
+   --border-light: #f1f5f9;
+   --background-light: #f8fafc;
+   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+   --radius-md: 0.5rem;
+   --radius-lg: 0.75rem;
+   --transition: all 0.2s ease-in-out;
+}
+
+.overlay {
+   background-color: rgba(15, 23, 42, 0.6);
+   backdrop-filter: blur(4px);
+   position: fixed;
+   top: 0;
+   left: 0;
+   right: 0;
+   bottom: 0;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   padding: 1rem;
+   z-index: 1000;
+   animation: overlayShow 0.2s ease-out;
+}
+
+@keyframes overlayShow {
+   from { opacity: 0; }
+   to { opacity: 1; }
+}
+
+.modal {
+   background: white;
+   border-radius: var(--radius-lg);
+   box-shadow: var(--shadow-lg);
+   width: 100%;
+   max-width: 560px;
+   border: 1px solid var(--border-color);
+   animation: modalSlideIn 0.3s ease-out;
+   max-height: 90vh;
+   overflow-y: auto;
+}
+
+@keyframes modalSlideIn {
+   from {
+      opacity: 0;
+      transform: translateY(-20px) scale(0.95);
+   }
+   to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+   }
+}
+
+.modalContent {
+   display: flex;
+   flex-direction: column;
+}
+
+.header {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   padding: 1.25rem 1.5rem;
+   border-bottom: 1px solid var(--border-color);
+   background: var(--background-light);
+   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.title {
+   margin: 0;
+   font-size: 1.25rem;
+   font-weight: 600;
+   color: var(--text-primary);
+}
+
+.closeButton {
+   width: 32px;
+   height: 32px;
+   border: none;
+   border-radius: 50%;
+   background: transparent;
+   color: var(--text-secondary);
+   font-size: 1.125rem;
+   cursor: pointer;
+   transition: var(--transition);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+}
+
+.closeButton:hover {
+   background: var(--border-light);
+   color: var(--text-primary);
+}
+
+.body {
+   padding: 1.5rem;
+}
+
+.friendInfo {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   gap: 0.75rem;
+   margin-bottom: 1.5rem;
+   padding: 1rem;
+   background: var(--background-light);
+   border-radius: var(--radius-lg);
+   border: 1px solid var(--border-light);
+}
+
+.friendAvatar {
+   width: 48px;
+   height: 48px;
+   border-radius: 50%;
+   background: linear-gradient(135deg, var(--primary-color) 0%, #8b5cf6 100%);
+   color: white;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   font-size: 1.5rem;
+   font-weight: 600;
+}
+
+.friendName {
+   font-size: 1.125rem;
+   font-weight: 600;
+   color: var(--text-primary);
+}
+
+.formGroup {
+   margin-bottom: 1.5rem;
+}
+
+.label {
+   display: flex;
+   align-items: center;
+   gap: 0.5rem;
+   font-size: 0.875rem;
+   font-weight: 600;
+   color: var(--text-primary);
+   margin-bottom: 0.5rem;
+}
+
+.labelIcon {
+   font-size: 1rem;
+}
+
+.select {
+   width: 100%;
+   padding: 0.75rem 1rem;
+   border: 1px solid var(--border-color);
+   border-radius: var(--radius-md);
+   font-size: 0.875rem;
+   background: white;
+   cursor: pointer;
+   transition: var(--transition);
+}
+
+.select:focus {
+   outline: none;
+   border-color: var(--primary-color);
+   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.select:disabled {
+   background: var(--border-light);
+   cursor: not-allowed;
+}
+
+.hint {
+   font-size: 0.75rem;
+   color: var(--text-secondary);
+   margin-top: 0.375rem;
+}
+
+.roleButtons {
+   display: flex;
+   flex-direction: column;
+   gap: 0.75rem;
+}
+
+.roleButton {
+   display: flex;
+   align-items: center;
+   gap: 0.75rem;
+   padding: 1rem;
+   border: 2px solid var(--border-color);
+   border-radius: var(--radius-lg);
+   background: white;
+   cursor: pointer;
+   transition: var(--transition);
+   text-align: left;
+   position: relative;
+}
+
+.roleButton:hover:not(:disabled) {
+   border-color: var(--primary-light);
+   background: var(--background-light);
+   transform: translateX(4px);
+}
+
+.roleButton.active {
+   border-color: var(--primary-color);
+   background: rgba(99, 102, 241, 0.05);
+}
+
+.roleButton:disabled {
+   opacity: 0.5;
+   cursor: not-allowed;
+}
+
+.roleIcon {
+   font-size: 2rem;
+}
+
+.roleContent {
+   flex: 1;
+}
+
+.roleTitle {
+   font-weight: 600;
+   color: var(--text-primary);
+   margin-bottom: 0.25rem;
+}
+
+.roleDesc {
+   font-size: 0.75rem;
+   color: var(--text-secondary);
+}
+
+.checkmark {
+   width: 24px;
+   height: 24px;
+   border-radius: 50%;
+   background: var(--primary-color);
+   color: white;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   font-size: 0.875rem;
+}
+
+.error {
+   margin-top: 1rem;
+   padding: 0.75rem 1rem;
+   background: rgba(239, 68, 68, 0.1);
+   border: 1px solid rgba(239, 68, 68, 0.3);
+   border-radius: var(--radius-md);
+   color: var(--danger-color);
+   font-size: 0.875rem;
+   display: flex;
+   align-items: center;
+   gap: 0.5rem;
+}
+
+.errorIcon {
+   font-size: 1rem;
+}
+
+.footer {
+   display: flex;
+   justify-content: flex-end;
+   gap: 0.75rem;
+   padding: 1.25rem 1.5rem;
+   border-top: 1px solid var(--border-color);
+   background: var(--background-light);
+   border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+.cancelButton {
+   padding: 0.625rem 1.25rem;
+   border: 1px solid var(--border-color);
+   border-radius: var(--radius-md);
+   background: white;
+   color: var(--text-secondary);
+   font-size: 0.875rem;
+   font-weight: 500;
+   cursor: pointer;
+   transition: var(--transition);
+}
+
+.cancelButton:hover:not(:disabled) {
+   background: var(--border-light);
+   color: var(--text-primary);
+}
+
+.cancelButton:disabled {
+   opacity: 0.5;
+   cursor: not-allowed;
+}
+
+.submitButton {
+   padding: 0.625rem 1.5rem;
+   border: none;
+   border-radius: var(--radius-md);
+   background: var(--primary-color);
+   color: white;
+   font-size: 0.875rem;
+   font-weight: 600;
+   cursor: pointer;
+   transition: var(--transition);
+   display: flex;
+   align-items: center;
+   gap: 0.5rem;
+}
+
+.submitButton:hover:not(:disabled) {
+   background: var(--primary-hover);
+   transform: translateY(-1px);
+   box-shadow: var(--shadow-md);
+}
+
+.submitButton:disabled {
+   opacity: 0.6;
+   cursor: not-allowed;
+   transform: none;
+}
+
+.spinner {
+   width: 16px;
+   height: 16px;
+   border: 2px solid white;
+   border-top-color: transparent;
+   border-radius: 50%;
+   animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+   to { transform: rotate(360deg); }
+}
+
+@media (max-width: 480px) {
+   .header, .footer {
+      padding: 1rem;
+   }
+   
+   .body {
+      padding: 1rem;
+   }
+   
+   .roleButton {
+      padding: 0.75rem;
+   }
+   
+   .roleIcon {
+      font-size: 1.5rem;
+   }
+   
+   .roleTitle {
+      font-size: 0.875rem;
+   }
+   
+   .roleDesc {
+      font-size: 0.688rem;
+   }
+}

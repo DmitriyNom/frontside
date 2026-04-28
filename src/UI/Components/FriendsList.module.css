@@ -213,7 +213,9 @@
 
 /* Действия */
 .friendActions {
-   position: relative;
+   display: flex;
+   gap: 0.5rem;
+   align-items: center;
 }
 
 .actionButton {
@@ -240,6 +242,35 @@
 .actionButton:disabled {
    opacity: 0.5;
    cursor: not-allowed;
+}
+
+/* Кнопка создания тренировки */
+.trainButton {
+   width: 36px;
+   height: 36px;
+   border: none;
+   border-radius: 50%;
+   background: var(--primary-light);
+   color: var(--primary-color);
+   font-size: 1.125rem;
+   cursor: pointer;
+   transition: var(--transition);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+}
+
+.trainButton:hover:not(:disabled) {
+   background: var(--primary-color);
+   color: white;
+   transform: scale(1.05);
+}
+
+.trainButton:disabled {
+   opacity: 0.5;
+   cursor: not-allowed;
+   background: var(--border-light);
+   color: var(--text-secondary);
 }
 
 .confirmActions {
@@ -384,6 +415,12 @@
       width: 48px;
       height: 48px;
       font-size: 1.25rem;
+   }
+   
+   .trainButton {
+      width: 32px;
+      height: 32px;
+      font-size: 1rem;
    }
 }
 
