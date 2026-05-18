@@ -1,0 +1,300 @@
+/* TaskCreateModal.module.css - СВЕТЛАЯ ТЕМА */
+
+.overlay {
+   position: fixed;
+   top: 0;
+   left: 0;
+   right: 0;
+   bottom: 0;
+   background: rgba(0, 0, 0, 0.5);
+   backdrop-filter: blur(4px);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   z-index: 1000;
+   animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+   from { opacity: 0; }
+   to { opacity: 1; }
+}
+
+.modal {
+   background: white;
+   border-radius: 16px;
+   width: 90%;
+   max-width: 700px;
+   max-height: 90vh;
+   overflow-y: auto;
+   animation: slideUp 0.3s ease;
+   box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes slideUp {
+   from {
+      transform: translateY(30px);
+      opacity: 0;
+   }
+   to {
+      transform: translateY(0);
+      opacity: 1;
+   }
+}
+
+.header {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   padding: 20px 24px;
+   border-bottom: 1px solid #e2e8f0;
+}
+
+.header h2 {
+   margin: 0;
+   font-size: 20px;
+   color: #1e293b;
+}
+
+.closeBtn {
+   background: none;
+   border: none;
+   font-size: 24px;
+   cursor: pointer;
+   color: #94a3b8;
+   transition: color 0.2s;
+}
+
+.closeBtn:hover {
+   color: #1e293b;
+}
+
+.form {
+   padding: 24px;
+}
+
+.formGroup {
+   margin-bottom: 20px;
+   margin-right: 20px;
+}
+
+.formGroup label {
+   display: block;
+   margin-bottom: 8px;
+   font-size: 14px;
+   font-weight: 500;
+   color: #1e293b;
+}
+
+.formGroup input,
+.formGroup select,
+.formGroup textarea {
+   width: 100%;
+   padding: 10px 12px;
+   background: white;
+   border: 1px solid #cbd5e1;
+   border-radius: 8px;
+   color: #1e293b;
+   font-size: 14px;
+   transition: all 0.2s;
+}
+
+/* ДОБАВИТЬ ЭТОТ БЛОК ПОСЛЕ */
+.formGroup textarea {
+   min-height: 140px;      /* Минимальная высота */
+   resize: vertical;       /* Можно растягивать по вертикали */
+   font-family: inherit;   /* Наследует шрифт */
+}
+
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroup textarea:focus {
+   outline: none;
+   border-color: #4f46e5;
+   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.formGroup input.error,
+.formGroup select.error {
+   border-color: #ef4444;
+}
+
+.errorText {
+   display: block;
+   margin-top: 4px;
+   font-size: 12px;
+   color: #ef4444;
+}
+
+/* Радио группа */
+.radioGroup {
+   display: flex;
+   gap: 16px;
+   flex-wrap: wrap;
+}
+
+.radioLabel {
+   display: flex;
+   align-items: center;
+   gap: 8px;
+   cursor: pointer;
+   font-weight: normal;
+   color: #475569;
+}
+
+.radioLabel input {
+   width: auto;
+}
+
+/* Типы метрик */
+.metricTypes {
+   display: flex;
+   flex-wrap: wrap;
+   gap: 8px;
+}
+
+.metricTypeBtn {
+   padding: 8px 16px;
+   background: white;
+   border: 1px solid #cbd5e1;
+   border-radius: 20px;
+   color: #64748b;
+   cursor: pointer;
+   transition: all 0.2s;
+   font-size: 13px;
+}
+
+.metricTypeBtn:hover {
+   background: #f1f5f9;
+   color: #1e293b;
+   border-color: #94a3b8;
+}
+
+.metricTypeBtn.active {
+   background: #4f46e5;
+   border-color: #4f46e5;
+   color: white;
+}
+
+/* Поля метрик */
+.metricsFields {
+   background: #f8fafc;
+   border-radius: 12px;
+   padding: 16px;
+   margin-bottom: 20px;
+   border: 1px solid #e2e8f0;
+}
+
+.metricRow {
+   display: flex;
+   gap: 16px;
+   flex-wrap: wrap;
+}
+
+.formGroupSmall {
+   flex: 1;
+   min-width: 100px;
+}
+
+.formGroupSmall label {
+   font-size: 12px;
+   margin-bottom: 4px;
+   color: #64748b;
+}
+
+.formGroupSmall input {
+   padding: 8px 10px;
+   font-size: 13px;
+}
+
+/* Приоритет */
+.priorityGroup {
+   display: flex;
+   gap: 12px;
+}
+
+.priorityBtn {
+   flex: 1;
+   padding: 10px;
+   background: white;
+   border: 1px solid #cbd5e1;
+   border-radius: 8px;
+   color: #64748b;
+   cursor: pointer;
+   transition: all 0.2s;
+}
+
+.priorityBtn:hover {
+   background: #f1f5f9;
+   border-color: #94a3b8;
+}
+
+.priorityBtn.active {
+   background: #4f46e5;
+   border-color: #4f46e5;
+   color: white;
+}
+
+/* Действия */
+.actions {
+   display: flex;
+   gap: 12px;
+   justify-content: flex-end;
+   margin-top: 24px;
+   padding-top: 16px;
+   border-top: 1px solid #e2e8f0;
+}
+
+.cancelBtn {
+   padding: 10px 20px;
+   background: transparent;
+   border: 1px solid #cbd5e1;
+   border-radius: 8px;
+   color: #64748b;
+   cursor: pointer;
+   transition: all 0.2s;
+}
+
+.cancelBtn:hover {
+   background: #f1f5f9;
+   color: #1e293b;
+}
+
+.submitBtn {
+   padding: 10px 24px;
+   background: #4f46e5;
+   border: none;
+   border-radius: 8px;
+   color: white;
+   font-weight: 500;
+   cursor: pointer;
+   transition: all 0.2s;
+}
+
+.submitBtn:hover:not(:disabled) {
+   background: #4338ca;
+}
+
+.submitBtn:disabled {
+   opacity: 0.6;
+   cursor: not-allowed;
+}
+
+/* Прокрутка */
+.modal::-webkit-scrollbar {
+   width: 8px;
+}
+
+.modal::-webkit-scrollbar-track {
+   background: #f1f5f9;
+   border-radius: 4px;
+}
+
+.modal::-webkit-scrollbar-thumb {
+   background: #cbd5e1;
+   border-radius: 4px;
+}
+
+.modal::-webkit-scrollbar-thumb:hover {
+   background: #94a3b8;
+}

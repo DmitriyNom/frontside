@@ -1,0 +1,183 @@
+/* TasksPage.module.css */
+
+.container {
+   min-height: 100vh;
+   background: var(--bg-primary, #0f0f1a);
+   padding: 24px;
+}
+
+/* Шапка */
+.header {
+   display: flex;
+   justify-content: space-between;
+   align-items: flex-start;
+   margin-bottom: 32px;
+   flex-wrap: wrap;
+   gap: 16px;
+}
+
+.title {
+   font-size: 28px;
+   font-weight: 700;
+   margin: 0 0 8px 0;
+   background: linear-gradient(135deg, #fff 0%, #4c9aff 100%);
+   -webkit-background-clip: text;
+   -webkit-text-fill-color: transparent;
+   background-clip: text;
+}
+
+.subtitle {
+   font-size: 14px;
+   color: var(--text-secondary, #aaa);
+   margin: 0;
+}
+
+.createButton {
+   padding: 12px 24px;
+   background: linear-gradient(135deg, #4c9aff, #7b4cff);
+   border: none;
+   border-radius: 40px;
+   color: #fff;
+   font-size: 14px;
+   font-weight: 600;
+   cursor: pointer;
+   transition: all 0.2s ease;
+   display: flex;
+   align-items: center;
+   gap: 8px;
+   box-shadow: 0 4px 12px rgba(76, 154, 255, 0.3);
+}
+
+.createButton:hover {
+   transform: translateY(-2px);
+   box-shadow: 0 6px 16px rgba(76, 154, 255, 0.4);
+}
+
+/* Статистика */
+.statsGrid {
+   display: grid;
+   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+   gap: 16px;
+   margin-bottom: 32px;
+}
+
+.statCard {
+   background: var(--bg-secondary, #1a1a2e);
+   border-radius: 16px;
+   padding: 20px;
+   display: flex;
+   align-items: center;
+   gap: 16px;
+   transition: all 0.2s ease;
+   border: 1px solid var(--border-color, #2a2a3a);
+}
+
+.statCard:hover {
+   transform: translateY(-2px);
+   border-color: #4c9aff;
+}
+
+.statIcon {
+   font-size: 36px;
+}
+
+.statInfo {
+   flex: 1;
+}
+
+.statValue {
+   font-size: 32px;
+   font-weight: 700;
+   color: var(--text-primary, #fff);
+   line-height: 1;
+}
+
+.statLabel {
+   font-size: 13px;
+   color: var(--text-secondary, #aaa);
+   margin-top: 8px;
+}
+
+/* Цветовые акценты для карточек */
+.activeCard:hover {
+   border-color: #4c9aff;
+}
+
+.activeCard .statValue {
+   color: #4c9aff;
+}
+
+.completedCard:hover {
+   border-color: #4caf50;
+}
+
+.completedCard .statValue {
+   color: #4caf50;
+}
+
+.archivedCard:hover {
+   border-color: #888;
+}
+
+.archivedCard .statValue {
+   color: #888;
+}
+
+.rateCard:hover {
+   border-color: #ff9800;
+}
+
+.rateCard .statValue {
+   color: #ff9800;
+}
+
+/* Контейнер списка */
+.listContainer {
+   background: var(--bg-secondary, #1a1a2e);
+   border-radius: 20px;
+   padding: 4px 0;
+   border: 1px solid var(--border-color, #2a2a3a);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+   .container {
+      padding: 16px;
+   }
+   
+   .header {
+      flex-direction: column;
+      align-items: stretch;
+   }
+   
+   .createButton {
+      justify-content: center;
+   }
+   
+   .statsGrid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+   }
+   
+   .statCard {
+      padding: 14px;
+   }
+   
+   .statIcon {
+      font-size: 28px;
+   }
+   
+   .statValue {
+      font-size: 24px;
+   }
+}
+
+@media (max-width: 480px) {
+   .statsGrid {
+      grid-template-columns: 1fr;
+   }
+   
+   .title {
+      font-size: 24px;
+   }
+}

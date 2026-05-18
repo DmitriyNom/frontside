@@ -1,441 +1,251 @@
-/* ==================================================== */
-/* FriendsList.module.css */
-/* ==================================================== */
-
-:root {
-   --primary-color: #6366f1;
-   --primary-hover: #4f46e5;
-   --primary-light: #a5b4fc;
-   --text-primary: #1e293b;
-   --text-secondary: #64748b;
-   --border-color: #e2e8f0;
-   --border-light: #f1f5f9;
-   --hover-background: #f8fafc;
-   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-   --radius-md: 0.5rem;
-   --radius-lg: 0.75rem;
-   --transition: all 0.3s ease-in-out;
-   --danger-color: #ef4444;
-   --success-color: #10b981;
-}
+/* frontend/src/UI/Components/FriendsList.module.css */
+/* Только специфичные для FriendsList стили */
 
 .friendsListContainer {
-   background: white;
-   border-radius: var(--radius-lg);
-   padding: 1.5rem;
+  max-width: 100%;
 }
 
-/* Заголовок и поиск */
 .header {
-   display: flex;
-   justify-content: space-between;
-   align-items: center;
-   margin-bottom: 1.5rem;
-   flex-wrap: wrap;
-   gap: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .header h3 {
-   margin: 0;
-   color: var(--text-primary);
-   font-size: 1.25rem;
-   font-weight: 600;
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.friendsCount {
+  background: var(--color-border-light);
+  padding: 0.125rem 0.5rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
 }
 
 .searchContainer {
-   position: relative;
-   min-width: 300px;
+  position: relative;
+  flex: 1 1;
+  max-width: 320px;
+  min-width: 200px;
+  margin-top: 20px;
+  margin-right: 40px;
 }
 
 .searchInput {
-   width: 100%;
-   padding: 0.75rem 1rem 0.75rem 2.5rem;
-   border: 1px solid var(--border-color);
-   border-radius: var(--radius-md);
-   font-size: 0.875rem;
-   transition: var(--transition);
+  width: 100%;
+  padding: 0.5rem 1rem 0.5rem 2.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  background: var(--color-background);
+  transition: all var(--transition-fast);
+  box-sizing: border-box;
 }
 
 .searchInput:focus {
-   outline: none;
-   border-color: var(--primary-color);
-   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .searchIcon {
-   position: absolute;
-   left: 0.75rem;
-   top: 50%;
-   transform: translateY(-50%);
-   color: var(--text-secondary);
-   font-size: 1rem;
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.875rem;
+  opacity: 0.5;
+  pointer-events: none;
 }
 
-/* Фильтры */
 .filters {
-   display: flex;
-   gap: 0.5rem;
-   margin-bottom: 1.5rem;
-   flex-wrap: wrap;
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
 }
 
 .filterButton {
-   padding: 0.5rem 1rem;
-   border: 1px solid var(--border-color);
-   border-radius: 2rem;
-   background: white;
-   color: var(--text-secondary);
-   font-size: 0.875rem;
-   font-weight: 500;
-   cursor: pointer;
-   transition: var(--transition);
+  padding: 0.375rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-background);
+  font-size: 0.813rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  color: var(--color-text-secondary);
 }
 
 .filterButton:hover {
-   background: var(--hover-background);
-   color: var(--text-primary);
-   border-color: var(--text-secondary);
+  background: var(--color-background-hover);
+  border-color: var(--color-primary-light);
 }
 
 .filterButton.active {
-   background: var(--primary-color);
-   color: white;
-   border-color: var(--primary-color);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
 }
 
-/* Сетка друзей */
+.filterButton span {
+  margin-left: 0.375rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: var(--radius-full);
+  background: rgba(0, 0, 0, 0.1);
+  font-size: 0.688rem;
+}
+
+.filterButton.active span {
+  background: rgba(255, 255, 255, 0.2);
+}
+
 .friendsGrid {
-   display: grid;
-   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-   gap: 1rem;
-   margin-bottom: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
 }
 
-.friendCard {
-   display: flex;
-   align-items: center;
-   gap: 1rem;
-   padding: 1rem;
-   border: 1px solid var(--border-color);
-   border-radius: var(--radius-lg);
-   transition: var(--transition);
-   position: relative;
+/* Бейдж активной тренировки */
+.activeContextBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--color-success-light);
+  border-radius: var(--radius-full);
+  font-size: 0.688rem;
+  font-weight: 500;
+  color: var(--color-success);
+  width: fit-content;
 }
 
-.friendCard:hover {
-   transform: translateY(-2px);
-   box-shadow: var(--shadow-md);
-   border-color: var(--primary-color);
+/* 👇 НОВЫЙ БЛОК: стили для кнопок действий (включая кнопку задания) */
+/* Обратите внимание: основные стили кнопок в commonStyles, 
+  здесь только специфичные для FriendsList */
+
+/* Группа кнопок в карточке друга */
+:global(.actions) {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }
 
-.friendAvatar {
-   width: 56px;
-   height: 56px;
-   border-radius: 50%;
-   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-   color: white;
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   font-size: 1.5rem;
-   font-weight: 600;
-   cursor: pointer;
-   flex-shrink: 0;
-   transition: var(--transition);
+/* Иконки кнопок в карточке */
+:global(.iconButton) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-background-hover);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-size: 1rem;
 }
 
-.friendAvatar:hover {
-   transform: scale(1.05);
+:global(.iconButton:hover:not(:disabled)) {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
 }
 
-.friendInfo {
-   flex: 1;
-   min-width: 0;
-   cursor: pointer;
+:global(.iconButton:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
-.friendName {
-   margin: 0 0 0.25rem 0;
-   color: var(--text-primary);
-   font-size: 1rem;
-   font-weight: 600;
-   white-space: nowrap;
-   overflow: hidden;
-   text-overflow: ellipsis;
+:global(.iconButton.primary) {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
 }
 
-.friendName:hover {
-   color: var(--primary-color);
+:global(.iconButton.primary:hover:not(:disabled)) {
+  background: var(--color-primary);
+  color: white;
 }
 
-.friendMeta {
-   display: flex;
-   align-items: center;
-   gap: 0.5rem;
-   flex-wrap: wrap;
-   margin-bottom: 0.25rem;
+:global(.iconButton.danger) {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
 }
 
-.roleBadge {
-   padding: 0.125rem 0.5rem;
-   border-radius: 1rem;
-   font-size: 0.75rem;
-   font-weight: 500;
+:global(.iconButton.danger:hover:not(:disabled)) {
+  background: #ef4444;
+  color: white;
 }
 
-.roleBadge.trainee {
-   background: rgba(16, 185, 129, 0.1);
-   color: #059669;
+:global(.iconButton.success) {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
 }
 
-.roleBadge.trainer {
-   background: rgba(99, 102, 241, 0.1);
-   color: #4f46e5;
+:global(.iconButton.success:hover:not(:disabled)) {
+  background: #22c55e;
+  color: white;
 }
 
-.sportBadge {
-   background: var(--border-light);
-   color: var(--text-secondary);
-   padding: 0.125rem 0.5rem;
-   border-radius: 1rem;
-   font-size: 0.75rem;
-   font-weight: 500;
-}
-
-.mutualFriends {
-   font-size: 0.75rem;
-   color: var(--text-secondary);
-   display: flex;
-   align-items: center;
-   gap: 0.25rem;
-}
-
-/* Действия */
-.friendActions {
-   display: flex;
-   gap: 0.5rem;
-   align-items: center;
-}
-
-.actionButton {
-   width: 32px;
-   height: 32px;
-   border: none;
-   border-radius: 50%;
-   background: var(--border-light);
-   color: var(--text-secondary);
-   font-size: 1rem;
-   cursor: pointer;
-   transition: var(--transition);
-   display: flex;
-   align-items: center;
-   justify-content: center;
-}
-
-.actionButton:hover:not(:disabled) {
-   background: #fee2e2;
-   color: var(--danger-color);
-   transform: scale(1.1);
-}
-
-.actionButton:disabled {
-   opacity: 0.5;
-   cursor: not-allowed;
-}
-
-/* Кнопка создания тренировки */
-.trainButton {
-   width: 36px;
-   height: 36px;
-   border: none;
-   border-radius: 50%;
-   background: var(--primary-light);
-   color: var(--primary-color);
-   font-size: 1.125rem;
-   cursor: pointer;
-   transition: var(--transition);
-   display: flex;
-   align-items: center;
-   justify-content: center;
-}
-
-.trainButton:hover:not(:disabled) {
-   background: var(--primary-color);
-   color: white;
-   transform: scale(1.05);
-}
-
-.trainButton:disabled {
-   opacity: 0.5;
-   cursor: not-allowed;
-   background: var(--border-light);
-   color: var(--text-secondary);
-}
-
-.confirmActions {
-   display: flex;
-   gap: 0.25rem;
-   background: white;
-   border: 1px solid var(--border-color);
-   border-radius: var(--radius-md);
-   padding: 0.25rem;
-   box-shadow: var(--shadow-md);
-}
-
-.confirmYes,
-.confirmNo {
-   padding: 0.25rem 0.5rem;
-   border: none;
-   border-radius: var(--radius-sm);
-   font-size: 0.75rem;
-   font-weight: 500;
-   cursor: pointer;
-   transition: var(--transition);
-}
-
-.confirmYes {
-   background: var(--danger-color);
-   color: white;
-}
-
-.confirmYes:hover:not(:disabled) {
-   background: #dc2626;
-}
-
-.confirmNo {
-   background: var(--border-light);
-   color: var(--text-secondary);
-}
-
-.confirmNo:hover:not(:disabled) {
-   background: var(--border-color);
-}
-
-/* Пустое состояние */
-.emptyState {
-   text-align: center;
-   padding: 3rem 1rem;
-   color: var(--text-secondary);
-}
-
-.emptyStateIcon {
-   font-size: 3rem;
-   margin-bottom: 1rem;
-   opacity: 0.5;
-}
-
-.emptyState h4 {
-   color: var(--text-primary);
-   font-size: 1.125rem;
-   font-weight: 600;
-   margin: 0 0 0.5rem 0;
-}
-
-.emptyState p {
-   font-size: 0.875rem;
-   max-width: 400px;
-   margin: 0 auto;
-}
-
-/* Загрузка еще */
 .loadMoreContainer {
-   display: flex;
-   justify-content: center;
-   margin-top: 1rem;
-}
-
-.loadMoreButton {
-   padding: 0.75rem 2rem;
-   background: white;
-   border: 1px solid var(--border-color);
-   border-radius: var(--radius-md);
-   color: var(--text-secondary);
-   font-size: 0.875rem;
-   font-weight: 500;
-   cursor: pointer;
-   transition: var(--transition);
-}
-
-.loadMoreButton:hover:not(:disabled) {
-   background: var(--hover-background);
-   color: var(--primary-color);
-   border-color: var(--primary-color);
-}
-
-.loadMoreButton:disabled {
-   opacity: 0.5;
-   cursor: not-allowed;
-}
-
-/* Загрузка */
-.loadingContainer {
-   display: flex;
-   flex-direction: column;
-   align-items: center;
-   justify-content: center;
-   min-height: 200px;
-   color: var(--text-secondary);
-}
-
-.spinner {
-   width: 40px;
-   height: 40px;
-   border: 3px solid var(--border-light);
-   border-top-color: var(--primary-color);
-   border-radius: 50%;
-   animation: spin 1s linear infinite;
-   margin-bottom: 1rem;
-}
-
-@keyframes spin {
-   to { transform: rotate(360deg); }
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
 }
 
 /* Адаптивность */
 @media (max-width: 768px) {
-   .header {
-      flex-direction: column;
-      align-items: stretch;
-   }
-
-   .searchContainer {
-      min-width: auto;
-   }
-
-   .friendsGrid {
-      grid-template-columns: 1fr;
-   }
-
-   .friendCard {
-      padding: 0.75rem;
-   }
-
-   .friendAvatar {
-      width: 48px;
-      height: 48px;
-      font-size: 1.25rem;
-   }
-   
-   .trainButton {
-      width: 32px;
-      height: 32px;
-      font-size: 1rem;
-   }
+  .header {
+     flex-direction: column;
+     align-items: stretch;
+  }
+  
+  .searchContainer {
+     max-width: none;
+     width: 100%;
+  }
+  
+  .friendsGrid {
+     grid-template-columns: 1fr;
+  }
+  
+  /* На мобильных кнопки растягиваются */
+  :global(.actions) {
+     flex-wrap: wrap;
+     justify-content: flex-end;
+  }
+  
+  :global(.iconButton) {
+     width: 36px;
+     height: 36px;
+  }
 }
 
 @media (max-width: 480px) {
-   .filters {
-      justify-content: center;
-   }
-
-   .filterButton {
-      flex: 1;
-      text-align: center;
-   }
-
-   .friendMeta {
-      flex-direction: column;
-      align-items: flex-start;
-   }
+  .filters {
+     justify-content: center;
+  }
+  
+  .filterButton {
+     flex: 1;
+     text-align: center;
+  }
+  
+  :global(.actions) {
+     justify-content: center;
+     margin-top: 0.5rem;
+  }
 }

@@ -206,6 +206,7 @@
    color: var(--primary-hover);
 }
 
+/* Удален .requestDate::before */
 .requestDate {
    font-size: 0.75rem;
    color: var(--text-tertiary);
@@ -214,12 +215,7 @@
    gap: 0.25rem;
 }
 
-.requestDate::before {
-   content: "🕐";
-   font-size: 0.75rem;
-   opacity: 0.7;
-}
-
+/* Удален .requestMessage::before */
 .requestMessage {
    font-size: 0.875rem;
    color: var(--text-secondary);
@@ -241,11 +237,6 @@
    background: var(--primary-soft);
    border-color: var(--primary-color);
    color: var(--text-primary);
-}
-
-.requestMessage::before {
-   content: "💬";
-   font-size: 0.875rem;
 }
 
 /* Кнопки действий */
@@ -413,7 +404,7 @@
    color: white;
 }
 
-/* Подсказка */
+/* Подсказка - удален .hint::before */
 .hint {
    margin-top: 1.5rem;
    padding: 1rem 1.5rem;
@@ -428,11 +419,6 @@
    justify-content: center;
    gap: 0.5rem;
    box-shadow: var(--shadow-sm);
-}
-
-.hint::before {
-   content: "💡";
-   font-size: 1.25rem;
 }
 
 /* Адаптивность */
@@ -567,7 +553,7 @@
    animation: slideIn 0.3s ease-out;
 }
 
-/* Стили для статусов запросов (если нужны разные цвета для входящих/исходящих) */
+/* Стили для статусов запросов */
 .incomingBadge {
    background: var(--primary-soft);
    color: var(--primary-color);
@@ -588,15 +574,6 @@
 
 /* Темная тема */
 @media (prefers-color-scheme: dark) {
-   :root {
-      --text-primary: #f1f5f9;
-      --text-secondary: #94a3b8;
-      --text-tertiary: #64748b;
-      --border-color: #334155;
-      --border-light: #1e293b;
-      --hover-background: #1e293b;
-   }
-
    .requestsSection,
    .requestItem,
    .loadingState {

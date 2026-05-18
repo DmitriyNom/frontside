@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import FriendsList from '../../Components/FriendsList';
 import FriendRequests from '../../Components/FriendRequests';
-import FriendSearch from '../../Components/FriendSearch'; // 👈 ИМПОРТИРУЕМ
+import FriendSearch from '../../Components/FriendSearch';
 import {
    fetchFriendRequests,
    fetchFriendRequestsCount,
@@ -10,16 +10,41 @@ import {
 } from '../../../features/friendsSlice';
 import styles from './ProfileFriends.module.css';
 
-const ProfileFriends = () => {
+const ProfileFriends = ({ onUserClick }) => {
    const dispatch = useDispatch();
    const [activeSubTab, setActiveSubTab] = useState('friends');
-
    const requestsCount = useSelector(selectRequestsCount);
 
-   useEffect(() => {
+   // Функция для обновления данных запросов
+   const refreshRequestsData = useCallback(() => {
       dispatch(fetchFriendRequests({ direction: 'all' }));
       dispatch(fetchFriendRequestsCount());
    }, [dispatch]);
+
+   // Загрузка при монтировании
+   useEffect(() => {
+      refreshRequestsData();
+   }, [refreshRequestsData]);
+
+   // Обновляем данные при переключении на вкладку "Запросы"
+   useEffect(() => {
+      if (activeSubTab === 'requests') {
+         refreshRequestsData();
+      }
+   }, [activeSubTab, refreshRequestsData]);
+
+
+   useEffect(() => {
+      const handleRefresh = () => {
+         refreshRequestsData();
+      };
+
+      window.addEventListener('refreshFriendRequests', handleRefresh);
+
+      return () => {
+         window.removeEventListener('refreshFriendRequests', handleRefresh);
+      };
+   }, [refreshRequestsData]);
 
    return (
       <div className={styles.friendsContainer}>
@@ -54,15 +79,15 @@ const ProfileFriends = () => {
 
          <div className={styles.subTabContent}>
             {activeSubTab === 'friends' && (
-               <FriendsList isOwnProfile={true} />
+               <FriendsList isOwnProfile={true} onUserClick={onUserClick} />
             )}
 
             {activeSubTab === 'requests' && (
-               <FriendRequests />
+               <FriendRequests onUserClick={onUserClick} />
             )}
 
             {activeSubTab === 'search' && (
-               <FriendSearch /> // 👈 ИСПОЛЬЗУЕМ НОВЫЙ КОМПОНЕНТ
+               <FriendSearch onUserClick={onUserClick} />
             )}
          </div>
       </div>

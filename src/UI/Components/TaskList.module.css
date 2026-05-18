@@ -1,0 +1,272 @@
+/* TaskList.module.css - СВЕТЛАЯ ТЕМА */
+
+.container {
+   width: 100%;
+   max-width: 1000px;
+   margin: 0 auto;
+   padding: 16px;
+}
+
+/* Статистика */
+.statsContainer {
+   display: grid;
+   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+   gap: 12px;
+   margin-bottom: 24px;
+}
+
+.statCard {
+   background: white;
+   border-radius: 12px;
+   padding: 16px;
+   display: flex;
+   align-items: center;
+   gap: 12px;
+   transition: transform 0.2s ease;
+   border: 1px solid #e2e8f0;
+   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.statCard:hover {
+   transform: translateY(-2px);
+   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.statIcon {
+   font-size: 32px;
+}
+
+.statInfo {
+   display: flex;
+   flex-direction: column;
+}
+
+.statValue {
+   font-size: 28px;
+   font-weight: 700;
+   color: #1e293b;
+   line-height: 1;
+}
+
+.statLabel {
+   font-size: 12px;
+   color: #64748b;
+   margin-top: 4px;
+}
+
+/* Фильтры */
+.filtersContainer {
+   background: white;
+   border-radius: 12px;
+   padding: 16px;
+   margin-bottom: 24px;
+   border: 1px solid #e2e8f0;
+   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.roleFilters {
+   display: flex;
+   gap: 8px;
+   margin-bottom: 16px;
+   padding-bottom: 16px;
+   border-bottom: 1px solid #e2e8f0;
+}
+
+.roleButton {
+   flex: 1;
+   padding: 10px 16px;
+   background: #f1f5f9;
+   border: none;
+   border-radius: 8px;
+   color: #475569;
+   font-size: 14px;
+   font-weight: 500;
+   cursor: pointer;
+   transition: all 0.2s ease;
+}
+
+.roleButton.active {
+   background: #4f46e5;
+   color: white;
+}
+
+.roleButton:hover:not(.active) {
+   background: #e2e8f0;
+}
+
+.statusFilters {
+   display: flex;
+   flex-wrap: wrap;
+   gap: 8px;
+   align-items: center;
+}
+
+.statusButton {
+   padding: 6px 12px;
+   background: #f1f5f9;
+   border: none;
+   border-radius: 20px;
+   color: #64748b;
+   font-size: 13px;
+   cursor: pointer;
+   transition: all 0.2s ease;
+}
+
+.statusButton.active {
+   background: #4f46e5;
+   color: white;
+}
+
+.statusButton:hover:not(.active) {
+   background: #e2e8f0;
+   color: #1e293b;
+}
+
+.resetButton {
+   padding: 6px 12px;
+   background: transparent;
+   border: 1px solid #cbd5e1;
+   border-radius: 20px;
+   color: #64748b;
+   font-size: 13px;
+   cursor: pointer;
+   transition: all 0.2s ease;
+   margin-left: auto;
+}
+
+.resetButton:hover {
+   background: #fef2f2;
+   border-color: #ef4444;
+   color: #ef4444;
+}
+
+/* Список заданий */
+.taskList {
+   display: flex;
+   flex-direction: column;
+   gap: 12px;
+}
+
+/* Состояния загрузки/ошибки/пусто */
+.loadingContainer,
+.errorContainer,
+.emptyContainer {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+   padding: 48px 24px;
+   background: white;
+   border-radius: 12px;
+   text-align: center;
+   border: 1px solid #e2e8f0;
+}
+
+.spinner {
+   width: 40px;
+   height: 40px;
+   border: 3px solid #e2e8f0;
+   border-top-color: #4f46e5;
+   border-radius: 50%;
+   animation: spin 0.8s linear infinite;
+   margin-bottom: 16px;
+}
+
+@keyframes spin {
+   to { transform: rotate(360deg); }
+}
+
+.errorIcon,
+.emptyIcon {
+   font-size: 48px;
+   margin-bottom: 16px;
+}
+
+.errorContainer p,
+.emptyContainer p {
+   margin-bottom: 16px;
+   color: #64748b;
+}
+
+.emptyHint {
+   font-size: 13px;
+   color: #94a3b8;
+}
+
+.retryButton {
+   padding: 8px 16px;
+   background: #4f46e5;
+   border: none;
+   border-radius: 8px;
+   color: white;
+   cursor: pointer;
+   margin-top: 8px;
+}
+
+.retryButton:hover {
+   background: #4338ca;
+}
+
+/* Пагинация */
+.pagination {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   gap: 16px;
+   margin-top: 24px;
+   padding: 16px;
+}
+
+.pageButton {
+   padding: 8px 16px;
+   background: #f1f5f9;
+   border: none;
+   border-radius: 8px;
+   color: #475569;
+   cursor: pointer;
+   transition: all 0.2s ease;
+}
+
+.pageButton:hover:not(:disabled) {
+   background: #4f46e5;
+   color: white;
+}
+
+.pageButton:disabled {
+   opacity: 0.5;
+   cursor: not-allowed;
+}
+
+.pageInfo {
+   font-size: 14px;
+   color: #64748b;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+   .container {
+      padding: 12px;
+   }
+   
+   .statsContainer {
+      grid-template-columns: repeat(2, 1fr);
+   }
+   
+   .roleFilters {
+      flex-direction: column;
+   }
+   
+   .statusFilters {
+      flex-direction: column;
+      align-items: stretch;
+   }
+   
+   .resetButton {
+      margin-left: 0;
+      margin-top: 8px;
+   }
+   
+   .pagination {
+      flex-direction: column;
+   }
+}

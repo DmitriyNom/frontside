@@ -1,0 +1,365 @@
+/* TaskCard.module.css - СВЕТЛАЯ ТЕМА (УВЕЛИЧЕННАЯ ВЕРСИЯ) */
+
+.card {
+   background: white;
+   border-radius: 16px;
+   padding: 24px;
+   margin-bottom: 16px;
+   border-left-width: 6px;
+   transition: all 0.2s ease;
+   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.card:hover {
+   transform: translateY(-2px);
+   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* Статусные стили */
+.statusActive {
+   border-left-color: #4f46e5;
+}
+
+.statusCompleted {
+   border-left-color: #10b981;
+   opacity: 0.85;
+}
+
+.statusArchived {
+   border-left-color: #94a3b8;
+   opacity: 0.7;
+}
+
+/* Шапка */
+.header {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   margin-bottom: 20px;
+   flex-wrap: wrap;
+   gap: 12px;
+}
+
+.leftSection {
+   display: flex;
+   align-items: center;
+   gap: 12px;
+   flex-wrap: wrap;
+}
+
+/* Бейдж приоритета с текстом */
+.priorityBadge {
+   display: inline-flex;
+   align-items: center;
+   gap: 6px;
+   padding: 4px 12px;
+   border-radius: 24px;
+   font-size: 13px;
+   font-weight: 500;
+}
+
+.priorityLow {
+   background: #dbeafe;
+   color: #1e40af;
+}
+
+.priorityMedium {
+   background: #fef3c7;
+   color: #92400e;
+}
+
+.priorityHigh {
+   background: #fee2e2;
+   color: #991b1b;
+}
+
+.statusBadge {
+   font-size: 13px;
+   padding: 4px 12px;
+   border-radius: 24px;
+   background: #f1f5f9;
+   color: #64748b;
+}
+
+.completionBadge {
+   font-size: 13px;
+   padding: 4px 12px;
+   border-radius: 24px;
+   background: #d1fae5;
+   color: #059669;
+}
+
+.dueDate {
+   font-size: 13px;
+   color: #64748b;
+}
+
+.dueDate.overdue {
+   color: #dc2626;
+   font-weight: 600;
+}
+
+/* Контент */
+.content {
+   cursor: pointer;
+   margin-bottom: 20px;
+}
+
+.title {
+   font-size: 18px;
+   font-weight: 700;
+   margin: 0 0 12px 0;
+   color: #1e293b;
+   word-break: break-word;
+}
+
+/* Описание с ограничением высоты и многоточием */
+.description {
+   font-size: 14px;
+   line-height: 1.5;
+   color: #64748b;
+   margin: 0 0 12px 0;
+   white-space: pre-wrap;
+   word-break: break-word;
+   overflow-wrap: break-word;
+   
+   /* Ограничение высоты и многоточие */
+   display: -webkit-box;
+   -webkit-line-clamp: 3;
+   -webkit-box-orient: vertical;
+   overflow: hidden;
+   text-overflow: ellipsis;
+   max-height: calc(1.5em * 3);
+}
+
+/* При наведении на описание показываем, что можно открыть */
+.description:hover {
+   cursor: pointer;
+   background: #f8fafc;
+   border-radius: 8px;
+   transition: background 0.2s ease;
+}
+
+/* Полное описание (когда открыто) */
+.description.expanded {
+   -webkit-line-clamp: unset;
+   max-height: none;
+}
+
+.metrics {
+   font-size: 14px;
+   color: #4f46e5;
+   margin: 12px 0;
+   padding: 8px 14px;
+   background: #eef2ff;
+   border-radius: 10px;
+   display: inline-block;
+}
+
+.meta {
+   display: flex;
+   gap: 16px;
+   flex-wrap: wrap;
+   margin: 12px 0;
+   font-size: 12px;
+   color: #94a3b8;
+}
+
+.metaItem {
+   display: inline-flex;
+   align-items: center;
+   gap: 6px;
+}
+
+/* Прогресс */
+.progressContainer {
+   position: relative;
+   height: 8px;
+   background: #e2e8f0;
+   border-radius: 4px;
+   margin-top: 12px;
+   overflow: hidden;
+}
+
+.progressBar {
+   position: absolute;
+   height: 100%;
+   background: linear-gradient(90deg, #4f46e5, #7c3aed);
+   border-radius: 4px;
+   transition: width 0.3s ease;
+}
+
+.progressText {
+   position: absolute;
+   right: 0;
+   top: -22px;
+   font-size: 11px;
+   font-weight: 500;
+   color: #4f46e5;
+}
+
+/* Кнопки действий */
+.actions {
+   display: flex;
+   gap: 12px;
+   flex-wrap: wrap;
+   margin-top: 20px;
+   padding-top: 20px;
+   border-top: 1px solid #e2e8f0;
+}
+
+.actions button {
+   padding: 8px 16px;
+   font-size: 13px;
+   border-radius: 8px;
+   border: none;
+   cursor: pointer;
+   transition: all 0.2s ease;
+   font-weight: 500;
+}
+
+.btnView {
+   background: #f1f5f9;
+   color: #475569;
+}
+
+.btnView:hover {
+   background: #e2e8f0;
+}
+
+.btnComplete {
+   background: #10b981;
+   color: white;
+}
+
+.btnComplete:hover {
+   background: #059669;
+}
+
+.btnEdit {
+   background: #f59e0b;
+   color: white;
+}
+
+.btnEdit:hover {
+   background: #d97706;
+}
+
+.btnArchive {
+   background: #64748b;
+   color: white;
+}
+
+.btnArchive:hover {
+   background: #475569;
+}
+
+.btnDelete {
+   background: #ef4444;
+   color: white;
+}
+
+.btnDelete:hover {
+   background: #dc2626;
+}
+
+/* Компактный режим (виджет) */
+.compact {
+   padding: 16px;
+}
+
+.compactHeader {
+   display: flex;
+   align-items: center;
+   gap: 12px;
+}
+
+.compactTitle {
+   font-size: 15px;
+   font-weight: 600;
+   flex: 1;
+   color: #1e293b;
+}
+
+.statusBadgeSmall {
+   font-size: 12px;
+}
+
+.dueDateCompact {
+   font-size: 12px;
+   margin-top: 6px;
+   color: #64748b;
+}
+
+.dueDateCompact.overdue {
+   color: #dc2626;
+}
+
+.completionCompact {
+   font-size: 12px;
+   margin-top: 6px;
+   color: #10b981;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+   .card {
+      padding: 16px;
+   }
+   
+   .header {
+      flex-direction: column;
+      align-items: flex-start;
+   }
+   
+   .description {
+      -webkit-line-clamp: 2;
+      max-height: calc(1.5em * 2);
+   }
+   
+   .actions {
+      flex-direction: column;
+      gap: 8px;
+   }
+   
+   .actions button {
+      width: 100%;
+      padding: 10px 16px;
+   }
+   
+   .title {
+      font-size: 16px;
+   }
+
+   
+}
+
+/* Добавить в конец файла TaskCard.module.css */
+
+/* Стиль для непрочитанных заданий */
+.unreadCard {
+   background: #fefce8;
+   border-left-color: #eab308;
+   position: relative;
+ }
+ 
+ .unreadCard::before {
+   content: "●";
+   position: absolute;
+   left: 12px;
+   top: 20px;
+   color: #ef4444;
+   font-size: 12px;
+   animation: unreadPulse 1.5s ease infinite;
+ }
+ 
+ @keyframes unreadPulse {
+   0% { opacity: 1; transform: scale(1); }
+   50% { opacity: 0.5; transform: scale(1.2); }
+   100% { opacity: 1; transform: scale(1); }
+ }
+ 
+ /* Темный фон для непрочитанных при ховере */
+ .unreadCard:hover {
+   background: #fef9c3;
+ }

@@ -1,281 +1,3 @@
-// // import axios from 'axios';
-
-// // const api = axios.create({
-// //    baseURL: 'http://localhost:5000',
-// //    withCredentials: true,
-// // });
-
-// // /**
-// //  * Универсальная функция для получения URL файла
-// //  * @param {string} path - Путь из БД (может быть разным для разных модулей)
-// //  * @param {string} type - Тип файла: 'media', 'note', 'exercise', 'avatar'
-// //  * @returns {string} Полный URL
-// //  */
-// // export const getFileUrl = (path, type = 'media') => {
-// //    if (!path || path === 'null' || path === 'undefined') return '';
-
-// //    // Если уже полный URL
-// //    if (path.startsWith('http')) return path;
-
-// //    const baseUrl = 'http://localhost:5000';
-
-// //    // ===== НОВЫЕ ПУТИ (media/public/, media/private/) =====
-
-// //    // 1. Если путь начинается с media/public/
-// //    if (path.includes('media/public/')) {
-// //       const relativePath = path.split('media/public/')[1];
-// //       return `${baseUrl}/media/public/${relativePath}`;
-// //    }
-
-// //    // 2. Если путь начинается с media/private/
-// //    if (path.includes('media/private/')) {
-// //       const relativePath = path.split('media/private/')[1];
-// //       return `${baseUrl}/media/private/${relativePath}`;
-// //    }
-
-// //    // ===== СТАРЫЕ ПУТИ (для обратной совместимости) =====
-
-// //    // Убираем возможные дублирующиеся uploads/
-// //    let cleanPath = path.replace(/^uploads\//, '');
-
-// //    // Обработка разных типов файлов
-// //    switch (type) {
-// //       case 'media':
-// //          // training-media/19/... → 19/...
-// //          if (cleanPath.includes('training-media/')) {
-// //             cleanPath = cleanPath.replace('training-media/', '');
-// //             return `${baseUrl}/uploads/training-media/${cleanPath}`;
-// //          }
-// //          // training-media-public/19/...
-// //          if (cleanPath.includes('training-media-public/')) {
-// //             cleanPath = cleanPath.replace('training-media-public/', '');
-// //             return `${baseUrl}/public/uploads/training-media-public/${cleanPath}`;
-// //          }
-// //          return `${baseUrl}/uploads/${cleanPath}`;
-
-// //       case 'note':
-// //          // Для заметок
-// //          return `${baseUrl}/uploads/${cleanPath}`;
-
-// //       case 'avatar':
-// //          // Для аватарок
-// //          return `${baseUrl}/uploads/avatars/${cleanPath}`;
-
-// //       default:
-// //          return `${baseUrl}/uploads/${cleanPath}`;
-// //    }
-// // };
-
-// // // Также можно добавить вспомогательные функции
-// // export const getMediaUrl = (path) => getFileUrl(path, 'media');
-// // export const getNoteFileUrl = (path) => getFileUrl(path, 'note');
-// // export const getAvatarUrl = (path) => getFileUrl(path, 'avatar');
-
-// // export default api;
-
-// import axios from 'axios';
-
-// const api = axios.create({
-//    baseURL: 'http://localhost:5000',
-//    withCredentials: true,
-// });
-
-// /**
-//  * Универсальная функция для получения URL файла
-//  * @param {string} path - Путь из БД (может быть разным для разных модулей)
-//  * @param {string} type - Тип файла: 'media', 'note', 'exercise', 'avatar'
-//  * @returns {string} Полный URL
-//  */
-// export const getFileUrl = (path, type = 'media') => {
-//    if (!path || path === 'null' || path === 'undefined') return '';
-
-//    // Если уже полный URL
-//    if (path.startsWith('http')) return path;
-
-//    const baseUrl = 'http://localhost:5000';
-
-//    // ===== НОВЫЕ ПУТИ (media/public/, media/private/) =====
-
-//    // 1. Если путь начинается с media/public/
-//    if (path.includes('media/public/')) {
-//       const relativePath = path.split('media/public/')[1];
-//       return `${baseUrl}/media/public/${relativePath}`;
-//    }
-
-//    // 2. Если путь начинается с media/private/
-//    if (path.includes('media/private/')) {
-//       const relativePath = path.split('media/private/')[1];
-//       return `${baseUrl}/media/private/${relativePath}`;
-//    }
-
-//    // ===== СТАРЫЕ ПУТИ (для обратной совместимости) =====
-
-//    // Убираем возможные дублирующиеся uploads/
-//    let cleanPath = path.replace(/^uploads\//, '');
-
-//    // Обработка разных типов файлов
-//    switch (type) {
-//       case 'media':
-//          // training-media/19/... → 19/...
-//          if (cleanPath.includes('training-media/')) {
-//             cleanPath = cleanPath.replace('training-media/', '');
-//             return `${baseUrl}/uploads/training-media/${cleanPath}`;
-//          }
-//          // training-media-public/19/...
-//          if (cleanPath.includes('training-media-public/')) {
-//             cleanPath = cleanPath.replace('training-media-public/', '');
-//             return `${baseUrl}/public/uploads/training-media-public/${cleanPath}`;
-//          }
-//          return `${baseUrl}/uploads/${cleanPath}`;
-
-//       case 'note':
-//          // Для заметок
-//          return `${baseUrl}/uploads/${cleanPath}`;
-
-//       case 'avatar':
-//          // Для аватарок
-//          return `${baseUrl}/uploads/avatars/${cleanPath}`;
-
-//       default:
-//          return `${baseUrl}/uploads/${cleanPath}`;
-//    }
-// };
-
-// // Также можно добавить вспомогательные функции
-// export const getMediaUrl = (path) => getFileUrl(path, 'media');
-// export const getNoteFileUrl = (path) => getFileUrl(path, 'note');
-// export const getAvatarUrl = (path) => getFileUrl(path, 'avatar');
-
-// // ===== КОД ДЛЯ АВТОМАТИЧЕСКОГО ОБНОВЛЕНИЯ ТОКЕНОВ =====
-
-// // Переменные для управления очередью запросов при обновлении токена
-// let isRefreshing = false;
-// let failedQueue = [];
-
-// // Очередь запросов, ожидающих обновления токена
-// const processQueue = (error, token = null) => {
-//    failedQueue.forEach(prom => {
-//       if (error) {
-//          prom.reject(error);
-//       } else {
-//          prom.resolve(token);
-//       }
-//    });
-//    failedQueue = [];
-// };
-
-// // Интерцептор для обработки ошибок 401 (Unauthorized)
-// api.interceptors.response.use(
-//    (response) => {
-//       // Успешный ответ - просто возвращаем его
-//       return response;
-//    },
-//    async (error) => {
-//       const originalRequest = error.config;
-
-//       // ✅ ИСПРАВЛЕНО: Определяем, является ли запрос эндпоинтом обновления токена
-//       const isRefreshEndpoint = originalRequest.url?.includes('/api/user/refresh') ||
-//          originalRequest.url?.includes('/auth/refresh');
-
-//       // ✅ ИСПРАВЛЕНО: Добавляем проверку, чтобы избежать зацикливания
-//       const isLoginEndpoint = originalRequest.url?.includes('/api/user/login');
-//       const isLogoutEndpoint = originalRequest.url?.includes('/api/user/logout');
-
-//       // Если ошибка 401 и это не запрос на обновление токена, логин или логаут
-//       if (error.response?.status === 401 &&
-//          !originalRequest._retry &&
-//          !isRefreshEndpoint &&
-//          !isLoginEndpoint &&
-//          !isLogoutEndpoint) {
-
-//          // Если уже идет процесс обновления токена
-//          if (isRefreshing) {
-//             // Помещаем запрос в очередь и ждем обновления токена
-//             return new Promise((resolve, reject) => {
-//                failedQueue.push({ resolve, reject });
-//             }).then(() => {
-//                // После обновления токена повторяем оригинальный запрос
-//                return api(originalRequest);
-//             }).catch(err => {
-//                return Promise.reject(err);
-//             });
-//          }
-
-//          // Помечаем запрос как обработанный для предотвращения циклов
-//          originalRequest._retry = true;
-//          isRefreshing = true;
-
-//          try {
-//             // ✅ ИСПРАВЛЕНО: Используем правильный эндпоинт из authSlice.js
-//             await axios.post('http://localhost:5000/api/user/refresh', {}, {
-//                withCredentials: true
-//             });
-
-//             // Токен успешно обновлен
-//             isRefreshing = false;
-
-//             // Обрабатываем очередь ожидающих запросов
-//             processQueue(null);
-
-//             // Повторяем оригинальный запрос с обновленным токеном
-//             return api(originalRequest);
-
-//          } catch (refreshError) {
-//             // Не удалось обновить токен
-//             isRefreshing = false;
-//             processQueue(refreshError, null);
-
-//             // ✅ ИСПРАВЛЕНО: Проверяем, не отправляли ли мы уже событие
-//             if (!originalRequest._authExpiredSent) {
-//                originalRequest._authExpiredSent = true;
-
-//                // Отправляем событие о истечении аутентификации
-//                window.dispatchEvent(new CustomEvent('auth-expired', {
-//                   detail: {
-//                      message: 'Сессия истекла',
-//                      fromRefresh: false,
-//                      status: refreshError.response?.status
-//                   }
-//                }));
-//             }
-
-//             return Promise.reject(refreshError);
-//          }
-//       }
-
-//       // ✅ ИСПРАВЛЕНО: Обработка 401 ошибки на эндпоинте обновления токена
-//       if (error.response?.status === 401 && isRefreshEndpoint) {
-//          // Отправляем событие о невалидном refresh токене
-//          window.dispatchEvent(new CustomEvent('auth-expired', {
-//             detail: {
-//                message: 'Сессия истекла (refresh token невалиден)',
-//                fromRefresh: true,
-//                status: 401
-//             }
-//          }));
-//       }
-
-//       // Если это не ошибка 401, просто прокидываем ее дальше
-//       return Promise.reject(error);
-//    }
-// );
-
-// // Интерцептор для добавления заголовков к запросам
-// api.interceptors.request.use(
-//    (config) => {
-//       // Можно добавить логирование запросов для отладки
-//       console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`);
-//       return config;
-//    },
-//    (error) => {
-//       console.error('API Request Error:', error);
-//       return Promise.reject(error);
-//    }
-// );
-
-// // Экспортируем настроенный экземпляр axios
-// export default api;
-
 import axios from 'axios';
 
 const api = axios.create({
@@ -292,39 +14,30 @@ const api = axios.create({
 export const getFileUrl = (path, type = 'media') => {
    if (!path || path === 'null' || path === 'undefined') return '';
 
-   // Если уже полный URL
    if (path.startsWith('http')) return path;
 
    const baseUrl = 'http://localhost:5000';
 
-   // ===== НОВЫЕ ПУТИ (media/public/, media/private/) =====
-
-   // 1. Если путь начинается с media/public/
+   // Новые пути (media/public/, media/private/)
    if (path.includes('media/public/')) {
       const relativePath = path.split('media/public/')[1];
       return `${baseUrl}/media/public/${relativePath}`;
    }
 
-   // 2. Если путь начинается с media/private/
    if (path.includes('media/private/')) {
       const relativePath = path.split('media/private/')[1];
       return `${baseUrl}/media/private/${relativePath}`;
    }
 
-   // ===== СТАРЫЕ ПУТИ (для обратной совместимости) =====
-
-   // Убираем возможные дублирующиеся uploads/
+   // Старые пути для обратной совместимости
    let cleanPath = path.replace(/^uploads\//, '');
 
-   // Обработка разных типов файлов
    switch (type) {
       case 'media':
-         // training-media/19/... → 19/...
          if (cleanPath.includes('training-media/')) {
             cleanPath = cleanPath.replace('training-media/', '');
             return `${baseUrl}/uploads/training-media/${cleanPath}`;
          }
-         // training-media-public/19/...
          if (cleanPath.includes('training-media-public/')) {
             cleanPath = cleanPath.replace('training-media-public/', '');
             return `${baseUrl}/public/uploads/training-media-public/${cleanPath}`;
@@ -332,11 +45,9 @@ export const getFileUrl = (path, type = 'media') => {
          return `${baseUrl}/uploads/${cleanPath}`;
 
       case 'note':
-         // Для заметок
          return `${baseUrl}/uploads/${cleanPath}`;
 
       case 'avatar':
-         // Для аватарок
          return `${baseUrl}/uploads/avatars/${cleanPath}`;
 
       default:
@@ -344,18 +55,15 @@ export const getFileUrl = (path, type = 'media') => {
    }
 };
 
-// Также можно добавить вспомогательные функции
 export const getMediaUrl = (path) => getFileUrl(path, 'media');
 export const getNoteFileUrl = (path) => getFileUrl(path, 'note');
 export const getAvatarUrl = (path) => getFileUrl(path, 'avatar');
 
 // ===== КОД ДЛЯ АВТОМАТИЧЕСКОГО ОБНОВЛЕНИЯ ТОКЕНОВ =====
 
-// Переменные для управления очередью запросов при обновлении токена
 let isRefreshing = false;
 let failedQueue = [];
 
-// Очередь запросов, ожидающих обновления токена
 const processQueue = (error, token = null) => {
    failedQueue.forEach(prom => {
       if (error) {
@@ -367,114 +75,105 @@ const processQueue = (error, token = null) => {
    failedQueue = [];
 };
 
-// Интерцептор для обработки ошибок 401 (Unauthorized)
+// Функция проверки наличия refreshToken в cookies
+const hasRefreshToken = () => {
+   return document.cookie.split(';').some(cookie =>
+      cookie.trim().startsWith('refreshToken=')
+   );
+};
+
+// ИСПРАВЛЕННЫЙ ИНТЕРЦЕПТОР
 api.interceptors.response.use(
-   (response) => {
-      // Успешный ответ - просто возвращаем его
-      return response;
-   },
+   (response) => response,
    async (error) => {
       const originalRequest = error.config;
 
-      // Определяем, является ли запрос эндпоинтом обновления токена
+      // Определяем тип запроса
       const isRefreshEndpoint = originalRequest.url?.includes('/api/user/refresh') ||
          originalRequest.url?.includes('/auth/refresh');
-
-      // Добавляем проверку, чтобы избежать зацикливания
       const isLoginEndpoint = originalRequest.url?.includes('/api/user/login');
       const isLogoutEndpoint = originalRequest.url?.includes('/api/user/logout');
+      const isProfileEndpoint = originalRequest.url?.includes('/api/user/profile');
 
-      // Если ошибка 401 и это не запрос на обновление токена, логин или логаут
-      if (error.response?.status === 401 &&
-         !originalRequest._retry &&
-         !isRefreshEndpoint &&
-         !isLoginEndpoint &&
-         !isLogoutEndpoint) {
+      // ✅ КЛЮЧЕВОЕ: для silent auth (первая загрузка) - не пытаемся обновлять
+      if (isProfileEndpoint && originalRequest._isSilentAuth === true) {
+         console.log('📌 api: silent auth check failed, returning error without retry');
+         return Promise.reject(error);
+      }
 
-         // Если уже идет процесс обновления токена
+      // Если это refresh эндпоинт и он упал - значит refreshToken истёк или отсутствует
+      if (isRefreshEndpoint && error.response?.status === 401) {
+         console.log('❌ Refresh token expired or missing');
+         window.dispatchEvent(new CustomEvent('auth-expired', {
+            detail: { message: 'Сессия истекла, войдите снова' }
+         }));
+         return Promise.reject(error);
+      }
+
+      // Login/logout не трогаем
+      if (isLoginEndpoint || isLogoutEndpoint) {
+         return Promise.reject(error);
+      }
+
+      // Только для 401 и не повторяющихся запросов
+      if (error.response?.status === 401 && !originalRequest._retry) {
+
+         // ✅ ПРОВЕРКА: есть ли refreshToken в cookies?
+         if (!hasRefreshToken()) {
+            console.log('❌ No refreshToken cookie found, redirecting to login');
+            window.dispatchEvent(new CustomEvent('auth-expired', {
+               detail: { message: 'Сессия истекла, войдите снова' }
+            }));
+            return Promise.reject(error);
+         }
+
+         originalRequest._retry = true;
+
          if (isRefreshing) {
-            // Помещаем запрос в очередь и ждем обновления токена
             return new Promise((resolve, reject) => {
                failedQueue.push({ resolve, reject });
             }).then(() => {
-               // После обновления токена повторяем оригинальный запрос
                return api(originalRequest);
             }).catch(err => {
                return Promise.reject(err);
             });
          }
 
-         // Помечаем запрос как обработанный для предотвращения циклов
-         originalRequest._retry = true;
          isRefreshing = true;
 
          try {
-            // Используем правильный эндпоинт из authSlice.js
             await axios.post('http://localhost:5000/api/user/refresh', {}, {
                withCredentials: true
             });
 
-            // Токен успешно обновлен
             isRefreshing = false;
-
-            // Обрабатываем очередь ожидающих запросов
             processQueue(null);
-
-            // Повторяем оригинальный запрос с обновленным токеном
             return api(originalRequest);
 
          } catch (refreshError) {
-            // Не удалось обновить токен
             isRefreshing = false;
             processQueue(refreshError, null);
 
-            // Проверяем, не отправляли ли мы уже событие
-            if (!originalRequest._authExpiredSent) {
-               originalRequest._authExpiredSent = true;
-
-               // Отправляем событие о истечении аутентификации
-               window.dispatchEvent(new CustomEvent('auth-expired', {
-                  detail: {
-                     message: 'Сессия истекла',
-                     fromRefresh: false,
-                     status: refreshError.response?.status
-                  }
-               }));
-            }
-
+            console.log('❌ Refresh failed');
+            window.dispatchEvent(new CustomEvent('auth-expired', {
+               detail: { message: 'Сессия истекла, войдите снова' }
+            }));
             return Promise.reject(refreshError);
          }
       }
 
-      // Обработка 401 ошибки на эндпоинте обновления токена
-      if (error.response?.status === 401 && isRefreshEndpoint) {
-         // Отправляем событие о невалидном refresh токене
-         window.dispatchEvent(new CustomEvent('auth-expired', {
-            detail: {
-               message: 'Сессия истекла (refresh token невалиден)',
-               fromRefresh: true,
-               status: 401
-            }
-         }));
-      }
-
-      // Если это не ошибка 401, просто прокидываем ее дальше
       return Promise.reject(error);
    }
 );
 
-// Интерцептор для добавления заголовков к запросам (без логирования)
+// Интерцептор запросов
 api.interceptors.request.use(
-   (config) => {
-      return config;
-   },
-   (error) => {
-      return Promise.reject(error);
-   }
+   (config) => config,
+   (error) => Promise.reject(error)
 );
 
+// API методы
 export const connectionsAPI = {
-   // Основные операции
    sendRequest: (trainerId, message = '') =>
       api.post('/api/connections/request', { trainer_id: trainerId, message }),
 
@@ -484,11 +183,9 @@ export const connectionsAPI = {
    removeConnection: (userId) =>
       api.delete(`/api/connections/${userId}`),
 
-   // Получение данных
    getMyTrainees: () => api.get('/api/connections/trainees'),
    getMyTrainers: () => api.get('/api/connections/trainers'),
 
-   // Управление запросами
    getIncomingRequests: (status) =>
       api.get('/api/connections/requests/incoming', {
          params: status ? { status } : {}
@@ -502,7 +199,6 @@ export const connectionsAPI = {
    cancelRequest: (requestId) =>
       api.delete(`/api/connections/request/${requestId}/cancel`),
 
-   // Поиск и рекомендации
    searchTrainers: ({ query, specialization, limit = 10, offset = 0 }) =>
       api.get('/api/connections/search/trainers', {
          params: {
@@ -527,134 +223,218 @@ export const connectionsAPI = {
          params: { limit }
       }),
 
-   // Статистика
    getConnectionStats: () => api.get('/api/connections/stats')
 };
 
-// Вспомогательные функции для работы с пользователями
 export const userAPI = {
-   // Получить список пользователей по ID
    getUsersByIds: (userIds) =>
       api.post('/api/user/batch', { userIds }),
 
-   // Поиск пользователей
    searchUsers: (query, role = null) =>
       api.get('/api/user/search', {
          params: { query, role }
       }),
 
-   // Получить пользователя по ID
    getUserById: (userId) =>
       api.get(`/api/user/${userId}`)
 };
 
-// Добавьте в конец файла api.js, рядом с connectionsAPI
-
 export const friendsAPI = {
-   // ============ ЗАПРОСЫ В ДРУЗЬЯ ============
-
-   /**
-    * Отправить запрос в друзья
-    */
    sendRequest: (receiverId, message = '') =>
       api.post('/api/friends/request', { receiver_id: receiverId, message }),
 
-   /**
-    * Ответить на запрос (accept/reject)
-    */
    respondToRequest: (requestId, action) =>
       api.put(`/api/friends/request/${requestId}`, { action }),
 
-   /**
-    * Отменить исходящий запрос
-    */
    cancelRequest: (requestId) =>
       api.delete(`/api/friends/request/${requestId}`),
 
-   /**
-    * Получить запросы в друзья
-    */
    getRequests: (direction = 'all', status = 'pending') =>
       api.get('/api/friends/requests', { params: { direction, status } }),
 
-   /**
-    * Получить количество ожидающих запросов
-    */
    getRequestsCount: () =>
       api.get('/api/friends/requests/count'),
 
-   // ============ УПРАВЛЕНИЕ ДРУЗЬЯМИ ============
-
-   /**
-    * Получить список друзей
-    */
    getFriends: (params = {}) =>
       api.get('/api/friends', { params }),
 
-   /**
-    * Удалить из друзей
-    */
    removeFriend: (friendId) =>
       api.delete(`/api/friends/${friendId}`),
 
-   /**
-    * Проверить статус отношений с пользователем
-    */
    getFriendStatus: (targetUserId) =>
       api.get(`/api/friends/status/${targetUserId}`),
 
-   /**
-    * Быстрая проверка: является ли пользователь другом
-    */
+   getUserFriends: (userId, params = {}) =>
+      api.get(`/api/friends/user/${userId}`, { params }),
+
    checkIsFriend: (targetUserId) =>
       api.get(`/api/friends/check/${targetUserId}`),
 
-   /**
-    * Получить статистику друзей
-    */
    getFriendStats: () =>
       api.get('/api/friends/stats'),
 
-   // ============ ПОИСК И РЕКОМЕНДАЦИИ ============
-
-   /**
-    * Поиск по друзьям
-    */
    searchFriends: (query, params = {}) =>
       api.get('/api/friends/search', { params: { q: query, ...params } }),
 
-   /**
-    * Получить общих друзей с пользователем
-    */
    getMutualFriends: (targetUserId) =>
       api.get(`/api/friends/mutual/${targetUserId}`),
 
-   /**
-    * Получить рекомендации друзей
-    */
    getRecommendations: (limit = 10) =>
       api.get('/api/friends/recommendations', { params: { limit } }),
 
-   // ============ БЛОКИРОВКИ ============
-
-   /**
-    * Заблокировать пользователя
-    */
    blockUser: (userId) =>
       api.post(`/api/friends/${userId}/block`),
 
-   /**
-    * Разблокировать пользователя
-    */
    unblockUser: (userId) =>
       api.delete(`/api/friends/${userId}/block`),
 
-   /**
-    * Получить список заблокированных
-    */
    getBlockedUsers: () =>
       api.get('/api/friends/blocked')
 };
 
-// Экспортируем все методы
+export const contextsAPI = {
+   getContextsByFriend: (friendId) =>
+      api.get(`/api/friends/${friendId}/contexts`),
+
+   createContext: (friendshipId, data) =>
+      api.post(`/api/friends/${friendshipId}/contexts`, data),
+
+   getTrainerContexts: (status = 'active') =>
+      api.get('/api/contexts/trainer', { params: { status } }),
+
+   getTraineeContexts: (status = 'active') =>
+      api.get('/api/contexts/trainee', { params: { status } }),
+
+   getActiveContexts: () =>
+      api.get('/api/contexts/active'),
+
+   endContext: (contextId) =>
+      api.post(`/api/contexts/${contextId}/end`),
+
+   pauseContext: (contextId) =>
+      api.post(`/api/contexts/${contextId}/pause`),
+
+   resumeContext: (contextId) =>
+      api.post(`/api/contexts/${contextId}/resume`),
+
+   getContextStats: () =>
+      api.get('/api/contexts/stats'),
+};
+
+// ==================== НОВЫЙ API ДЛЯ ЗАДАНИЙ (TASKS) ====================
+
+export const tasksAPI = {
+   /**
+    * Создать задание
+    * @param {Object} data - Данные задания
+    * @param {number} data.user_id - ID спортсмена (обязательно)
+    * @param {number} [data.exercise_id] - ID упражнения из библиотеки
+    * @param {string} [data.custom_title] - Название кастомного задания
+    * @param {string} [data.custom_description] - Описание кастомного задания
+    * @param {Object} data.metrics - Метрики выполнения (обязательно)
+    * @param {number} [data.priority=2] - Приоритет (1-3)
+    * @param {string} [data.due_date] - Срок выполнения (ISO date)
+    * @param {number} [data.points_earned=0] - Базовые баллы
+    * @param {number} [data.order_index=0] - Порядок сортировки
+    * @param {number[]} [data.media_ids=[]] - ID медиафайлов
+    */
+   createTask: (data) => api.post('/api/tasks', data),
+
+   /**
+    * Получить мои задания (с фильтрацией)
+    * @param {string} [role='assignee'] - 'assignee' (спортсмен) или 'assigner' (тренер)
+    * @param {string} [status=null] - 'active', 'completed', 'archived'
+    * @param {number} [limit=50] - Лимит записей
+    * @param {number} [offset=0] - Смещение для пагинации
+    */
+   getMyTasks: (role = 'assignee', status = null, limit = 50, offset = 0) =>
+      api.get('/api/tasks', {
+         params: { role, status, limit, offset }
+      }),
+
+   /**
+    * Получить задание по ID
+    * @param {number} taskId - ID задания
+    */
+   getTaskById: (taskId) => api.get(`/api/tasks/${taskId}`),
+
+   /**
+    * Обновить задание (только для тренера/создателя)
+    * @param {number} taskId - ID задания
+    * @param {Object} data - Данные для обновления
+    */
+   updateTask: (taskId, data) => api.put(`/api/tasks/${taskId}`, data),
+
+   /**
+    * Завершить задание (спортсмен)
+    * @param {number} taskId - ID задания
+    * @param {Object} result - Результат выполнения
+    * @param {Object} result.actual_metrics - Фактические метрики
+    * @param {number} [result.felt_difficulty] - Субъективная сложность (1-10)
+    * @param {string} [result.comment] - Комментарий к выполнению
+    */
+   completeTask: (taskId, result) =>
+      api.put(`/api/tasks/${taskId}/complete`, result),
+
+   /**
+    * Удалить задание (только для тренера/создателя)
+    * @param {number} taskId - ID задания
+    */
+   deleteTask: (taskId) => api.delete(`/api/tasks/${taskId}`),
+
+   /**
+    * Получить активные задания (для дашборда спортсмена)
+    * @param {number} [limit=10] - Лимит
+    */
+   getActiveTasks: (limit = 10) =>
+      api.get('/api/tasks/active', { params: { limit } }),
+
+   /**
+    * Получить статистику по заданиям
+    */
+   getTaskStats: () => api.get('/api/tasks/stats'),
+
+   /**
+    * Получить задания с истекающим сроком
+    * @param {number} [days=3] - Количество дней до истечения
+    */
+   getExpiringTasks: (days = 3) =>
+      api.get('/api/tasks/expiring', { params: { days } }),
+
+   /**
+    * Получить список пользователей, для которых можно создавать задания
+    * @returns {Promise<{data: Array}>} Список пользователей с полем relation_type
+    */
+   getAssignableUsers: () => api.get('/api/tasks/assignable-users'),
+
+   /**
+    * Сохранить кастомное задание в библиотеку упражнений
+    * @param {number} taskId - ID кастомного задания
+    */
+   saveToLibrary: (taskId) =>
+      api.post(`/api/tasks/${taskId}/save-to-library`),
+
+   /**
+    * Добавить медиа к кастомному заданию
+    * @param {number} taskId - ID задания
+    * @param {number} mediaId - ID медиафайла
+    */
+   addMedia: (taskId, mediaId) =>
+      api.post(`/api/tasks/${taskId}/media`, { media_id: mediaId }),
+
+   /**
+    * Получить медиа задания
+    * @param {number} taskId - ID задания
+    */
+   getTaskMedia: (taskId) => api.get(`/api/tasks/${taskId}/media`),
+
+   /**
+    * Удалить медиа из задания
+    * @param {number} taskId - ID задания
+    * @param {number} mediaId - ID медиафайла
+    */
+   removeMedia: (taskId, mediaId) =>
+      api.delete(`/api/tasks/${taskId}/media/${mediaId}`),
+};
+
 export default api;

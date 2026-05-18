@@ -49,8 +49,6 @@ export const fetchFriendRequests = createAsyncThunk(
    async ({ direction = 'all', status = 'pending' } = {}, { rejectWithValue }) => {
       try {
          const response = await friendsAPI.getRequests(direction, status);
-         // 🔧 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: правильно извлекаем данные
-         // Бэкенд возвращает { success: true, data: [...] }
          const requests = response.data?.data || [];
          return { direction, data: requests };
       } catch (error) {
@@ -78,8 +76,6 @@ export const fetchFriends = createAsyncThunk(
    async (params = {}, { rejectWithValue }) => {
       try {
          const response = await friendsAPI.getFriends(params);
-         // 🔧 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: правильно извлекаем данные
-         // Бэкенд может возвращать { data: [...], count: ... } или просто [...]
          const friends = response.data?.data || response.data || [];
          const count = response.data?.count || friends.length;
          return { data: friends, count };
@@ -108,7 +104,6 @@ export const fetchFriendStatus = createAsyncThunk(
    async (targetUserId, { rejectWithValue }) => {
       try {
          const response = await friendsAPI.getFriendStatus(targetUserId);
-         // 🔧 ИСПРАВЛЕНИЕ: правильно извлекаем статус
          const statusData = response.data?.data || response.data;
          return { targetUserId, status: statusData };
       } catch (error) {
@@ -289,6 +284,13 @@ const friendsSlice = createSlice({
             respondRequest: null,
             cancelRequest: null
          };
+      },
+      // Ручное обновление счетчика запросов
+      updateRequestsCount: (state, action) => {
+         state.requestsCount = {
+            ...state.requestsCount,
+            ...action.payload
+         };
       }
    },
    extraReducers: (builder) => {
@@ -300,9 +302,36 @@ const friendsSlice = createSlice({
          })
          .addCase(sendFriendRequest.fulfilled, (state, action) => {
             state.loading.action = false;
+            state.errors.sendRequest = null;
+
             const requestData = action.payload?.data || action.payload;
+
             if (requestData && requestData.id) {
-               state.outgoingRequests = [requestData, ...(state.outgoingRequests || [])];
+               // Проверяем, есть ли уже запрос к этому пользователю в исходящих
+               const existingIndex = state.outgoingRequests.findIndex(
+                  req => req.friend_id === requestData.friend_id && req.user_id === requestData.user_id
+               );
+
+               // Форматируем запрос для store
+               const formattedRequest = {
+                  ...requestData,
+                  direction: 'outgoing',
+                  user: requestData.recipient || requestData.initiator || requestData.user,
+                  created_at: requestData.created_at || requestData.createdAt,
+                  message: requestData.message
+               };
+
+               if (existingIndex !== -1) {
+                  // Заменяем существующий запрос (был rejected/cancelled)
+                  state.outgoingRequests[existingIndex] = formattedRequest;
+               } else {
+                  // Добавляем новый запрос в начало списка
+                  state.outgoingRequests = [formattedRequest, ...state.outgoingRequests];
+               }
+
+               // Обновляем счетчик исходящих запросов
+               state.requestsCount.outgoing = state.outgoingRequests.length;
+               state.requestsCount.total = state.incomingRequests.length + state.outgoingRequests.length;
             }
          })
          .addCase(sendFriendRequest.rejected, (state, action) => {
@@ -316,13 +345,24 @@ const friendsSlice = createSlice({
          })
          .addCase(respondToFriendRequest.fulfilled, (state, action) => {
             state.loading.action = false;
-            const { requestId } = action.meta.arg;
-            // 🔧 ИСПРАВЛЕНИЕ: проверяем что incomingRequests существует
+            const { requestId, action: responseAction } = action.meta.arg;
+
+            // Удаляем запрос из входящих
             if (state.incomingRequests) {
                state.incomingRequests = state.incomingRequests.filter(
                   req => req.id !== requestId
                );
             }
+
+            // Если запрос принят - обновляем счетчик друзей
+            if (responseAction === 'accept') {
+               // Счетчик друзей обновится при следующем fetchFriends
+               // Можно также добавить друга в state.friends, но проще перезагрузить
+            }
+
+            // Обновляем счетчик запросов
+            state.requestsCount.incoming = Math.max(0, state.requestsCount.incoming - 1);
+            state.requestsCount.total = state.requestsCount.incoming + state.requestsCount.outgoing;
          })
          .addCase(respondToFriendRequest.rejected, (state, action) => {
             state.loading.action = false;
@@ -336,12 +376,16 @@ const friendsSlice = createSlice({
          .addCase(cancelFriendRequest.fulfilled, (state, action) => {
             state.loading.action = false;
             const { requestId } = action.payload;
-            // 🔧 ИСПРАВЛЕНИЕ: проверяем что outgoingRequests существует
+
             if (state.outgoingRequests) {
                state.outgoingRequests = state.outgoingRequests.filter(
                   req => req.id !== requestId
                );
             }
+
+            // Обновляем счетчик запросов
+            state.requestsCount.outgoing = Math.max(0, state.requestsCount.outgoing - 1);
+            state.requestsCount.total = state.requestsCount.incoming + state.requestsCount.outgoing;
          })
          .addCase(cancelFriendRequest.rejected, (state, action) => {
             state.loading.action = false;
@@ -356,26 +400,29 @@ const friendsSlice = createSlice({
          .addCase(fetchFriendRequests.fulfilled, (state, action) => {
             state.loading.requests = false;
             const { direction, data } = action.payload;
-            // 🔧 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: убеждаемся что data - массив
             const requests = Array.isArray(data) ? data : [];
 
             if (direction === 'incoming') {
                state.incomingRequests = requests;
+               state.requestsCount.incoming = requests.length;
             } else if (direction === 'outgoing') {
                state.outgoingRequests = requests;
+               state.requestsCount.outgoing = requests.length;
             } else if (direction === 'all') {
-               // Разделяем на входящие и исходящие
-               // 🔧 ИСПРАВЛЕНИЕ: проверяем наличие поля direction
                state.incomingRequests = requests.filter(req => req.direction === 'incoming');
                state.outgoingRequests = requests.filter(req => req.direction === 'outgoing');
+               state.requestsCount.incoming = state.incomingRequests.length;
+               state.requestsCount.outgoing = state.outgoingRequests.length;
             }
+
+            state.requestsCount.total = state.requestsCount.incoming + state.requestsCount.outgoing;
          })
          .addCase(fetchFriendRequests.rejected, (state, action) => {
             state.loading.requests = false;
             state.errors.fetchRequests = action.payload;
-            // 🔧 ИСПРАВЛЕНИЕ: при ошибке устанавливаем пустые массивы
             state.incomingRequests = [];
             state.outgoingRequests = [];
+            state.requestsCount = { incoming: 0, outgoing: 0, total: 0 };
          })
 
          // ===== КОЛИЧЕСТВО ЗАПРОСОВ =====
@@ -384,7 +431,7 @@ const friendsSlice = createSlice({
             state.requestsCount = {
                incoming: countData?.incoming || 0,
                outgoing: countData?.outgoing || 0,
-               total: countData?.total || 0
+               total: (countData?.incoming || 0) + (countData?.outgoing || 0)
             };
          })
 
@@ -396,10 +443,8 @@ const friendsSlice = createSlice({
          .addCase(fetchFriends.fulfilled, (state, action) => {
             state.loading.friends = false;
             const { data, count } = action.payload;
-            // 🔧 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: убеждаемся что data - массив
             state.friends = Array.isArray(data) ? data : [];
 
-            // Обновляем пагинацию
             const { limit = 50, offset = 0 } = action.meta.arg || {};
             const total = count || state.friends.length;
             state.pagination.friends = {
@@ -413,7 +458,6 @@ const friendsSlice = createSlice({
          .addCase(fetchFriends.rejected, (state, action) => {
             state.loading.friends = false;
             state.errors.fetchFriends = action.payload;
-            // 🔧 ИСПРАВЛЕНИЕ: при ошибке устанавливаем пустой массив
             state.friends = [];
          })
 
@@ -483,11 +527,9 @@ const friendsSlice = createSlice({
             if (state.friendStatuses && state.friendStatuses[userId]) {
                state.friendStatuses[userId] = { ...state.friendStatuses[userId], status: 'blocked' };
             }
-            // Удаляем из друзей если был
             if (state.friends) {
                state.friends = state.friends.filter(f => f.id !== userId);
             }
-            // Удаляем из запросов
             if (state.incomingRequests) {
                state.incomingRequests = state.incomingRequests.filter(req => req.user?.id !== userId);
             }
@@ -508,7 +550,6 @@ const friendsSlice = createSlice({
 });
 
 // ============ СЕЛЕКТОРЫ ============
-// 🔧 ИСПРАВЛЕНИЕ: все селекторы возвращают значения по умолчанию
 
 export const selectFriends = (state) => state.friends?.friends || [];
 export const selectIncomingRequests = (state) => state.friends?.incomingRequests || [];
@@ -528,7 +569,8 @@ export const {
    clearAllFriendStatuses,
    resetFriendsState,
    setFriendsPagination,
-   clearErrors
+   clearErrors,
+   updateRequestsCount
 } = friendsSlice.actions;
 
 export default friendsSlice.reducer;

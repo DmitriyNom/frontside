@@ -1,0 +1,159 @@
+/* frontend/src/UI/Pages/Profile/ProfileTasks.module.css */
+
+.container {
+   width: 100%;
+}
+
+/* Шапка */
+.header {
+   display: flex;
+   justify-content: space-between;
+   align-items: flex-start;
+   margin-bottom: 24px;
+   flex-wrap: wrap;
+   gap: 16px;
+}
+
+.title {
+   font-size: 20px;
+   font-weight: 600;
+   margin: 0 0 4px 0;
+   color: #1e293b;
+}
+
+.subtitle {
+   font-size: 13px;
+   color: #64748b;
+   margin: 0;
+}
+
+.createButton {
+   padding: 8px 20px;
+   background: #4f46e5;
+   border: none;
+   border-radius: 40px;
+   color: white;
+   font-size: 13px;
+   font-weight: 600;
+   cursor: pointer;
+   transition: all 0.2s ease;
+   display: flex;
+   align-items: center;
+   gap: 8px;
+}
+
+.createButton:hover {
+   background: #4338ca;
+   transform: translateY(-1px);
+}
+
+/* Статистика */
+.statsGrid {
+   display: grid;
+   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+   gap: 16px;
+   margin-bottom: 24px;
+}
+
+.statCard {
+   background: white;
+   border-radius: 16px;
+   padding: 16px;
+   display: flex;
+   align-items: center;
+   gap: 14px;
+   transition: all 0.2s ease;
+   border: 1px solid #e2e8f0;
+   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.statCard:hover {
+   transform: translateY(-2px);
+   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+   border-color: #cbd5e1;
+}
+
+.statIcon {
+   font-size: 32px;
+}
+
+.statInfo {
+   flex: 1;
+}
+
+.statValue {
+   font-size: 28px;
+   font-weight: 700;
+   color: #1e293b;
+   line-height: 1;
+}
+
+.statLabel {
+   font-size: 12px;
+   color: #64748b;
+   margin-top: 6px;
+}
+
+/* Цветовые акценты для карточек */
+.activeCard .statValue {
+   color: #4f46e5;
+}
+
+.completedCard .statValue {
+   color: #10b981;
+}
+
+.archivedCard .statValue {
+   color: #64748b;
+}
+
+.rateCard .statValue {
+   color: #f59e0b;
+}
+
+/* Контейнер списка */
+.listContainer {
+   background: white;
+   border-radius: 16px;
+   border: 1px solid #e2e8f0;
+   overflow: hidden;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+   .header {
+      flex-direction: column;
+      align-items: stretch;
+   }
+
+   .createButton {
+      justify-content: center;
+   }
+
+   .statsGrid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+   }
+
+   .statCard {
+      padding: 12px;
+   }
+
+   .statIcon {
+      font-size: 28px;
+   }
+
+   .statValue {
+      font-size: 22px;
+   }
+}
+
+@media (max-width: 480px) {
+   .statsGrid {
+      grid-template-columns: 1fr;
+   }
+
+   .title {
+      font-size: 18px;
+   }
+}

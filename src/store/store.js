@@ -7,6 +7,7 @@ import onboardingReducer from '../features/onboardingSlice';
 import profileReducer from '../features/profileSlice'
 import mediaReducer from '../features/mediaSlice'
 import friendsReducer from '../features/friendsSlice';
+import taskReducer from '../features/taskSlice'
 
 
 const store = configureStore({
@@ -18,6 +19,7 @@ const store = configureStore({
       profile: profileReducer,
       media: mediaReducer,
       friends: friendsReducer,
+      tasks: taskReducer
    },
 });
 

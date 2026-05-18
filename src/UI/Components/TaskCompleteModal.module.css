@@ -1,0 +1,486 @@
+/* TaskCompleteModal.module.css - СВЕТЛАЯ ТЕМА (ЭЛЕГАНТНЫЙ ГРАДИЕНТНЫЙ ПОЛЗУНОК) */
+
+.overlay {
+   position: fixed;
+   top: 0;
+   left: 0;
+   right: 0;
+   bottom: 0;
+   background: rgba(0, 0, 0, 0.6);
+   backdrop-filter: blur(4px);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   z-index: 1000;
+}
+
+.modal {
+   background: white;
+   border-radius: 28px;
+   width: 90%;
+   max-width: 850px;
+   max-height: 90vh;
+   overflow-y: auto;
+   animation: slideUp 0.3s ease;
+   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+@keyframes slideUp {
+   from {
+      transform: translateY(30px);
+      opacity: 0;
+   }
+   to {
+      transform: translateY(0);
+      opacity: 1;
+   }
+}
+
+.header {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   padding: 24px 28px;
+   border-bottom: 1px solid #e2e8f0;
+   position: sticky;
+   top: 0;
+   background: white;
+   z-index: 10;
+}
+
+.header h2 {
+   margin: 0;
+   font-size: 24px;
+   font-weight: 700;
+   color: #1e293b;
+}
+
+.closeBtn {
+   background: none;
+   border: none;
+   font-size: 28px;
+   cursor: pointer;
+   color: #94a3b8;
+   padding: 4px 8px;
+   border-radius: 8px;
+   transition: all 0.2s;
+}
+
+.closeBtn:hover {
+   color: #1e293b;
+   background: #f1f5f9;
+}
+
+.form {
+   padding: 28px;
+}
+
+/* Информация о задании */
+.taskInfo {
+   background: #f8fafc;
+   border-radius: 16px;
+   padding: 20px;
+   margin-bottom: 28px;
+   border: 1px solid #e2e8f0;
+}
+
+.taskInfo h3 {
+   margin: 0 0 12px 0;
+   font-size: 18px;
+   font-weight: 700;
+   color: #1e293b;
+}
+
+.taskInfo p {
+   margin: 0;
+   font-size: 14px;
+   line-height: 1.6;
+   color: #64748b;
+   white-space: pre-wrap;
+   word-break: break-word;
+}
+
+/* Метрики */
+.metricSection {
+   background: #f8fafc;
+   border-radius: 16px;
+   padding: 20px;
+   margin-bottom: 28px;
+   border: 1px solid #e2e8f0;
+}
+
+.metricHeader {
+   display: flex;
+   align-items: center;
+   gap: 12px;
+   margin-bottom: 20px;
+   padding-bottom: 16px;
+   border-bottom: 1px solid #e2e8f0;
+   font-size: 16px;
+   font-weight: 600;
+   color: #1e293b;
+}
+
+.metricIcon {
+   font-size: 24px;
+}
+
+.plannedHint {
+   font-size: 13px;
+   font-weight: normal;
+   color: #64748b;
+}
+
+/* Форма - все инпуты 100% ширины */
+.formGroup {
+   margin-bottom: 20px;
+   width: 100%;
+}
+
+.formGroup label {
+   display: block;
+   margin-bottom: 10px;
+   font-size: 14px;
+   font-weight: 600;
+   color: #475569;
+}
+
+.formGroup input,
+.formGroup textarea {
+   width: 100%;
+   box-sizing: border-box;
+   padding: 12px 16px;
+   background: white;
+   border: 1px solid #cbd5e1;
+   border-radius: 10px;
+   color: #1e293b;
+   font-size: 15px;
+   transition: all 0.2s;
+}
+
+.formGroup textarea {
+   min-height: 100px;
+   resize: vertical;
+   font-family: inherit;
+}
+
+.formGroup input:focus,
+.formGroup textarea:focus {
+   outline: none;
+   border-color: #4f46e5;
+   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.formGroup input.error,
+.formGroup textarea.error {
+   border-color: #ef4444;
+}
+
+.errorText {
+   display: block;
+   margin-top: 6px;
+   font-size: 12px;
+   color: #ef4444;
+}
+
+.hint {
+   display: block;
+   margin-top: 6px;
+   font-size: 12px;
+   color: #94a3b8;
+}
+
+/* Строка с несколькими полями */
+.formRow {
+   display: grid;
+   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+   gap: 16px;
+   width: 100%;
+}
+
+.formRow .formGroup {
+   min-width: 0;
+}
+
+/* Подходы для sets_reps */
+.setsContainer {
+   margin-bottom: 20px;
+   width: 100%;
+}
+
+.setsContainer label {
+   display: block;
+   margin-bottom: 10px;
+   font-size: 14px;
+   font-weight: 600;
+   color: #475569;
+}
+
+.setInput {
+   display: flex;
+   align-items: center;
+   gap: 16px;
+   margin-bottom: 12px;
+   padding: 10px 14px;
+   background: white;
+   border-radius: 10px;
+   border: 1px solid #e2e8f0;
+   width: 100%;
+   box-sizing: border-box;
+}
+
+.setNumber {
+   font-size: 14px;
+   font-weight: 500;
+   color: #1e293b;
+   min-width: 95px;
+   flex-shrink: 0;
+}
+
+.setInput input {
+   flex: 1;
+   min-width: 80px;
+   padding: 10px 12px;
+   box-sizing: border-box;
+}
+
+.setInput span {
+   font-size: 14px;
+   color: #64748b;
+   flex-shrink: 0;
+}
+
+/* Чекбокс */
+.checkboxGroup {
+   margin: 16px 0;
+}
+
+.checkboxLabel {
+   display: flex;
+   align-items: center;
+   gap: 12px;
+   cursor: pointer;
+   font-size: 14px;
+   font-weight: normal;
+}
+
+.checkboxLabel input {
+   width: 18px;
+   height: 18px;
+   cursor: pointer;
+}
+
+/* ========== ЭЛЕГАНТНЫЙ ГРАДИЕНТНЫЙ ПОЛЗУНОК ========== */
+.difficultyContainer {
+   background: #f8fafc;
+   border-radius: 16px;
+   padding: 20px;
+   border: 1px solid #e2e8f0;
+}
+
+.difficultyLabels {
+   display: flex;
+   justify-content: space-between;
+   margin-bottom: 16px;
+}
+
+.difficultyLabelEasy {
+   font-size: 13px;
+   font-weight: 500;
+   color: #10b981;
+}
+
+.difficultyLabelHard {
+   font-size: 13px;
+   font-weight: 500;
+   color: #ef4444;
+}
+
+.sliderWrapper {
+   margin-bottom: 12px;
+}
+
+.sliderElegant {
+   -webkit-appearance: none;
+   width: 100%;
+   height: 6px;
+   border-radius: 3px;
+   outline: none;
+   cursor: pointer;
+}
+
+.sliderElegant::-webkit-slider-thumb {
+   -webkit-appearance: none;
+   width: 24px;
+   height: 24px;
+   background: white;
+   border: 3px solid #4f46e5;
+   border-radius: 50%;
+   cursor: pointer;
+   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+   transition: all 0.1s ease;
+}
+
+.sliderElegant::-webkit-slider-thumb:hover {
+   transform: scale(1.2);
+   background: #4f46e5;
+}
+
+.sliderElegant::-moz-range-thumb {
+   width: 24px;
+   height: 24px;
+   background: white;
+   border: 3px solid #4f46e5;
+   border-radius: 50%;
+   cursor: pointer;
+}
+
+.sliderMarkers {
+   display: flex;
+   justify-content: space-between;
+   margin-top: 10px;
+   padding: 0 10px;
+}
+
+.sliderMarkers span {
+   font-size: 11px;
+   font-weight: 500;
+   color: #94a3b8;
+}
+
+.difficultyValue {
+   text-align: center;
+   margin-top: 16px;
+   padding: 8px 16px;
+   background: white;
+   border-radius: 30px;
+   display: inline-block;
+   width: auto;
+   font-size: 14px;
+   font-weight: 600;
+   color: #4f46e5;
+}
+
+/* Кнопки */
+.actions {
+   display: flex;
+   gap: 16px;
+   justify-content: flex-end;
+   margin-top: 28px;
+   padding-top: 20px;
+   border-top: 1px solid #e2e8f0;
+}
+
+.cancelBtn {
+   padding: 12px 24px;
+   background: transparent;
+   border: 1px solid #cbd5e1;
+   border-radius: 10px;
+   color: #64748b;
+   font-size: 14px;
+   font-weight: 500;
+   cursor: pointer;
+   transition: all 0.2s;
+}
+
+.cancelBtn:hover {
+   background: #f1f5f9;
+   color: #1e293b;
+}
+
+.submitBtn {
+   padding: 12px 28px;
+   background: #10b981;
+   border: none;
+   border-radius: 10px;
+   color: white;
+   font-size: 14px;
+   font-weight: 600;
+   cursor: pointer;
+   transition: all 0.2s;
+}
+
+.submitBtn:hover:not(:disabled) {
+   background: #059669;
+}
+
+.submitBtn:disabled {
+   opacity: 0.6;
+   cursor: not-allowed;
+}
+
+/* Адаптивность */
+@media (max-width: 700px) {
+   .modal {
+      width: 95%;
+      max-width: none;
+   }
+   
+   .header {
+      padding: 18px 20px;
+   }
+   
+   .header h2 {
+      font-size: 20px;
+   }
+   
+   .form {
+      padding: 20px;
+   }
+   
+   .formRow {
+      grid-template-columns: 1fr;
+      gap: 12px;
+   }
+   
+   .setInput {
+      flex-wrap: wrap;
+      gap: 10px;
+   }
+   
+   .setNumber {
+      min-width: 100%;
+   }
+   
+   .setInput input {
+      flex: 1;
+      min-width: 120px;
+   }
+   
+   .difficultyLabels {
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+   }
+   
+   .sliderMarkers {
+      display: none;
+   }
+   
+   .actions {
+      flex-direction: column;
+   }
+   
+   .actions button {
+      width: 100%;
+   }
+}
+
+/* Прокрутка */
+.modal::-webkit-scrollbar {
+   width: 10px;
+}
+
+.modal::-webkit-scrollbar-track {
+   background: #f1f5f9;
+   border-radius: 5px;
+}
+
+.modal::-webkit-scrollbar-thumb {
+   background: #cbd5e1;
+   border-radius: 5px;
+}
+
+.modal::-webkit-scrollbar-thumb:hover {
+   background: #94a3b8;
+}
