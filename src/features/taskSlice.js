@@ -18,14 +18,16 @@ export const fetchAssignableUsers = createAsyncThunk(
 
 export const fetchTasks = createAsyncThunk(
    'tasks/fetchTasks',
-   async ({ role = 'assignee', status = null, limit = 50, offset = 0 }, { rejectWithValue }) => {
+   async ({ role = 'assignee', status = null, sortBy = 'created_at', sortOrder = 'desc', limit = 50, offset = 0 }, { rejectWithValue }) => {
       try {
-         const response = await tasksAPI.getMyTasks(role, status, limit, offset);
+         const response = await tasksAPI.getMyTasks(role, status, sortBy, sortOrder, limit, offset);
          return {
             tasks: response.data.data,
             total: response.data.total,
             role,
             status,
+            sortBy,
+            sortOrder,
             limit,
             offset
          };
@@ -158,7 +160,8 @@ const initialState = {
    stats: {
       active: 0,
       completed: 0,
-      archived: 0
+      archived: 0,
+      created: 0
    },
    pagination: {
       total: 0,
@@ -167,7 +170,9 @@ const initialState = {
    },
    filters: {
       role: 'assignee',
-      status: null
+      status: null,
+      sortBy: 'created_at',  // ← ИСПРАВЛЕНО
+      sortOrder: 'desc'
    },
    loading: false,
    error: null,
@@ -198,10 +203,17 @@ const tasksSlice = createSlice({
       setTasksStatusFilter: (state, action) => {
          state.filters.status = action.payload;
       },
+      setTasksSort: (state, action) => {
+         const { sortBy, sortOrder } = action.payload;
+         if (sortBy !== undefined) state.filters.sortBy = sortBy;
+         if (sortOrder !== undefined) state.filters.sortOrder = sortOrder;
+      },
       resetFilters: (state) => {
          state.filters = {
             role: 'assignee',
-            status: null
+            status: null,
+            sortBy: 'created_at',  // ← ИСПРАВЛЕНО
+            sortOrder: 'desc'
          };
       },
       clearCurrentTask: (state) => {
@@ -293,6 +305,8 @@ const tasksSlice = createSlice({
             };
             state.filters.role = action.payload.role;
             state.filters.status = action.payload.status;
+            if (action.payload.sortBy) state.filters.sortBy = action.payload.sortBy;
+            if (action.payload.sortOrder) state.filters.sortOrder = action.payload.sortOrder;
 
             if (action.payload.role === 'assignee') {
                state.hasNewIncomingTask = false;
@@ -337,10 +351,8 @@ const tasksSlice = createSlice({
                assignerName: newTask?.assigner?.userName
             });
 
-            // Определяем, является ли задание входящим для текущего пользователя
             const isIncoming = state.currentUserId && newTask?.user_id === state.currentUserId;
 
-            // Добавляем флаг в задание (для отображения)
             const taskWithFlag = {
                ...newTask,
                isIncoming
@@ -489,7 +501,12 @@ const tasksSlice = createSlice({
          })
          .addCase(fetchTaskStats.fulfilled, (state, action) => {
             state.loading = false;
-            state.stats = action.payload;
+            state.stats = {
+               active: action.payload.active || 0,
+               completed: action.payload.completed || 0,
+               archived: action.payload.archived || 0,
+               created: action.payload.created || 0
+            };
          })
          .addCase(fetchTaskStats.rejected, (state, action) => {
             state.loading = false;
@@ -578,6 +595,7 @@ export const {
    clearError,
    setTasksRoleFilter,
    setTasksStatusFilter,
+   setTasksSort,
    resetFilters,
    clearCurrentTask,
    updateTaskStatusLocally,

@@ -1,9 +1,41 @@
 import axios from 'axios';
+import store from '../store/store';
+import { updateTokenRefreshTime, logoutWithoutApi } from '../features/authSlice';
 
 const api = axios.create({
    baseURL: 'http://localhost:5000',
    withCredentials: true,
+   headers: {
+      'Cache-Control': 'no-cache',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+   }
 });
+
+// ========== ПЕРЕМЕННЫЕ ДЛЯ ОБНОВЛЕНИЯ ТОКЕНА ==========
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error) => {
+   failedQueue.forEach(prom => {
+      if (error) prom.reject(error);
+      else prom.resolve();
+   });
+   failedQueue = [];
+};
+
+const refreshToken = async () => {
+   try {
+      await axios.post('http://localhost:5000/api/user/refresh', {}, {
+         withCredentials: true
+      });
+      store.dispatch(updateTokenRefreshTime());
+      return true;
+   } catch (error) {
+      console.error('❌ Refresh token failed:', error);
+      return false;
+   }
+};
 
 /**
  * Универсальная функция для получения URL файла
@@ -59,30 +91,8 @@ export const getMediaUrl = (path) => getFileUrl(path, 'media');
 export const getNoteFileUrl = (path) => getFileUrl(path, 'note');
 export const getAvatarUrl = (path) => getFileUrl(path, 'avatar');
 
-// ===== КОД ДЛЯ АВТОМАТИЧЕСКОГО ОБНОВЛЕНИЯ ТОКЕНОВ =====
+// ===== ИНТЕРЦЕПТОР С ОБНОВЛЕНИЕМ ТОКЕНА =====
 
-let isRefreshing = false;
-let failedQueue = [];
-
-const processQueue = (error, token = null) => {
-   failedQueue.forEach(prom => {
-      if (error) {
-         prom.reject(error);
-      } else {
-         prom.resolve(token);
-      }
-   });
-   failedQueue = [];
-};
-
-// Функция проверки наличия refreshToken в cookies
-const hasRefreshToken = () => {
-   return document.cookie.split(';').some(cookie =>
-      cookie.trim().startsWith('refreshToken=')
-   );
-};
-
-// ИСПРАВЛЕННЫЙ ИНТЕРЦЕПТОР
 api.interceptors.response.use(
    (response) => response,
    async (error) => {
@@ -93,17 +103,10 @@ api.interceptors.response.use(
          originalRequest.url?.includes('/auth/refresh');
       const isLoginEndpoint = originalRequest.url?.includes('/api/user/login');
       const isLogoutEndpoint = originalRequest.url?.includes('/api/user/logout');
-      const isProfileEndpoint = originalRequest.url?.includes('/api/user/profile');
 
-      // ✅ КЛЮЧЕВОЕ: для silent auth (первая загрузка) - не пытаемся обновлять
-      if (isProfileEndpoint && originalRequest._isSilentAuth === true) {
-         console.log('📌 api: silent auth check failed, returning error without retry');
-         return Promise.reject(error);
-      }
-
-      // Если это refresh эндпоинт и он упал - значит refreshToken истёк или отсутствует
+      // Если refresh эндпоинт упал с 401 - токен обновления истек
       if (isRefreshEndpoint && error.response?.status === 401) {
-         console.log('❌ Refresh token expired or missing');
+         console.log('❌ api: refresh token expired');
          window.dispatchEvent(new CustomEvent('auth-expired', {
             detail: { message: 'Сессия истекла, войдите снова' }
          }));
@@ -117,48 +120,32 @@ api.interceptors.response.use(
 
       // Только для 401 и не повторяющихся запросов
       if (error.response?.status === 401 && !originalRequest._retry) {
-
-         // ✅ ПРОВЕРКА: есть ли refreshToken в cookies?
-         if (!hasRefreshToken()) {
-            console.log('❌ No refreshToken cookie found, redirecting to login');
-            window.dispatchEvent(new CustomEvent('auth-expired', {
-               detail: { message: 'Сессия истекла, войдите снова' }
-            }));
-            return Promise.reject(error);
-         }
-
          originalRequest._retry = true;
 
          if (isRefreshing) {
+            // Ждем окончания обновления
             return new Promise((resolve, reject) => {
                failedQueue.push({ resolve, reject });
             }).then(() => {
                return api(originalRequest);
-            }).catch(err => {
-               return Promise.reject(err);
             });
          }
 
          isRefreshing = true;
 
-         try {
-            await axios.post('http://localhost:5000/api/user/refresh', {}, {
-               withCredentials: true
-            });
+         const success = await refreshToken();
+         isRefreshing = false;
 
-            isRefreshing = false;
+         if (success) {
             processQueue(null);
             return api(originalRequest);
-
-         } catch (refreshError) {
-            isRefreshing = false;
-            processQueue(refreshError, null);
-
-            console.log('❌ Refresh failed');
+         } else {
+            processQueue(error);
+            store.dispatch(logoutWithoutApi());
             window.dispatchEvent(new CustomEvent('auth-expired', {
                detail: { message: 'Сессия истекла, войдите снова' }
             }));
-            return Promise.reject(refreshError);
+            return Promise.reject(error);
          }
       }
 
@@ -172,7 +159,7 @@ api.interceptors.request.use(
    (error) => Promise.reject(error)
 );
 
-// API методы
+// API методы (без изменений)
 export const connectionsAPI = {
    sendRequest: (trainerId, message = '') =>
       api.post('/api/connections/request', { trainer_id: trainerId, message }),
@@ -341,15 +328,25 @@ export const tasksAPI = {
    createTask: (data) => api.post('/api/tasks', data),
 
    /**
-    * Получить мои задания (с фильтрацией)
-    * @param {string} [role='assignee'] - 'assignee' (спортсмен) или 'assigner' (тренер)
+    * Получить мои задания (с фильтрацией и сортировкой)
+    * @param {string} [role='assignee'] - 'assignee' (я выполняю) или 'assigner' (я создал)
     * @param {string} [status=null] - 'active', 'completed', 'archived'
+    * @param {string} [sortBy='created_at'] - 'created_at', 'due_date', 'title', 'priority'
+    * @param {string} [sortOrder='desc'] - 'asc' или 'desc'
     * @param {number} [limit=50] - Лимит записей
     * @param {number} [offset=0] - Смещение для пагинации
     */
-   getMyTasks: (role = 'assignee', status = null, limit = 50, offset = 0) =>
+   getMyTasks: (role = 'assignee', status = null, sortBy = 'created_at', sortOrder = 'desc', limit = 50, offset = 0) =>
       api.get('/api/tasks', {
-         params: { role, status, limit, offset }
+         params: {
+            role,
+            status,
+            sortBy,
+            sortOrder,
+            limit,
+            offset,
+            _t: Date.now()
+         }
       }),
 
    /**

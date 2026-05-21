@@ -1,7 +1,6 @@
 // frontend/src/features/authSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../api/api';
-import axios from 'axios';
 
 export const registerUser = createAsyncThunk(
    'auth/registerUser',
@@ -50,31 +49,12 @@ export const checkAuth = createAsyncThunk(
          console.log('🔍 checkAuth: проверка авторизации...');
          const response = await api.get('/api/user/profile', {
             withCredentials: true,
-            _isSilentAuth: true,
          });
          console.log('✅ checkAuth: пользователь авторизован');
          return response.data;
       } catch (err) {
-         // ✅ НОВОЕ: пробуем обновить токен при 401 ошибке
-         if (err.response?.status === 401) {
-            console.log('🔄 checkAuth: accessToken истёк, пробуем обновить...');
-            try {
-               // Пытаемся обновить токен
-               await axios.post('http://localhost:5000/api/user/refresh', {}, {
-                  withCredentials: true
-               });
-
-               // Повторяем запрос профиля (уже без _isSilentAuth)
-               const response = await api.get('/api/user/profile', {
-                  withCredentials: true,
-               });
-               console.log('✅ checkAuth: токен обновлён, пользователь авторизован');
-               return response.data;
-            } catch (refreshErr) {
-               console.log('❌ checkAuth: refresh не удался, пользователь не авторизован');
-               return rejectWithValue(null);
-            }
-         }
+         // ✅ УПРОЩЕНО: больше не пытаемся обновить токен здесь
+         // Обновлением занимается только useTokenRefresh
          console.log('❌ checkAuth: пользователь не авторизован');
          return rejectWithValue(null);
       }

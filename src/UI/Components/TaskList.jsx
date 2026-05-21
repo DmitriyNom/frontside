@@ -7,6 +7,7 @@ import {
    fetchTaskStats,
    setTasksRoleFilter,
    setTasksStatusFilter,
+   setTasksSort,
    resetFilters,
    selectAllTasks,
    selectTasksLoading,
@@ -14,8 +15,8 @@ import {
    selectTasksFilters,
    selectTasksPagination,
    selectTaskStats,
-   selectUnreadIncomingTaskIds,     // 👈 НОВЫЙ ИМПОРТ
-   markTasksAsRead,                  // 👈 НОВЫЙ ИМПОРТ
+   selectUnreadIncomingTaskIds,
+   markTasksAsRead,
    deleteTask,
    updateTask
 } from '../../features/taskSlice';
@@ -31,6 +32,14 @@ const STATUS_FILTERS = [
 const ROLE_FILTERS = [
    { value: 'assignee', label: 'Я выполняю', icon: '🏃' },
    { value: 'assigner', label: 'Я создал', icon: '✏️' }
+];
+
+// Конфиг для сортировки - 4 кнопки
+const SORT_OPTIONS = [
+   { value: 'created_at', label: 'По дате создания', icon: '🆕' },
+   { value: 'due_date', label: 'По дедлайну', icon: '⏰' },
+   { value: 'title', label: 'По названию', icon: '📝' },
+   { value: 'priority', label: 'По приоритету', icon: '🎯' }
 ];
 
 const TaskList = ({
@@ -50,21 +59,25 @@ const TaskList = ({
    const filters = useSelector(selectTasksFilters);
    const pagination = useSelector(selectTasksPagination);
    const stats = useSelector(selectTaskStats);
-   const unreadTaskIds = useSelector(selectUnreadIncomingTaskIds);  // 👈 НОВЫЙ СЕЛЕКТОР
+   const unreadTaskIds = useSelector(selectUnreadIncomingTaskIds);
 
    const [localStatus, setLocalStatus] = useState(filters.status);
    const [localRole, setLocalRole] = useState(filters.role);
+   const [localSortBy, setLocalSortBy] = useState(filters.sortBy || 'created_at');
+   const [localSortOrder, setLocalSortOrder] = useState(filters.sortOrder || 'desc');
    const [offset, setOffset] = useState(0);
 
-   // Загрузка заданий
+   // Загрузка заданий с сортировкой
    const loadTasks = useCallback(async () => {
       await dispatch(fetchTasks({
          role: localRole,
          status: localStatus,
+         sortBy: localSortBy,
+         sortOrder: localSortOrder,
          limit,
          offset
       }));
-   }, [dispatch, localRole, localStatus, limit, offset]);
+   }, [dispatch, localRole, localStatus, localSortBy, localSortOrder, limit, offset]);
 
    // Загрузка статистики
    const loadStats = useCallback(() => {
@@ -91,9 +104,35 @@ const TaskList = ({
       dispatch(setTasksStatusFilter(status));
    };
 
+   // Обработчик сортировки
+   const handleSortChange = (sortBy) => {
+      let newSortOrder = localSortOrder;
+
+      if (localSortBy === sortBy) {
+         // Если та же кнопка - меняем направление
+         newSortOrder = localSortOrder === 'asc' ? 'desc' : 'asc';
+      } else {
+         // Если другая кнопка - сбрасываем на desc (новые сверху)
+         newSortOrder = 'desc';
+      }
+
+      setLocalSortBy(sortBy);
+      setLocalSortOrder(newSortOrder);
+      setOffset(0);
+      dispatch(setTasksSort({ sortBy, sortOrder: newSortOrder }));
+   };
+
+   // Получение иконки для кнопки сортировки
+   const getSortIcon = (sortBy) => {
+      if (localSortBy !== sortBy) return '↕️';
+      return localSortOrder === 'asc' ? '⬆️' : '⬇️';
+   };
+
    const handleResetFilters = () => {
       setLocalRole('assignee');
       setLocalStatus(null);
+      setLocalSortBy('created_at');
+      setLocalSortOrder('desc');
       setOffset(0);
       dispatch(resetFilters());
    };
@@ -111,7 +150,7 @@ const TaskList = ({
       }
    };
 
-   // 👇 НОВАЯ ФУНКЦИЯ: Отметить задание как прочитанное при просмотре
+   // Отметить задание как прочитанное при просмотре
    const handleViewTask = (task) => {
       if (unreadTaskIds.includes(task.id)) {
          dispatch(markTasksAsRead({ taskIds: [task.id] }));
@@ -186,10 +225,11 @@ const TaskList = ({
       );
    };
 
-   // Рендер фильтров
+   // Рендер фильтров и сортировки
    const renderFilters = () => {
       return (
          <div className={styles.filtersContainer}>
+            {/* Верхняя строка: переключатели ролей */}
             {showRoleSwitch && (
                <div className={styles.roleFilters}>
                   {ROLE_FILTERS.map(filter => (
@@ -204,22 +244,39 @@ const TaskList = ({
                </div>
             )}
 
-            <div className={styles.statusFilters}>
-               {STATUS_FILTERS.map(filter => (
-                  <button
-                     key={filter.value || 'all'}
-                     className={`${styles.statusButton} ${localStatus === filter.value ? styles.active : ''}`}
-                     onClick={() => handleStatusChange(filter.value)}
-                  >
-                     {filter.icon} {filter.label}
-                  </button>
-               ))}
+            {/* Нижняя строка: фильтры статусов + сортировка */}
+            <div className={styles.bottomBar}>
+               <div className={styles.statusFilters}>
+                  {STATUS_FILTERS.map(filter => (
+                     <button
+                        key={filter.value || 'all'}
+                        className={`${styles.statusButton} ${localStatus === filter.value ? styles.active : ''}`}
+                        onClick={() => handleStatusChange(filter.value)}
+                     >
+                        {filter.icon} {filter.label}
+                     </button>
+                  ))}
 
-               {(localStatus !== null || localRole !== 'assignee') && (
-                  <button className={styles.resetButton} onClick={handleResetFilters}>
-                     🔄 Сбросить
-                  </button>
-               )}
+                  {(localStatus !== null || localRole !== 'assignee') && (
+                     <button className={styles.resetButton} onClick={handleResetFilters}>
+                        🔄 Сбросить
+                     </button>
+                  )}
+               </div>
+
+               {/* Блок сортировки - 4 кнопки */}
+               <div className={styles.sortGroup}>
+                  <span className={styles.sortLabel}>Сортировка:</span>
+                  {SORT_OPTIONS.map(option => (
+                     <button
+                        key={option.value}
+                        className={`${styles.sortButton} ${localSortBy === option.value ? styles.active : ''}`}
+                        onClick={() => handleSortChange(option.value)}
+                     >
+                        {option.icon} {option.label} {getSortIcon(option.value)}
+                     </button>
+                  ))}
+               </div>
             </div>
          </div>
       );
@@ -269,7 +326,7 @@ const TaskList = ({
 
       return (
          <div className={styles.taskList}>
-            {tasks.map(task => (
+            {tasks.map((task, index) => (
                <TaskCard
                   key={task.id}
                   task={task}
@@ -280,7 +337,8 @@ const TaskList = ({
                   onArchive={handleArchiveTask}
                   isAssignee={localRole === 'assignee'}
                   isAssigner={localRole === 'assigner'}
-                  isUnread={unreadTaskIds.includes(task.id)}  // 👈 НОВЫЙ ПРОПС
+                  isUnread={unreadTaskIds.includes(task.id)}
+                  rowIndex={index}
                />
             ))}
          </div>

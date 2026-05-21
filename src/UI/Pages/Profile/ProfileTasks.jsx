@@ -16,18 +16,41 @@ const ProfileTasks = () => {
    const dispatch = useDispatch();
    const stats = useSelector(selectTaskStats);
    const currentUser = useSelector(selectUser);
+   const tasksCount = stats?.active || 0;
 
    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
    const [selectedTask, setSelectedTask] = useState(null);
    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
    const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
+   const [isFloatingButtonVisible, setIsFloatingButtonVisible] = useState(false);
 
-   // ✅ Только загружаем статистику, НЕ сбрасываем флаги
+   // Отслеживаем скролл окна браузера
+   useEffect(() => {
+      const handleScroll = () => {
+         const scrollY = window.scrollY || document.documentElement.scrollTop;
+         const scrollThreshold = 50;
+
+         if (scrollY > scrollThreshold) {
+            setIsFloatingButtonVisible(true);
+         } else {
+            setIsFloatingButtonVisible(false);
+         }
+      };
+
+      window.addEventListener('scroll', handleScroll, { passive: true });
+      handleScroll();
+
+      return () => {
+         window.removeEventListener('scroll', handleScroll);
+      };
+   }, []);
+
+   // Загружаем статистику
    useEffect(() => {
       dispatch(fetchTaskStats());
    }, [dispatch]);
 
-   // Обработчики для TaskList
+   // Обработчики
    const handleViewTask = useCallback((task) => {
       setSelectedTask(task);
       setIsDetailModalOpen(true);
@@ -105,10 +128,11 @@ const ProfileTasks = () => {
                <p className={styles.subtitle}>Управление тренировочными заданиями</p>
             </div>
             <button
-               className={styles.createButton}
+               className={`${styles.createButton} ${isFloatingButtonVisible ? styles.headerButtonHidden : ''}`}
                onClick={() => setIsCreateModalOpen(true)}
             >
-               ➕ Создать задание
+               <span>+</span>
+               Новая задача
             </button>
          </div>
 
@@ -134,6 +158,13 @@ const ProfileTasks = () => {
                   <div className={styles.statLabel}>В архиве</div>
                </div>
             </div>
+            <div className={`${styles.statCard} ${styles.createdCard}`}>
+               <div className={styles.statIcon}>📝</div>
+               <div className={styles.statInfo}>
+                  <div className={styles.statValue}>{stats?.created || 0}</div>
+                  <div className={styles.statLabel}>Создано мной</div>
+               </div>
+            </div>
             <div className={`${styles.statCard} ${styles.rateCard}`}>
                <div className={styles.statIcon}>📊</div>
                <div className={styles.statInfo}>
@@ -154,6 +185,19 @@ const ProfileTasks = () => {
                emptyMessage="У вас пока нет заданий"
             />
          </div>
+
+         {/* Плавающая кнопка создания задачи */}
+         <button
+            className={`${styles.floatingButton} ${isFloatingButtonVisible ? styles.visible : ''}`}
+            onClick={() => setIsCreateModalOpen(true)}
+            title="Создать новую задачу"
+         >
+            <span className={styles.floatingButtonIcon}>+</span>
+            <span className={styles.floatingButtonText}>Новая задача</span>
+            {tasksCount > 0 && (
+               <span className={styles.taskCountBadge}>{tasksCount}</span>
+            )}
+         </button>
 
          <TaskCreateModal
             isOpen={isCreateModalOpen}

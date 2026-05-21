@@ -1,33 +1,154 @@
-/* TaskCard.module.css - СВЕТЛАЯ ТЕМА (УВЕЛИЧЕННАЯ ВЕРСИЯ) */
+/* TaskCard.module.css - МИНИМАЛИСТИЧНАЯ ЛЕНТОЧКА-ИКОНКА СЛЕВА (ДЛЯ СЕТКИ) */
 
 .card {
-   background: white;
    border-radius: 16px;
-   padding: 24px;
-   margin-bottom: 16px;
-   border-left-width: 6px;
+   padding: 20px;
+   margin: 16px;              /* ← внешние отступы со всех сторон */
+   border-left: 6px solid #e2e8f0;
    transition: all 0.2s ease;
-   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+   position: relative;
+   display: flex;
+   flex-direction: column;
 }
 
 .card:hover {
-   transform: translateY(-2px);
-   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+   transform: translateY(-3px);
+   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
-/* Статусные стили */
+/* ✅ ШАХМАТНЫЙ ФОН */
+.evenRow {
+   background: #eef2ff;
+}
+
+.oddRow {
+   background: #ffffff;
+}
+
+/* Статусные стили (левая полоска) */
 .statusActive {
    border-left-color: #4f46e5;
 }
 
 .statusCompleted {
    border-left-color: #10b981;
-   opacity: 0.85;
 }
 
 .statusArchived {
    border-left-color: #94a3b8;
-   opacity: 0.7;
+}
+
+/* ============================================ */
+/* ПРИОРИТЕТЫ - ТОЛЬКО ЛЕВАЯ ПОЛОСКА */
+/* ============================================ */
+
+.priorityLow {
+   border-left-color: #3b82f6 !important;
+}
+
+.priorityMedium {
+   border-left-color: #06b6d4 !important;
+}
+
+.priorityHigh {
+   border-left-color: #ef4444 !important;
+}
+
+/* ============================================ */
+/* МИНИМАЛИСТИЧНАЯ ЛЕНТОЧКА-ИКОНКА СЛЕВА */
+/* ============================================ */
+
+.ribbon {
+   position: absolute;
+   top: -8px;
+   left: -8px;
+   width: 36px;
+   height: 36px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   font-size: 20px;
+   background: rgba(255, 255, 255, 0.95);
+   border-radius: 50%;
+   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+   z-index: 15;
+   transition: all 0.2s ease;
+}
+
+/* Цвета для разных типов (фон кружка) */
+.ribbonCritical {
+   background: linear-gradient(135deg, #dc2626, #991b1b);
+   box-shadow: 0 2px 12px rgba(220, 38, 38, 0.4);
+}
+
+.ribbonOverdue {
+   background: linear-gradient(135deg, #ef4444, #b91c1c);
+}
+
+.ribbonHigh {
+   background: linear-gradient(135deg, #f97316, #ea580c);
+}
+
+.ribbonSoon {
+   background: linear-gradient(135deg, #eab308, #ca8a04);
+}
+
+.ribbonMedium {
+   background: linear-gradient(135deg, #06b6d4, #0891b2);
+}
+
+.ribbonLow {
+   background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+/* Анимация для критичных ленточек (пульсация) */
+.ribbonCritical {
+   animation: criticalPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes criticalPulse {
+   0% {
+      transform: scale(1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+   }
+   50% {
+      transform: scale(1.1);
+      box-shadow: 0 0 16px rgba(220, 38, 38, 0.7);
+   }
+   100% {
+      transform: scale(1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+   }
+}
+
+/* ============================================ */
+/* БЕЙДЖИ ПРИОРИТЕТА */
+/* ============================================ */
+
+.priorityBadge {
+   display: inline-flex;
+   align-items: center;
+   gap: 6px;
+   padding: 4px 12px;
+   border-radius: 24px;
+   font-size: 13px;
+   font-weight: 500;
+}
+
+.priorityBadge.priorityLow {
+   background: #dbeafe;
+   color: #1e40af;
+}
+
+.priorityBadge.priorityMedium {
+   background: #cffafe;
+   color: #0e7490;
+}
+
+.priorityBadge.priorityHigh {
+   background: #fee2e2;
+   color: #991b1b;
 }
 
 /* Шапка */
@@ -45,32 +166,6 @@
    align-items: center;
    gap: 12px;
    flex-wrap: wrap;
-}
-
-/* Бейдж приоритета с текстом */
-.priorityBadge {
-   display: inline-flex;
-   align-items: center;
-   gap: 6px;
-   padding: 4px 12px;
-   border-radius: 24px;
-   font-size: 13px;
-   font-weight: 500;
-}
-
-.priorityLow {
-   background: #dbeafe;
-   color: #1e40af;
-}
-
-.priorityMedium {
-   background: #fef3c7;
-   color: #92400e;
-}
-
-.priorityHigh {
-   background: #fee2e2;
-   color: #991b1b;
 }
 
 .statusBadge {
@@ -99,10 +194,10 @@
    font-weight: 600;
 }
 
-/* Контент */
+/* Контент - убран hover эффект, так как клик больше не работает */
 .content {
-   cursor: pointer;
    margin-bottom: 20px;
+   flex: 1;
 }
 
 .title {
@@ -111,9 +206,9 @@
    margin: 0 0 12px 0;
    color: #1e293b;
    word-break: break-word;
+   line-height: 1.3;
 }
 
-/* Описание с ограничением высоты и многоточием */
 .description {
    font-size: 14px;
    line-height: 1.5;
@@ -122,28 +217,12 @@
    white-space: pre-wrap;
    word-break: break-word;
    overflow-wrap: break-word;
-   
-   /* Ограничение высоты и многоточие */
    display: -webkit-box;
    -webkit-line-clamp: 3;
    -webkit-box-orient: vertical;
    overflow: hidden;
    text-overflow: ellipsis;
    max-height: calc(1.5em * 3);
-}
-
-/* При наведении на описание показываем, что можно открыть */
-.description:hover {
-   cursor: pointer;
-   background: #f8fafc;
-   border-radius: 8px;
-   transition: background 0.2s ease;
-}
-
-/* Полное описание (когда открыто) */
-.description.expanded {
-   -webkit-line-clamp: unset;
-   max-height: none;
 }
 
 .metrics {
@@ -263,48 +342,11 @@
    background: #dc2626;
 }
 
-/* Компактный режим (виджет) */
-.compact {
-   padding: 16px;
-}
-
-.compactHeader {
-   display: flex;
-   align-items: center;
-   gap: 12px;
-}
-
-.compactTitle {
-   font-size: 15px;
-   font-weight: 600;
-   flex: 1;
-   color: #1e293b;
-}
-
-.statusBadgeSmall {
-   font-size: 12px;
-}
-
-.dueDateCompact {
-   font-size: 12px;
-   margin-top: 6px;
-   color: #64748b;
-}
-
-.dueDateCompact.overdue {
-   color: #dc2626;
-}
-
-.completionCompact {
-   font-size: 12px;
-   margin-top: 6px;
-   color: #10b981;
-}
-
 /* Адаптивность */
 @media (max-width: 768px) {
    .card {
       padding: 16px;
+      margin: 12px;
    }
    
    .header {
@@ -330,36 +372,103 @@
    .title {
       font-size: 16px;
    }
-
    
+   .ribbon {
+      width: 32px;
+      height: 32px;
+      font-size: 18px;
+      top: -6px;
+      left: -6px;
+   }
 }
 
-/* Добавить в конец файла TaskCard.module.css */
+@media (max-width: 480px) {
+   .card {
+      margin: 8px;
+   }
+}
 
-/* Стиль для непрочитанных заданий */
-.unreadCard {
-   background: #fefce8;
-   border-left-color: #eab308;
+/* ============================================ */
+/* КОМПАКТНЫЙ РЕЖИМ */
+/* ============================================ */
+
+.compact {
+   padding: 12px;
    position: relative;
- }
- 
- .unreadCard::before {
+}
+
+.compactHeader {
+   display: flex;
+   align-items: center;
+   gap: 12px;
+}
+
+.compactTitle {
+   font-size: 14px;
+   font-weight: 600;
+   flex: 1;
+   color: #1e293b;
+}
+
+.statusBadgeSmall {
+   font-size: 11px;
+}
+
+.dueDateCompact {
+   font-size: 11px;
+   margin-top: 6px;
+   color: #64748b;
+}
+
+.dueDateCompact.overdue {
+   color: #dc2626;
+}
+
+.completionCompact {
+   font-size: 11px;
+   margin-top: 6px;
+   color: #10b981;
+}
+
+/* Мини-ленточка для компактного режима */
+.ribbonCompact {
+   width: 28px;
+   height: 28px;
+   font-size: 15px;
+   top: -5px;
+   left: -5px;
+}
+
+/* ============================================ */
+/* НЕПРОЧИТАННЫЕ ЗАДАНИЯ (с рамкой) */
+/* ============================================ */
+
+.unreadCard {
+   position: relative;
+   background: transparent;
+   border: 2px solid #eab308;
+   box-shadow: 0 4px 12px rgba(234, 179, 8, 0.2);
+}
+
+/* Красная точка справа */
+.unreadCard::before {
    content: "●";
    position: absolute;
-   left: 12px;
-   top: 20px;
+   right: 12px;
+   top: 12px;
    color: #ef4444;
-   font-size: 12px;
+   font-size: 14px;
    animation: unreadPulse 1.5s ease infinite;
- }
- 
- @keyframes unreadPulse {
+   z-index: 15;
+}
+
+.unreadCard:hover {
+   border-color: #f59e0b;
+   box-shadow: 0 6px 16px rgba(234, 179, 8, 0.3);
+}
+
+@keyframes unreadPulse {
    0% { opacity: 1; transform: scale(1); }
    50% { opacity: 0.5; transform: scale(1.2); }
    100% { opacity: 1; transform: scale(1); }
- }
- 
- /* Темный фон для непрочитанных при ховере */
- .unreadCard:hover {
-   background: #fef9c3;
- }
+}

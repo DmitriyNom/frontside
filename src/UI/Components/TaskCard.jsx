@@ -1,20 +1,74 @@
 // frontend/src/UI/Components/TaskCard.jsx
-import React, { useState } from 'react';
+import React from 'react';
 import { format, formatDistanceToNow, isPast } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import styles from './TaskCard.module.css';
 
 // Конфиг приоритета с текстом и CSS классом
 const PRIORITY_CONFIG = {
-   1: { icon: '🔵', label: 'Низкий', class: 'priorityLow' },
-   2: { icon: '🟡', label: 'Средний', class: 'priorityMedium' },
-   3: { icon: '🔴', label: 'Высокий', class: 'priorityHigh' }
+   1: { icon: '🔵', label: 'Низкий приоритет', class: 'priorityLow' },
+   2: { icon: '🟡', label: 'Средний приоритет', class: 'priorityMedium' },
+   3: { icon: '🔴', label: 'Высокий приоритет', class: 'priorityHigh' }
 };
 
 const STATUS_CONFIG = {
    active: { label: 'Активно', className: 'statusActive', icon: '🎯' },
    completed: { label: 'Выполнено', className: 'statusCompleted', icon: '✅' },
    archived: { label: 'В архиве', className: 'statusArchived', icon: '📦' }
+};
+
+// Конфиг ленточек - ТОЛЬКО ИКОНКИ (минимализм)
+const RIBBON_CONFIG = {
+   critical: { icon: '🚨', class: 'ribbonCritical' },
+   overdue: { icon: '⏰', class: 'ribbonOverdue' },
+   high: { icon: '🔥', class: 'ribbonHigh' },
+   soon: { icon: '⏳', class: 'ribbonSoon' },
+   medium: { icon: '💧', class: 'ribbonMedium' },
+   low: { icon: '❄️', class: 'ribbonLow' }
+};
+
+// Функция определения типа ленточки на основе данных задания
+const getRibbonType = (task) => {
+   const { priority, due_date, status } = task;
+
+   // Только для активных заданий показываем ленточки
+   if (status !== 'active') return null;
+
+   const dueDate = due_date ? new Date(due_date) : null;
+   const today = new Date();
+   today.setHours(0, 0, 0, 0);
+
+   const isOverdue = dueDate && dueDate < today;
+   const daysUntilDue = dueDate ? Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24)) : null;
+   const isSoonDue = daysUntilDue !== null && daysUntilDue <= 2 && daysUntilDue >= 0;
+
+   // Приоритет критичности (от самого важного к менее важному)
+   // 1. Просрочка + высокий приоритет — критично
+   if (isOverdue && priority === 3) {
+      return 'critical';
+   }
+   // 2. Просто просрочка
+   if (isOverdue) {
+      return 'overdue';
+   }
+   // 3. Высокий приоритет
+   if (priority === 3) {
+      return 'high';
+   }
+   // 4. Скоро дедлайн (2 дня или меньше)
+   if (isSoonDue) {
+      return 'soon';
+   }
+   // 5. Средний приоритет
+   if (priority === 2) {
+      return 'medium';
+   }
+   // 6. Низкий приоритет
+   if (priority === 1) {
+      return 'low';
+   }
+
+   return null;
 };
 
 const TaskCard = ({
@@ -27,10 +81,9 @@ const TaskCard = ({
    isAssignee = true,
    isAssigner = false,
    compact = false,
-   isUnread = false      // 👈 НОВЫЙ ПРОПС
+   isUnread = false,
+   rowIndex = 0
 }) => {
-
-   const [isExpanded, setIsExpanded] = useState(false);
 
    if (!task) return null;
 
@@ -50,6 +103,13 @@ const TaskCard = ({
 
    const taskTitle = exercise?.title || custom_title || 'Без названия';
    const taskDescription = exercise?.description || custom_description || '';
+
+   // Определяем четность строки для шахматного фона
+   const isEvenRow = rowIndex % 2 === 0;
+
+   // Определяем тип ленточки
+   const ribbonType = getRibbonType(task);
+   const ribbonConfig = ribbonType ? RIBBON_CONFIG[ribbonType] : null;
 
    // Форматирование метрик
    const formatMetrics = (metrics) => {
@@ -93,10 +153,16 @@ const TaskCard = ({
    const handleDelete = () => onDelete?.(task);
    const handleArchive = () => onArchive?.(task);
 
-   // Компактный режим (для виджета)
+   // Компактный режим (для виджета) с ленточкой
    if (compact) {
       return (
-         <div className={`${styles.card} ${styles.compact} ${styles[statusConfig.className]}`}>
+         <div className={`${styles.card} ${styles.compact} ${styles[statusConfig.className]} ${styles[priorityConfig.class]} ${isEvenRow ? styles.evenRow : styles.oddRow}`}>
+            {/* Ленточка-иконка в компактном режиме */}
+            {ribbonConfig && (
+               <div className={`${styles.ribbon} ${styles.ribbonCompact} ${styles[ribbonConfig.class]}`}>
+                  {ribbonConfig.icon}
+               </div>
+            )}
             <div className={styles.compactHeader}>
                <span className={`${styles.priorityBadge} ${styles[priorityConfig.class]}`}>
                   {priorityConfig.icon} {priorityConfig.label}
@@ -119,8 +185,13 @@ const TaskCard = ({
    }
 
    return (
-      <div className={`${styles.card} ${styles[statusConfig.className]} ${isUnread ? styles.unreadCard : ''}`}>
-         {/* 👆 ДОБАВЛЕН КЛАСС unreadCard */}
+      <div className={`${styles.card} ${styles[statusConfig.className]} ${styles[priorityConfig.class]} ${isUnread ? styles.unreadCard : ''} ${isEvenRow ? styles.evenRow : styles.oddRow}`}>
+         {/* Ленточка-иконка срочности (основной режим) */}
+         {ribbonConfig && (
+            <div className={`${styles.ribbon} ${styles[ribbonConfig.class]}`}>
+               {ribbonConfig.icon}
+            </div>
+         )}
 
          {/* Шапка карточки */}
          <div className={styles.header}>
@@ -146,12 +217,12 @@ const TaskCard = ({
             </div>
          </div>
 
-         {/* Контент */}
-         <div className={styles.content} onClick={() => setIsExpanded(!isExpanded)}>
+         {/* Контент - убран onClick, карточка больше не расширяется */}
+         <div className={styles.content}>
             <h3 className={styles.title}>{taskTitle}</h3>
 
             {taskDescription && (
-               <p className={`${styles.description} ${isExpanded ? styles.expanded : ''}`}>
+               <p className={styles.description}>
                   {taskDescription}
                </p>
             )}

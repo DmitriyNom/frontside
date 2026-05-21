@@ -263,7 +263,6 @@ const TaskCompleteModal = ({ isOpen, onClose, task, onSuccess }) => {
                         value={actualMetrics.weight_kg || ''}
                         onChange={(e) => updateMetricField('weight_kg', parseInt(e.target.value) || null)}
                         placeholder={plannedMetrics?.weight_kg ? `${plannedMetrics.weight_kg} кг` : 'не указан'}
-                        step="2.5"
                      />
                   </div>
                </div>
@@ -318,7 +317,6 @@ const TaskCompleteModal = ({ isOpen, onClose, task, onSuccess }) => {
                            value={actualMetrics.weight_kg || ''}
                            onChange={(e) => updateMetricField('weight_kg', parseInt(e.target.value) || 0)}
                            min="1"
-                           step="2.5"
                            className={errors.weight ? styles.error : ''}
                         />
                         {errors.weight && <span className={styles.errorText}>{errors.weight}</span>}
