@@ -1,286 +1,381 @@
-/* CSS Variables - согласованные с формой */
+/* NoteList.module.css */
+
+/* ============================================ */
+/* CSS ПЕРЕМЕННЫЕ */
+/* ============================================ */
+
 :root {
-   --primary-color: #6366f1;
-   --primary-hover: #4f46e5;
-   --success-color: #10b981;
-   --warning-color: #f59e0b;
-   --danger-color: #ef4444;
-   --text-primary: #1e293b;
-   --text-secondary: #64748b;
-   --text-light: #94a3b8;
-   --border-color: #e2e8f0;
-   --background-light: #f8fafc;
-   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-   --radius-sm: 0.375rem;
-   --radius-md: 0.5rem;
-   --radius-lg: 0.75rem;
-   --radius-xl: 1rem;
-   --transition: all 0.2s ease-in-out;
- }
- 
- .noteList {
-   padding: 0;
- }
- 
- /* Header */
- .header {
-   margin-bottom: 2rem;
-   padding-bottom: 1rem;
-   border-bottom: 1px solid var(--border-color);
- }
- 
- .headerContent h2 {
-   margin: 0 0 0.5rem 0;
-   font-size: 1.75rem;
-   font-weight: 700;
-   color: var(--text-primary);
-   background: linear-gradient(135deg, var(--text-primary), var(--primary-color));
-   -webkit-background-clip: text;
-   -webkit-text-fill-color: transparent;
-   background-clip: text;
- }
- 
- .headerContent p {
-   margin: 0;
-   color: var(--text-secondary);
-   font-size: 0.875rem;
- }
- 
- /* Notes Grid */
- .notesGrid {
-   display: grid;
-   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-   gap: 1.5rem;
-   margin-bottom: 2rem;
- }
- 
- /* Empty State */
- .emptyState {
-   display: flex;
-   flex-direction: column;
-   align-items: center;
-   justify-content: center;
-   padding: 4rem 2rem;
-   text-align: center;
-   background: white;
-   border-radius: var(--radius-xl);
-   border: 2px dashed var(--border-color);
- }
- 
- .emptyIcon {
-   font-size: 4rem;
-   margin-bottom: 1rem;
-   opacity: 0.5;
- }
- 
- .emptyState h3 {
-   margin: 0 0 0.5rem 0;
-   color: var(--text-primary);
-   font-size: 1.5rem;
-   font-weight: 600;
- }
- 
- .emptyState p {
-   margin: 0;
-   color: var(--text-secondary);
-   font-size: 1rem;
- }
- 
- /* Pagination */
- .pagination {
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   gap: 1rem;
-   padding: 1.5rem 0;
-   border-top: 1px solid var(--border-color);
- }
- 
- .pageButton {
-   display: flex;
-   align-items: center;
-   gap: 0.5rem;
-   padding: 0.75rem 1.25rem;
-   border: 1px solid var(--border-color);
-   border-radius: var(--radius-md);
-   background: white;
-   color: var(--text-primary);
-   font-weight: 500;
-   font-size: 0.875rem;
-   cursor: pointer;
-   transition: var(--transition);
- }
- 
- .pageButton:hover:not(:disabled) {
-   background: var(--primary-color);
-   color: white;
-   border-color: var(--primary-color);
-   transform: translateY(-1px);
-   box-shadow: var(--shadow-md);
- }
- 
- .pageButton:disabled {
-   background: var(--background-light);
-   color: var(--text-light);
-   cursor: not-allowed;
-   transform: none;
- }
- 
- .pageButton span {
-   font-size: 1.125rem;
-   transition: var(--transition);
- }
- 
- .pageButton:hover:not(:disabled) span {
-   transform: translateX(-2px);
- }
- 
- .nextButton:hover:not(:disabled) span {
-   transform: translateX(2px);
- }
- 
- .pageInfo {
-   display: flex;
-   align-items: center;
-   gap: 0.5rem;
-   padding: 0.5rem 1rem;
-   background: var(--background-light);
-   border-radius: var(--radius-md);
-   font-size: 0.875rem;
-   font-weight: 500;
- }
- 
- .currentPage {
-   color: var(--primary-color);
-   font-weight: 700;
-   font-size: 1rem;
- }
- 
- .totalPages {
-   color: var(--text-primary);
-   font-weight: 600;
- }
- 
- .pageSeparator {
-   color: var(--text-light);
- }
- 
- /* Loading States */
- .loadingContainer {
-   display: flex;
-   flex-direction: column;
-   align-items: center;
-   justify-content: center;
-   padding: 3rem;
-   gap: 1rem;
- }
- 
- .spinner {
-   width: 40px;
-   height: 40px;
-   border: 3px solid var(--border-color);
-   border-left: 3px solid var(--primary-color);
-   border-radius: 50%;
-   animation: spin 1s linear infinite;
- }
- 
- @keyframes spin {
-   0% { transform: rotate(0deg); }
-   100% { transform: rotate(360deg); }
- }
- 
- .loadingContainer p {
-   margin: 0;
-   color: var(--text-secondary);
-   font-size: 1rem;
- }
- 
- /* Error States */
- .errorContainer {
-   display: flex;
-   flex-direction: column;
-   align-items: center;
-   justify-content: center;
-   padding: 3rem;
-   text-align: center;
-   gap: 1rem;
- }
- 
- .errorIcon {
-   font-size: 3rem;
-   margin-bottom: 0.5rem;
- }
- 
- .errorContainer h3 {
-   margin: 0 0 0.5rem 0;
-   color: var(--text-primary);
-   font-size: 1.25rem;
-   font-weight: 600;
- }
- 
- .errorContainer p {
-   margin: 0;
-   color: var(--text-secondary);
-   font-size: 0.875rem;
-   max-width: 300px;
- }
- 
- .retryButton {
-   background: var(--primary-color);
-   color: white;
-   border: none;
-   padding: 0.75rem 1.5rem;
-   border-radius: var(--radius-md);
-   font-weight: 500;
-   font-size: 0.875rem;
-   cursor: pointer;
-   transition: var(--transition);
- }
- 
- .retryButton:hover {
-   background: var(--primary-hover);
-   transform: translateY(-1px);
-   box-shadow: var(--shadow-sm);
- }
- 
- /* Responsive Design */
- @media (max-width: 768px) {
-   .notesGrid {
+  --primary-color: #6366f1;
+  --primary-gradient: linear-gradient(135deg, #6366f1, #06d6a0);
+  --primary-hover: #4f46e5;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --danger-color: #ef4444;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-light: #94a3b8;
+  --border-color: #e2e8f0;
+  --background-light: #f8fafc;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --transition: all 0.2s ease-in-out;
+}
+
+/* ============================================ */
+/* ОСНОВНОЙ КОНТЕЙНЕР */
+/* ============================================ */
+
+.noteList {
+  padding: 0;
+}
+
+/* ============================================ */
+/* ЗАГОЛОВОК */
+/* ============================================ */
+
+.header {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.headerContent h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  background: linear-gradient(135deg, var(--text-primary), var(--primary-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.headerContent p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+/* ============================================ */
+/* ПАНЕЛЬ СОРТИРОВКИ */
+/* ============================================ */
+
+.sortPanel {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--background-light);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+}
+
+.sortGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sortLabel {
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.sortButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.sortButton:hover {
+  background: var(--background-light);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.sortButton.active {
+  background: var(--primary-gradient);
+  border-color: var(--primary-color);
+  color: white;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+}
+
+/* ============================================ */
+/* СЕТКА ЗАМЕТОК */
+/* ============================================ */
+
+.notesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* ============================================ */
+/* ПУСТОЕ СОСТОЯНИЕ */
+/* ============================================ */
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  background: white;
+  border-radius: var(--radius-xl);
+  border: 2px dashed var(--border-color);
+}
+
+.emptyIcon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.emptyState h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.emptyState p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+/* ============================================ */
+/* ПАГИНАЦИЯ */
+/* ============================================ */
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.pageButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: white;
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.pageButton:hover:not(:disabled) {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.pageButton:disabled {
+  background: var(--background-light);
+  color: var(--text-light);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.pageButton span {
+  font-size: 1.125rem;
+  transition: var(--transition);
+}
+
+.pageButton:hover:not(:disabled) span {
+  transform: translateX(-2px);
+}
+
+.nextButton:hover:not(:disabled) span {
+  transform: translateX(2px);
+}
+
+.pageInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--background-light);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.currentPage {
+  color: var(--primary-color);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.totalPages {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.pageSeparator {
+  color: var(--text-light);
+}
+
+/* ============================================ */
+/* СОСТОЯНИЕ ЗАГРУЗКИ */
+/* ============================================ */
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  gap: 1rem;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-color);
+  border-left: 3px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loadingContainer p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+/* ============================================ */
+/* СОСТОЯНИЕ ОШИБКИ */
+/* ============================================ */
+
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  text-align: center;
+  gap: 1rem;
+}
+
+.errorIcon {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+.errorContainer h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.errorContainer p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  max-width: 300px;
+}
+
+.retryButton {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.retryButton:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ============================================ */
+/* АДАПТИВНОСТЬ */
+/* ============================================ */
+
+@media (max-width: 768px) {
+  .notesGrid {
      grid-template-columns: 1fr;
      gap: 1rem;
-   }
-   
-   .pagination {
+  }
+
+  .pagination {
      flex-direction: column;
      gap: 0.75rem;
-   }
-   
-   .pageInfo {
+  }
+
+  .pageInfo {
      order: -1;
-   }
-   
-   .headerContent h2 {
+  }
+
+  .headerContent h2 {
      font-size: 1.5rem;
-   }
-   
-   .emptyState {
+  }
+
+  .emptyState {
      padding: 3rem 1rem;
-   }
-   
-   .emptyIcon {
+  }
+
+  .emptyIcon {
      font-size: 3rem;
-   }
- }
- 
- @media (max-width: 480px) {
-   .notesGrid {
+  }
+
+  .sortGroup {
+     flex-direction: column;
+     align-items: stretch;
+  }
+
+  .sortButton {
+     justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .notesGrid {
      grid-template-columns: 1fr;
-   }
-   
-   .pageButton {
+  }
+
+  .pageButton {
      padding: 0.625rem 1rem;
      font-size: 0.8rem;
-   }
- }
+  }
+}

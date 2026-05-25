@@ -6,35 +6,71 @@ import {
    deleteMedia,
    updateMediaPrivacy,
    selectMediaItems,
+   selectMediaTotal,
    selectMediaLoading,
-   selectMediaError
+   selectMediaError,
+   selectMediaSortBy,
+   selectMediaSortOrder,
+   selectMediaLimit,
+   selectMediaOffset,
+   setMediaSort,
+   setMediaPage,
+   resetMediaFilters
 } from '../../../features/mediaSlice';
 import MediaGallery from '../../Components/MediaGallery';
 import FileUploadModal from '../../Components/FileUploadModal';
 import ConfirmationModal from '../../Components/ConfirmationModal';
 import styles from './ProfileMedia.module.css';
 
+// Конфиг для сортировки - 4 кнопки (как в TaskList)
+const SORT_OPTIONS = [
+   { value: 'created_at', label: 'По дате загрузки', icon: '🆕' },
+   { value: 'original_filename', label: 'По названию', icon: '📝' },
+   { value: 'file_type', label: 'По типу', icon: '🎯' },
+   { value: 'size', label: 'По размеру', icon: '💾' }
+];
+
+// Фильтр по типу (заменяет статусы в TaskList)
+const TYPE_FILTERS = [
+   { value: null, label: 'Все', icon: '📋' },
+   { value: 'photo', label: 'Фото', icon: '🖼️' },
+   { value: 'video', label: 'Видео', icon: '🎥' }
+];
+
 const ProfileMedia = () => {
    const dispatch = useDispatch();
 
    // Получаем данные из Redux
    const mediaItems = useSelector(selectMediaItems);
+   const total = useSelector(selectMediaTotal);
    const isLoading = useSelector(selectMediaLoading);
    const error = useSelector(selectMediaError);
+   const sortBy = useSelector(selectMediaSortBy);
+   const sortOrder = useSelector(selectMediaSortOrder);
+   const limit = useSelector(selectMediaLimit);
+   const offset = useSelector(selectMediaOffset);
 
    // Локальное состояние
    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
    const [mediaToDelete, setMediaToDelete] = useState(null);
-   const [sortBy, setSortBy] = useState('uploaded_at');
-   const [sortOrder, setSortOrder] = useState('desc');
+   const [localTypeFilter, setLocalTypeFilter] = useState(null);
    const [searchQuery, setSearchQuery] = useState('');
-   const [filterType, setFilterType] = useState('all');
 
-   // Загружаем медиа при монтировании
+   // Загрузка медиа с параметрами
+   const loadMedia = useCallback(async () => {
+      await dispatch(fetchUserMedia({
+         sortBy,
+         sortOrder,
+         limit,
+         offset
+      }));
+   }, [dispatch, sortBy, sortOrder, limit, offset]);
+
+   // Загрузка при монтировании и изменении параметров
    useEffect(() => {
-      dispatch(fetchUserMedia());
-   }, [dispatch]);
+      loadMedia();
+   }, [loadMedia]);
 
    // Обработчики действий
    const handleUploadClick = () => {
@@ -58,33 +94,159 @@ const ProfileMedia = () => {
       dispatch(updateMediaPrivacy({ mediaId, privacy: newPrivacy }));
    };
 
-   const handleSearchChange = (e) => {
-      setSearchQuery(e.target.value);
+   // Обработчик сортировки (как в TaskList)
+   const handleSortChange = (newSortBy) => {
+      let newSortOrder = sortOrder;
+
+      if (sortBy === newSortBy) {
+         // Если та же кнопка - меняем направление
+         newSortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+      } else {
+         // Если другая кнопка - сбрасываем на desc (новые сверху)
+         newSortOrder = 'desc';
+      }
+
+      dispatch(setMediaSort({ sortBy: newSortBy, sortOrder: newSortOrder }));
    };
 
-   const handleSortChange = (newSortBy) => {
-      if (sortBy === newSortBy) {
-         setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-      } else {
-         setSortBy(newSortBy);
-         setSortOrder('desc');
+   // Получение иконки для кнопки сортировки
+   const getSortIcon = (sortByValue) => {
+      if (sortBy !== sortByValue) return '↕️';
+      return sortOrder === 'asc' ? '⬆️' : '⬇️';
+   };
+
+   // Сброс фильтров
+   const handleResetFilters = () => {
+      setLocalTypeFilter(null);
+      setSearchQuery('');
+      dispatch(resetMediaFilters());
+   };
+
+   // Пагинация
+   const handleNextPage = () => {
+      if (offset + limit < total) {
+         const newPage = Math.floor(offset / limit) + 1;
+         dispatch(setMediaPage(newPage));
       }
    };
 
-   // ФИЛЬТРАЦИЯ И СОРТИРОВКА МЕДИА - ИСПРАВЛЕННАЯ ВЕРСИЯ
-   const filteredAndSortedMedia = useCallback(() => {
+   const handlePrevPage = () => {
+      if (offset - limit >= 0) {
+         const newPage = Math.floor(offset / limit) - 1;
+         dispatch(setMediaPage(newPage));
+      }
+   };
+
+   // Текущая страница
+   const currentPage = Math.floor(offset / limit) + 1;
+   const totalPages = Math.ceil(total / limit);
+
+   // Рендер статистики
+   const renderStats = () => {
+      // Подсчитываем статистику из загруженных медиа (не точная, но для UI)
+      const photoCount = mediaItems.filter(item => item.file_type === 'photo').length;
+      const videoCount = mediaItems.filter(item => item.file_type === 'video').length;
+      const publicCount = mediaItems.filter(item => item.privacy === 'public').length;
+
+      return (
+         <div className={styles.statsContainer}>
+            <div className={styles.statCard}>
+               <span className={styles.statIcon}>📁</span>
+               <div className={styles.statInfo}>
+                  <span className={styles.statValue}>{total}</span>
+                  <span className={styles.statLabel}>Всего</span>
+               </div>
+            </div>
+            <div className={styles.statCard}>
+               <span className={styles.statIcon}>🖼️</span>
+               <div className={styles.statInfo}>
+                  <span className={styles.statValue}>{photoCount}</span>
+                  <span className={styles.statLabel}>Фото</span>
+               </div>
+            </div>
+            <div className={styles.statCard}>
+               <span className={styles.statIcon}>🎥</span>
+               <div className={styles.statInfo}>
+                  <span className={styles.statValue}>{videoCount}</span>
+                  <span className={styles.statLabel}>Видео</span>
+               </div>
+            </div>
+            <div className={styles.statCard}>
+               <span className={styles.statIcon}>🌍</span>
+               <div className={styles.statInfo}>
+                  <span className={styles.statValue}>{publicCount}</span>
+                  <span className={styles.statLabel}>Публичные</span>
+               </div>
+            </div>
+         </div>
+      );
+   };
+
+   // Рендер фильтров и сортировки
+   const renderFilters = () => {
+      return (
+         <div className={styles.filtersContainer}>
+            {/* Фильтры по типу (вместо статусов в TaskList) */}
+            <div className={styles.typeFilters}>
+               {TYPE_FILTERS.map(filter => (
+                  <button
+                     key={filter.value || 'all'}
+                     className={`${styles.typeButton} ${localTypeFilter === filter.value ? styles.active : ''}`}
+                     onClick={() => setLocalTypeFilter(filter.value)}
+                  >
+                     {filter.icon} {filter.label}
+                  </button>
+               ))}
+
+               {(localTypeFilter !== null || searchQuery) && (
+                  <button className={styles.resetButton} onClick={handleResetFilters}>
+                     🔄 Сбросить
+                  </button>
+               )}
+            </div>
+
+            {/* Нижняя строка: поиск + сортировка */}
+            <div className={styles.bottomBar}>
+               {/* Поиск */}
+               <div className={styles.searchContainer}>
+                  <input
+                     type="text"
+                     placeholder="Поиск по названию..."
+                     value={searchQuery}
+                     onChange={(e) => setSearchQuery(e.target.value)}
+                     className={styles.searchInput}
+                  />
+                  <span className={styles.searchIcon}>🔍</span>
+               </div>
+
+               {/* Блок сортировки - 4 кнопки (как в TaskList) */}
+               <div className={styles.sortGroup}>
+                  <span className={styles.sortLabel}>Сортировка:</span>
+                  {SORT_OPTIONS.map(option => (
+                     <button
+                        key={option.value}
+                        className={`${styles.sortButton} ${sortBy === option.value ? styles.active : ''}`}
+                        onClick={() => handleSortChange(option.value)}
+                     >
+                        {option.icon} {option.label} {getSortIcon(option.value)}
+                     </button>
+                  ))}
+               </div>
+            </div>
+         </div>
+      );
+   };
+
+   // Фильтрация медиа на клиенте (только по типу и поиску, сортировка на бэкенде)
+   const getFilteredMedia = () => {
       let filtered = [...mediaItems];
 
-      if (filtered.length === 0) {
-         return [];
+      // Фильтр по типу (клиентский, быстро)
+      if (localTypeFilter) {
+         filtered = filtered.filter(item => item.file_type === localTypeFilter);
       }
 
-      // 1. ФИЛЬТРАЦИЯ ПО ТИПУ (фото/видео/все)
-      if (filterType !== 'all') {
-         filtered = filtered.filter(item => item.file_type === filterType);
-      }
-
-      // 2. ФИЛЬТРАЦИЯ ПО ПОИСКОВОМУ ЗАПРОСУ (поиск по названию файла)
+      // Фильтр по поиску (клиентский, мгновенный)
       if (searchQuery.trim()) {
          const query = searchQuery.toLowerCase().trim();
          filtered = filtered.filter(item =>
@@ -92,47 +254,99 @@ const ProfileMedia = () => {
          );
       }
 
-      // 3. СОРТИРОВКА
-      if (sortBy === 'original_filename') {
-         // Сортировка по названию
-         filtered.sort((a, b) => {
-            const nameA = a.original_filename?.toLowerCase() || '';
-            const nameB = b.original_filename?.toLowerCase() || '';
-            if (sortOrder === 'desc') {
-               return nameB.localeCompare(nameA);
-            }
-            return nameA.localeCompare(nameB);
-         });
-      } else if (sortBy === 'size') {
-         // Сортировка по размеру
-         filtered.sort((a, b) => {
-            const sizeA = a.size || 0;
-            const sizeB = b.size || 0;
-            return sortOrder === 'desc' ? sizeB - sizeA : sizeA - sizeB;
-         });
-      } else {
-         // Сортировка по дате (по умолчанию)
-         filtered.sort((a, b) => {
-            const dateA = new Date(a.uploaded_at || a.created_at || 0);
-            const dateB = new Date(b.uploaded_at || b.created_at || 0);
-            return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
-         });
+      return filtered;
+   };
+
+   const filteredMedia = getFilteredMedia();
+   const hasActiveFilters = localTypeFilter !== null || searchQuery.trim() !== '';
+
+   // Рендер списка медиа
+   const renderMediaList = () => {
+      if (isLoading && mediaItems.length === 0) {
+         return (
+            <div className={styles.loadingContainer}>
+               <div className={styles.spinner} />
+               <p>Загрузка медиа...</p>
+            </div>
+         );
       }
 
-      return filtered;
-   }, [mediaItems, filterType, searchQuery, sortBy, sortOrder]);
+      if (error) {
+         return (
+            <div className={styles.errorContainer}>
+               <span className={styles.errorIcon}>⚠️</span>
+               <p>{error}</p>
+               <button onClick={loadMedia} className={styles.retryButton}>
+                  Повторить
+               </button>
+            </div>
+         );
+      }
 
-   // Статистика
-   const totalCount = mediaItems.length;
-   const photoCount = mediaItems.filter(item => item.file_type === 'photo').length;
-   const videoCount = mediaItems.filter(item => item.file_type === 'video').length;
-   const publicCount = mediaItems.filter(item => item.privacy === 'public').length;
-   const filteredCount = filteredAndSortedMedia().length;
+      if (filteredMedia.length === 0) {
+         return (
+            <div className={styles.emptyContainer}>
+               <span className={styles.emptyIcon}>🖼️</span>
+               <p>
+                  {hasActiveFilters
+                     ? 'Медиа не найдены по заданным критериям'
+                     : 'Медиа пока нет'}
+               </p>
+               {!hasActiveFilters && (
+                  <button
+                     className={styles.uploadButtonEmpty}
+                     onClick={handleUploadClick}
+                  >
+                     📤 Загрузить файлы
+                  </button>
+               )}
+               {hasActiveFilters && (
+                  <button className={styles.resetButtonLarge} onClick={handleResetFilters}>
+                     Сбросить фильтры
+                  </button>
+               )}
+            </div>
+         );
+      }
 
-   // Функция для получения иконки сортировки
-   const getSortIcon = (field) => {
-      if (sortBy !== field) return '↕️';
-      return sortOrder === 'asc' ? '⬆️' : '⬇️';
+      return (
+         <>
+            <div className={styles.mediaGrid}>
+               <MediaGallery
+                  media={filteredMedia}
+                  onDeleteClick={handleDeleteClick}
+                  onPrivacyChange={handlePrivacyChange}
+               />
+            </div>
+         </>
+      );
+   };
+
+   // Рендер пагинации (как в TaskList)
+   const renderPagination = () => {
+      if (total <= limit) return null;
+
+      return (
+         <div className={styles.pagination}>
+            <button
+               onClick={handlePrevPage}
+               disabled={offset === 0}
+               className={styles.pageButton}
+            >
+               ◀ Назад
+            </button>
+            <span className={styles.pageInfo}>
+               Страница {currentPage} из {totalPages}
+            </span>
+            <button
+               onClick={handleNextPage}
+               disabled={offset + limit >= total}
+               className={styles.pageButton}
+            >
+               Вперед ▶
+            </button>
+         </div>
+      );
    };
 
    return (
@@ -143,165 +357,41 @@ const ProfileMedia = () => {
                <h1>Медиа-библиотека</h1>
                <p>Управляйте вашими фото и видео</p>
             </div>
-
-            <div className={styles.headerStats}>
-               <div className={styles.statItem}>
-                  <span className={styles.statNumber}>{totalCount}</span>
-                  <span className={styles.statLabel}>Всего</span>
-               </div>
-               <div className={styles.statItem}>
-                  <span className={styles.statNumber}>{photoCount}</span>
-                  <span className={styles.statLabel}>Фото</span>
-               </div>
-               <div className={styles.statItem}>
-                  <span className={styles.statNumber}>{videoCount}</span>
-                  <span className={styles.statLabel}>Видео</span>
-               </div>
-               <div className={styles.statItem}>
-                  <span className={styles.statNumber}>{publicCount}</span>
-                  <span className={styles.statLabel}>Публичные</span>
-               </div>
-            </div>
+            <button
+               className={styles.uploadButtonHeader}
+               onClick={handleUploadClick}
+            >
+               <span className={styles.buttonIcon}>📤</span>
+               Добавить файлы
+            </button>
          </header>
 
-         {/* Панель управления */}
-         <div className={styles.controlsPanel}>
-            <div className={styles.leftControls}>
-               {/* Кнопка загрузки */}
-               <button
-                  className={styles.uploadButton}
-                  onClick={handleUploadClick}
-               >
-                  <span className={styles.buttonIcon}>📤</span>
-                  Добавить файлы
-               </button>
-
-               {/* Фильтр по типу */}
-               <div className={styles.filterGroup}>
-                  <button
-                     className={`${styles.filterButton} ${filterType === 'all' ? styles.active : ''}`}
-                     onClick={() => setFilterType('all')}
-                  >
-                     Все
-                  </button>
-                  <button
-                     className={`${styles.filterButton} ${filterType === 'photo' ? styles.active : ''}`}
-                     onClick={() => setFilterType('photo')}
-                  >
-                     Фото
-                  </button>
-                  <button
-                     className={`${styles.filterButton} ${filterType === 'video' ? styles.active : ''}`}
-                     onClick={() => setFilterType('video')}
-                  >
-                     Видео
-                  </button>
-               </div>
-
-               {/* Поиск */}
-               <div className={styles.searchContainer}>
-                  <input
-                     type="text"
-                     placeholder="Поиск по названию..."
-                     value={searchQuery}
-                     onChange={handleSearchChange}
-                     className={styles.searchInput}
-                  />
-                  <span className={styles.searchIcon}>🔍</span>
-               </div>
-            </div>
-
-            <div className={styles.rightControls}>
-               {/* Сортировка */}
-               <div className={styles.sortGroup}>
-                  <span className={styles.sortLabel}>Сортировка:</span>
-                  <button
-                     className={`${styles.sortButton} ${sortBy === 'uploaded_at' ? styles.active : ''}`}
-                     onClick={() => handleSortChange('uploaded_at')}
-                  >
-                     По дате {getSortIcon('uploaded_at')}
-                  </button>
-                  <button
-                     className={`${styles.sortButton} ${sortBy === 'original_filename' ? styles.active : ''}`}
-                     onClick={() => handleSortChange('original_filename')}
-                  >
-                     По названию {getSortIcon('original_filename')}
-                  </button>
-                  <button
-                     className={`${styles.sortButton} ${sortBy === 'size' ? styles.active : ''}`}
-                     onClick={() => handleSortChange('size')}
-                  >
-                     По размеру {getSortIcon('size')}
-                  </button>
-               </div>
-            </div>
-         </div>
+         {renderStats()}
+         {renderFilters()}
 
          {/* Информация о фильтрах */}
-         {searchQuery || filterType !== 'all' ? (
+         {hasActiveFilters && (
             <div className={styles.filterInfo}>
                <span>
-                  Показано {filteredCount} из {totalCount} файлов
+                  Найдено {filteredMedia.length} из {total} файлов
                   {searchQuery && ` по запросу "${searchQuery}"`}
-                  {filterType !== 'all' && `, тип: ${filterType === 'photo' ? 'фото' : 'видео'}`}
+                  {localTypeFilter && `, тип: ${localTypeFilter === 'photo' ? 'фото' : 'видео'}`}
                </span>
                <button
                   className={styles.clearFiltersButton}
-                  onClick={() => {
-                     setSearchQuery('');
-                     setFilterType('all');
-                  }}
+                  onClick={handleResetFilters}
                >
-                  Сбросить фильтры
+                  Очистить фильтры
                </button>
             </div>
-         ) : null}
+         )}
 
          {/* Основной контент */}
          <div className={styles.mediaContent}>
-            {isLoading ? (
-               <div className={styles.loadingContainer}>
-                  <div className={styles.spinner}></div>
-                  <p>Загрузка медиа...</p>
-               </div>
-            ) : error ? (
-               <div className={styles.errorContainer}>
-                  <div className={styles.errorIcon}>⚠️</div>
-                  <h3>Ошибка загрузки</h3>
-                  <p>{error}</p>
-                  <button
-                     className={styles.retryButton}
-                     onClick={() => dispatch(fetchUserMedia())}
-                  >
-                     Попробовать снова
-                  </button>
-               </div>
-            ) : filteredCount === 0 ? (
-               <div className={styles.emptyState}>
-                  <div className={styles.emptyIcon}>🖼️</div>
-                  <h3>Медиа не найдены</h3>
-                  <p>
-                     {searchQuery || filterType !== 'all'
-                        ? 'Попробуйте изменить параметры поиска'
-                        : 'Загрузите ваше первое фото или видео'}
-                  </p>
-                  <button
-                     className={styles.uploadButtonEmpty}
-                     onClick={handleUploadClick}
-                  >
-                     📤 Загрузить файлы
-                  </button>
-               </div>
-            ) : (
-               <div className={styles.gridView}>
-                  <MediaGallery
-                     media={filteredAndSortedMedia()}
-                     onDeleteClick={handleDeleteClick}
-                     onPrivacyChange={handlePrivacyChange}
-                  />
-               </div>
-            )}
+            {renderMediaList()}
          </div>
+
+         {renderPagination()}
 
          {/* Модальное окно загрузки */}
          {isUploadModalOpen && (
@@ -310,7 +400,7 @@ const ProfileMedia = () => {
                onClose={() => setIsUploadModalOpen(false)}
                onSuccess={() => {
                   setIsUploadModalOpen(false);
-                  dispatch(fetchUserMedia());
+                  loadMedia();
                }}
             />
          )}

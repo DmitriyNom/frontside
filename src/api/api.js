@@ -159,7 +159,7 @@ api.interceptors.request.use(
    (error) => Promise.reject(error)
 );
 
-// API методы (без изменений)
+// API методы
 export const connectionsAPI = {
    sendRequest: (trainerId, message = '') =>
       api.post('/api/connections/request', { trainer_id: trainerId, message }),
@@ -308,34 +308,11 @@ export const contextsAPI = {
       api.get('/api/contexts/stats'),
 };
 
-// ==================== НОВЫЙ API ДЛЯ ЗАДАНИЙ (TASKS) ====================
+// ==================== API ДЛЯ ЗАДАНИЙ (TASKS) ====================
 
 export const tasksAPI = {
-   /**
-    * Создать задание
-    * @param {Object} data - Данные задания
-    * @param {number} data.user_id - ID спортсмена (обязательно)
-    * @param {number} [data.exercise_id] - ID упражнения из библиотеки
-    * @param {string} [data.custom_title] - Название кастомного задания
-    * @param {string} [data.custom_description] - Описание кастомного задания
-    * @param {Object} data.metrics - Метрики выполнения (обязательно)
-    * @param {number} [data.priority=2] - Приоритет (1-3)
-    * @param {string} [data.due_date] - Срок выполнения (ISO date)
-    * @param {number} [data.points_earned=0] - Базовые баллы
-    * @param {number} [data.order_index=0] - Порядок сортировки
-    * @param {number[]} [data.media_ids=[]] - ID медиафайлов
-    */
    createTask: (data) => api.post('/api/tasks', data),
 
-   /**
-    * Получить мои задания (с фильтрацией и сортировкой)
-    * @param {string} [role='assignee'] - 'assignee' (я выполняю) или 'assigner' (я создал)
-    * @param {string} [status=null] - 'active', 'completed', 'archived'
-    * @param {string} [sortBy='created_at'] - 'created_at', 'due_date', 'title', 'priority'
-    * @param {string} [sortOrder='desc'] - 'asc' или 'desc'
-    * @param {number} [limit=50] - Лимит записей
-    * @param {number} [offset=0] - Смещение для пагинации
-    */
    getMyTasks: (role = 'assignee', status = null, sortBy = 'created_at', sortOrder = 'desc', limit = 50, offset = 0) =>
       api.get('/api/tasks', {
          params: {
@@ -349,89 +326,95 @@ export const tasksAPI = {
          }
       }),
 
-   /**
-    * Получить задание по ID
-    * @param {number} taskId - ID задания
-    */
    getTaskById: (taskId) => api.get(`/api/tasks/${taskId}`),
 
-   /**
-    * Обновить задание (только для тренера/создателя)
-    * @param {number} taskId - ID задания
-    * @param {Object} data - Данные для обновления
-    */
    updateTask: (taskId, data) => api.put(`/api/tasks/${taskId}`, data),
 
-   /**
-    * Завершить задание (спортсмен)
-    * @param {number} taskId - ID задания
-    * @param {Object} result - Результат выполнения
-    * @param {Object} result.actual_metrics - Фактические метрики
-    * @param {number} [result.felt_difficulty] - Субъективная сложность (1-10)
-    * @param {string} [result.comment] - Комментарий к выполнению
-    */
    completeTask: (taskId, result) =>
       api.put(`/api/tasks/${taskId}/complete`, result),
 
-   /**
-    * Удалить задание (только для тренера/создателя)
-    * @param {number} taskId - ID задания
-    */
    deleteTask: (taskId) => api.delete(`/api/tasks/${taskId}`),
 
-   /**
-    * Получить активные задания (для дашборда спортсмена)
-    * @param {number} [limit=10] - Лимит
-    */
    getActiveTasks: (limit = 10) =>
       api.get('/api/tasks/active', { params: { limit } }),
 
-   /**
-    * Получить статистику по заданиям
-    */
    getTaskStats: () => api.get('/api/tasks/stats'),
 
-   /**
-    * Получить задания с истекающим сроком
-    * @param {number} [days=3] - Количество дней до истечения
-    */
    getExpiringTasks: (days = 3) =>
       api.get('/api/tasks/expiring', { params: { days } }),
 
-   /**
-    * Получить список пользователей, для которых можно создавать задания
-    * @returns {Promise<{data: Array}>} Список пользователей с полем relation_type
-    */
    getAssignableUsers: () => api.get('/api/tasks/assignable-users'),
 
-   /**
-    * Сохранить кастомное задание в библиотеку упражнений
-    * @param {number} taskId - ID кастомного задания
-    */
    saveToLibrary: (taskId) =>
       api.post(`/api/tasks/${taskId}/save-to-library`),
 
-   /**
-    * Добавить медиа к кастомному заданию
-    * @param {number} taskId - ID задания
-    * @param {number} mediaId - ID медиафайла
-    */
    addMedia: (taskId, mediaId) =>
       api.post(`/api/tasks/${taskId}/media`, { media_id: mediaId }),
 
-   /**
-    * Получить медиа задания
-    * @param {number} taskId - ID задания
-    */
    getTaskMedia: (taskId) => api.get(`/api/tasks/${taskId}/media`),
 
-   /**
-    * Удалить медиа из задания
-    * @param {number} taskId - ID задания
-    * @param {number} mediaId - ID медиафайла
-    */
    removeMedia: (taskId, mediaId) =>
       api.delete(`/api/tasks/${taskId}/media/${mediaId}`),
+};
+
+// ==================== API ДЛЯ МЕДИА ====================
+
+export const mediaAPI = {
+   getMyMedia: (sortBy = 'created_at', sortOrder = 'desc', limit = 50, offset = 0) =>
+      api.get('/api/media/my', {
+         params: { sortBy, sortOrder, limit, offset, _t: Date.now() }
+      }),
+   getUploadRequest: (data) => api.post('/api/media/upload-request', data),
+   confirmUpload: (mediaId) => api.post('/api/media/confirm', { mediaId }),
+   deleteMedia: (mediaId) => api.delete(`/api/media/${mediaId}`),
+   updateMediaPrivacy: (mediaId, privacy) =>
+      api.put(`/api/media/${mediaId}/privacy`, { privacy }),
+   updateMedia: (mediaId, updateData) => api.put(`/api/media/${mediaId}`, updateData),
+   shareMedia: (mediaId, userIds, accessLevel = 'view') =>
+      api.post(`/api/media/${mediaId}/share`, { userIds, accessLevel }),
+   getMediaStats: () => api.get('/api/media/stats'),
+};
+
+// ==================== API ДЛЯ ЗАМЕТОК (NOTES) ====================
+
+export const notesAPI = {
+   /**
+    * Получить заметки с сортировкой и пагинацией
+    * @param {number} page - страница
+    * @param {number} limit - лимит
+    * @param {string} sortBy - поле сортировки (createdAt, note_name, note_priority, planned_date, status)
+    * @param {string} sortOrder - asc или desc
+    */
+   getAllNotes: (page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc') =>
+      api.get('/api/notes', {
+         params: {
+            page,
+            limit,
+            sortBy,
+            sortOrder,
+            _t: Date.now()
+         }
+      }),
+
+   /**
+    * Создать заметку
+    */
+   createNote: (noteData) => api.post('/api/notes', noteData),
+
+   /**
+    * Получить одну заметку
+    */
+   getOneNote: (id) => api.get(`/api/notes/${id}`),
+
+   /**
+    * Обновить заметку (PATCH)
+    */
+   updateNote: (id, noteData) => api.patch(`/api/notes/${id}`, noteData),
+
+   /**
+    * Удалить заметку
+    */
+   deleteNote: (id) => api.delete(`/api/notes/${id}`),
 };
 
 export default api;

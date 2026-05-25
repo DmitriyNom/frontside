@@ -28,14 +28,13 @@ import ProfileMedia from './ProfileMedia';
 import ProfileFriends from './ProfileFriends';
 import ProfileTasks from './ProfileTasks';
 import UserProfileModal from '../../Components/UserProfileModal';
+import NoteForm from '../../Forms/NoteForm';  // ← ИСПРАВЛЕНО
 
 import {
    selectTaskStats,
    fetchTaskStats,
    selectHasNewIncomingTask,
    selectUnreadTasksCount,
-   // incomingTasksViewed,
-   // markAllTasksAsRead,
    setCurrentUserId
 } from '../../../features/taskSlice';
 
@@ -47,6 +46,7 @@ const Profile = () => {
    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
    const [selectedUserId, setSelectedUserId] = useState(null);
    const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
+   const [isNoteFormOpen, setIsNoteFormOpen] = useState(false);
 
    const user = useSelector(selectUser);
    const loading = useSelector(selectLoading);
@@ -181,17 +181,6 @@ const Profile = () => {
       }
    }, [dispatch, user]);
 
-   // Сброс флага новых заданий при переключении на вкладку Tasks
-   // useEffect(() => {
-   //    if (activeTab === 'tasks') {
-   //       console.log('📂 Tasks tab opened - clearing unread flags');
-   //       setTimeout(() => {
-   //          dispatch(incomingTasksViewed());
-   //          dispatch(markAllTasksAsRead());
-   //       }, 0);
-   //    }
-   // }, [activeTab, dispatch]);
-
    useEffect(() => {
       if (!user && !isProfileFetched && !loading) {
          dispatch(fetchUserProfile());
@@ -230,7 +219,7 @@ const Profile = () => {
          case 'overview':
             return <ProfileOverview onSwitchToMedia={() => setActiveTab('media')} />;
          case 'notes':
-            return <ProfileNotes />;
+            return <ProfileNotes onOpenNoteForm={() => setIsNoteFormOpen(true)} />;
          case 'training':
             return <ProfileTraining user={user} />;
          case 'media':
@@ -248,7 +237,6 @@ const Profile = () => {
 
    // Пункты навигации
    const navItems = useMemo(() => {
-      // 🐛 ЛОГ ДЛЯ ОТЛАДКИ ПЕРЕД СОЗДАНИЕМ navItems
       console.log('📋 Building navItems:', {
          unreadTasksCount,
          activeTasksCount,
@@ -386,6 +374,15 @@ const Profile = () => {
             currentUserId={user?.id}
             onUserClick={handleUserClick}
          />
+
+         {/* Модалка создания заметки */}
+         {isNoteFormOpen && (
+            <NoteForm
+               isOpen={isNoteFormOpen}
+               onClose={() => setIsNoteFormOpen(false)}
+               isEdit={false}
+            />
+         )}
       </div>
    );
 };
